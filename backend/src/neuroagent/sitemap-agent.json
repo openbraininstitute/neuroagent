@@ -1,0 +1,387 @@
+{
+  "_schema": {
+    "route": "URL pattern using [param] notation for path segments",
+    "description": "What this page/route does",
+    "pathParams": { "<name>": "description of what this path segment represents" },
+    "searchParams": {
+      "<name>": {
+        "type": "string | string[] | null",
+        "required": false,
+        "default": "default value if any",
+        "description": "what this param controls",
+        "values": ["exhaustive list of known values, if applicable"],
+        "source": "server | client"
+      }
+    }
+  },
+  "routes": [
+    {
+      "route": "/",
+      "description": "Public landing page. Displays an error banner when auth errors are forwarded back from the OAuth provider.",
+      "pathParams": {},
+      "searchParams": {
+        "errorcode": { "type": "string", "required": false, "default": null, "description": "OAuth/auth error code — dialog only renders if this is present", "source": "server" },
+        "original_code": { "type": "string", "required": false, "default": null, "description": "Raw original error code from the auth provider, carried for debugging", "source": "server" },
+        "description": { "type": "string", "required": false, "default": null, "description": "Human-readable error description; only meaningful when errorcode is also set", "source": "server" }
+      }
+    },
+    { "route": "/gallery", "description": "Public gallery page.", "pathParams": {}, "searchParams": {} },
+    { "route": "/notebooks", "description": "Public notebooks listing page.", "pathParams": {}, "searchParams": {} },
+    { "route": "/sfn-2025", "description": "SfN 2025 conference landing page.", "pathParams": {}, "searchParams": {} },
+    {
+      "route": "/news/[slug]",
+      "description": "Individual news article page fetched from Sanity CMS.",
+      "pathParams": { "slug": "URL-friendly identifier of the news article in Sanity CMS" },
+      "searchParams": {}
+    },
+    {
+      "route": "/[sanitySectionSlug]",
+      "description": "Dynamic top-level CMS-driven page (e.g. /about, /team) rendered from a Sanity section.",
+      "pathParams": { "sanitySectionSlug": "Slug of the Sanity CMS section to render" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/log-in",
+      "description": "Login page. Redirects to callbackUrl after successful authentication.",
+      "pathParams": {},
+      "searchParams": {
+        "callbackUrl": { "type": "string", "required": false, "default": null, "description": "URL to redirect the user to after successful login", "source": "client" }
+      }
+    },
+    { "route": "/app/log-out", "description": "Logs the user out and clears the session.", "pathParams": {}, "searchParams": {} },
+    {
+      "route": "/app/consent-feedback",
+      "description": "Callback page shown after the offline token consent flow completes. Notifies the parent window of success or failure then auto-closes.",
+      "pathParams": {},
+      "searchParams": {
+        "error": { "type": "string", "required": false, "default": null, "description": "Error code returned by the offline token consent flow; absence means success", "source": "client" },
+        "description": { "type": "string", "required": false, "default": null, "description": "Human-readable description of the consent error", "source": "client" },
+        "session_state_id": { "type": "string", "required": false, "default": null, "description": "Session identifier used to notify the parent window of the consent outcome via a broadcast event", "source": "client" }
+      }
+    },
+    {
+      "route": "/app/invite",
+      "description": "Processes a virtual lab or project invitation using a one-time token.",
+      "pathParams": {},
+      "searchParams": {
+        "token": { "type": "string", "required": true, "default": null, "description": "One-time invite token used to look up and accept the lab/project invitation", "source": "server" }
+      }
+    },
+    {
+      "route": "/app/entity/[id]",
+      "description": "Generic entity detail page — resolves the entity type and redirects to the appropriate typed detail view.",
+      "pathParams": { "id": "UUID of the entity" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/[virtualLabId]/[projectId]/[id]",
+      "description": "Entity shortcut page with virtual lab and project context — resolves the entity type and redirects to the typed detail view under the correct project.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "id": "UUID of the entity" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/sync",
+      "description": "Workspace resolution page. Checks the user's virtual lab and project state and redirects accordingly; shows a setup wizard if neither exists yet.",
+      "pathParams": {},
+      "searchParams": {
+        "redirectUrl": { "type": "string", "required": false, "default": null, "description": "Destination to forward the user to after workspace resolution completes", "source": "server" }
+      }
+    },
+    { "route": "/app/virtual-lab/forbidden", "description": "Shown when the user attempts to access a virtual lab they are not a member of.", "pathParams": {}, "searchParams": {} },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]",
+      "description": "Virtual lab project home page showing overview and activity.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project within the virtual lab" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/team",
+      "description": "Team management page for the project — lists members and roles.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/credits",
+      "description": "Credit usage and billing information for the project.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/help",
+      "description": "In-app help center with tabbed sections: Overview, Tutorials, Glossary, Guides, Features, Pricing, AI Chat Tools, and About.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {
+        "section": { "type": "string", "required": false, "default": "overview", "description": "Active top-level tab in the help center", "values": ["overview", "tutorials", "glossary", "guides", "features", "prices", "ai-tools", "about"], "source": "client" },
+        "subsection": { "type": "string", "required": false, "default": "about", "description": "Active sub-section within the About or Guides tab", "values": ["about", "about-the-app", "guides"], "source": "client" },
+        "scale": { "type": "string", "required": false, "default": "subcellular", "description": "Active scale filter in the Features tab", "values": ["subcellular", "cellular", "circuit", "system"], "source": "client" },
+        "tool": { "type": "string", "required": false, "default": null, "description": "ID of the active AI chat tool shown in the AI Chat Tools tab", "source": "client" },
+        "tutorial": { "type": "string", "required": false, "default": null, "description": "Slug of the active tutorial shown in the Tutorials tab", "source": "client" },
+        "term": { "type": "string", "required": false, "default": null, "description": "Glossary term slug currently highlighted in the Glossary tab", "source": "client" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/data",
+      "description": "Data section landing page for the project. Shows entity type tiles grouped by category (Experimental, Models, Simulations) with a brain region tree sidebar for filtering.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {
+        "group": { "type": "string", "required": false, "default": "experimental", "description": "Which category tab is active on the data landing page", "values": ["experimental", "models", "simulations"], "source": "client" },
+        "scope": { "type": "string", "required": false, "default": "public", "description": "Whether to show counts for publicly available entities or project-private ones", "values": ["public", "project"], "source": "client" },
+        "br_id": { "type": "string", "required": false, "default": null, "description": "ID of the selected brain region in the hierarchy tree; persisted to localStorage and restored on revisit", "source": "client" },
+        "br_av": { "type": "integer", "required": false, "default": null, "description": "Annotation value of the selected brain region; always paired with br_id", "source": "client" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/data/browse/entity/[type]",
+      "description": "Browse and filter a specific entity type (e.g. cell morphologies, ME-models) within the project data.",
+      "pathParams": {
+        "virtualLabId": "UUID of the virtual lab",
+        "projectId": "UUID of the project",
+        "type": "Entity type in kebab-case. Allowed values: cell-morphology, memodel, emodel, ion-channel-model, single-neuron-synaptome, circuit, experimental-neuron-density, experimental-bouton-density, experimental-synapses-per-connection, electrical-cell-recording, ion-channel-recording, em-cell-mesh, me-model-with-synapses, computationally-synthesized-cell-morphology, single-neuron-simulation, single-neuron-synaptome-simulation, me-model-circuit-simulation, single-neuron-circuit-simulation, paired-neuron-circuit-simulation, small-microcircuit-simulation, microcircuit-simulation, ion-channel-model-simulation"
+      },
+      "searchParams": {
+        "scope": { "type": "string", "required": false, "default": "public", "description": "Whether to list publicly available entities or only those belonging to this project", "values": ["public", "project"], "source": "server" },
+        "group": { "type": "string", "required": false, "default": null, "description": "Category group the entity belongs to — carried in the URL so breadcrumb navigation back to the data landing page preserves the active tab", "values": ["experimental", "models", "simulations"], "source": "client" },
+        "br_id": { "type": "string", "required": false, "default": null, "description": "ID of the selected brain region used to filter the entity listing", "source": "client" },
+        "br_av": { "type": "integer", "required": false, "default": null, "description": "Annotation value of the selected brain region; always paired with br_id", "source": "client" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/data/browse/entity/circuit",
+      "description": "Browse circuit entities — separate route because circuits have a distinct UI from other entity types.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/data/view/[type]/[id]/[section]",
+      "description": "Detail view for a specific data entity, with tabbed sections. Available sections depend on the entity type.",
+      "pathParams": {
+        "virtualLabId": "UUID of the virtual lab",
+        "projectId": "UUID of the project",
+        "type": "Entity type in kebab-case. Allowed values: cell-morphology, electrical-cell-recording, ion-channel-recording, experimental-neuron-density, experimental-bouton-density, experimental-synapses-per-connection, em-cell-mesh, single-neuron-synaptome, me-model-with-synapses, emodel, memodel, circuit, ion-channel-model, single-neuron-simulation, single-neuron-synaptome-simulation, me-model-circuit-simulation, single-neuron-circuit-simulation, paired-neuron-circuit-simulation, small-microcircuit-simulation, computationally-synthesized-cell-morphology, microcircuit-simulation, ion-channel-model-simulation",
+        "id": "UUID of the entity",
+        "section": "Active tab/section within the detail view. Allowed values: overview, analysis, configuration, results, related-publications, related-artifacts. Not all sections are available for every entity type — overview is always available."
+      },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/notebooks/[scope]",
+      "description": "Jupyter notebooks listing, scoped to either public notebooks or project-private ones.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "scope": "Scope of the notebooks listing. Allowed values: public, project" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/reports",
+      "description": "Reports section. Switches between sub-pages (OBI showcases, showcases, summaries) via a search param.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {
+        "section": { "type": "string", "required": false, "default": "obi-showcases", "description": "Which report category to display", "values": ["obi-showcases", "showcases", "summaries"], "source": "server" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/reports/obi-showcase",
+      "description": "OBI showcase listing — redirects back to the main reports page.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/reports/obi-showcase/[slug]",
+      "description": "Detail page for a single OBI showcase project fetched from Sanity CMS.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "slug": "Sanity CMS slug of the OBI showcase project" },
+      "searchParams": {
+        "section": { "type": "string", "required": false, "default": "description", "description": "Which content section of the showcase to display", "values": ["description", "artifacts", "notebooks"], "source": "server" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows",
+      "description": "Workflows section landing page listing all build, simulate, and extract workflows for the project. The top selector picks a category, then a type; the activity table below shows workflow history.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {
+        "activity": { "type": "string", "required": false, "default": null, "description": "Active workflow category in the top selector", "values": ["build", "simulate", "extract"], "source": "client" },
+        "type": { "type": "string", "required": false, "default": null, "description": "Active entity type in the top selector (snake_case, e.g. memodel, single_neuron_synaptome)", "source": "client" },
+        "tactivity": { "type": "string", "required": false, "default": "build", "description": "Activity filter for the workflow history table", "values": ["build", "simulate", "extract"], "source": "client" },
+        "ttype": { "type": "string", "required": false, "default": "memodel", "description": "Entity type filter for the workflow history table (snake_case)", "source": "client" },
+        "scope": { "type": "string", "required": false, "default": "public", "description": "Whether to show public or project-private workflows", "values": ["public", "project"], "source": "client" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/build/new/[type]",
+      "description": "Entity picker for starting a new build workflow — browse and select an existing model as the starting point.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "type": "Type of model being built in kebab-case. Allowed values: memodel, single-neuron-synaptome, ion-channel-modeling-campaign" },
+      "searchParams": {
+        "scope": { "type": "string", "required": false, "default": "public", "description": "Whether to browse public or project-private entities when picking a starting model", "values": ["public", "project"], "source": "server" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/build/configure/memodel",
+      "description": "ME-model build configuration wizard — step through morphology selection, e-model selection, and validation.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {
+        "sessionId": { "type": "string", "required": false, "default": "auto-generated UUID", "description": "Unique ID scoping all build state for this session; auto-generated if absent", "source": "server" },
+        "step": { "type": "string", "required": false, "default": null, "description": "Active step in the ME-model build wizard", "source": "client" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/build/configure/single-neuron-synaptome",
+      "description": "Single-neuron synaptome build configuration wizard — configure synapse placement on an ME-model.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {
+        "sessionId": { "type": "string", "required": false, "default": "auto-generated UUID", "description": "Unique ID scoping all build state for this session; auto-generated if absent", "source": "server" },
+        "step": { "type": "string", "required": false, "default": null, "description": "Active step in the synaptome build wizard", "source": "client" },
+        "set": { "type": "string", "required": false, "default": null, "description": "ID of the currently selected synapse set shown in the configuration panel", "source": "client" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/build/configure/ion-channel-modeling-campaign",
+      "description": "Ion channel modeling campaign build configuration page — configure parameters for building ion channel models.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {
+        "sessionId": { "type": "string", "required": false, "default": "auto-generated UUID", "description": "Unique ID scoping build state for this session; auto-generated if absent", "source": "server" },
+        "original-campaign-id": { "type": "string", "required": false, "default": null, "description": "UUID of an existing ion channel modeling campaign to clone/edit its configuration", "source": "server" },
+        "readonly": { "type": "string", "required": false, "default": null, "description": "Set to 'true' to open the configuration in read-only mode", "values": ["true"], "source": "server" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/simulate/new/[type]",
+      "description": "Entity picker for starting a new simulation workflow — browse and select a model to simulate.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "type": "Type of simulation in kebab-case. Allowed values: single-neuron-simulation, single-neuron-synaptome-simulation, me-model-circuit-simulation, single-neuron-circuit-simulation, paired-neuron-circuit-simulation, small-microcircuit-simulation" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/simulate/configure/memodel/[id]",
+      "description": "ME-model simulation configuration and execution page with a 3D neuron visualizer and multi-step setup. When dataType is set to memodel_circuit, switches to scan-config mode for circuit-level simulation.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "id": "UUID of the ME-model entity to simulate" },
+      "searchParams": {
+        "sessionId": { "type": "string", "required": false, "default": "auto-generated UUID", "description": "Unique ID scoping all simulation state for this run; auto-generated if absent", "source": "server" },
+        "step": { "type": "string", "required": false, "default": null, "description": "Active step in the simulation setup wizard (e.g. info, experimental-setup)", "source": "client" },
+        "panel": { "type": "string", "required": false, "default": null, "description": "Which output panel is currently visible", "values": ["configuration", "results"], "source": "client" },
+        "3d": { "type": "string", "required": false, "default": "expanded", "description": "Display state of the 3D neuron visualizer", "values": ["expanded", "collapsed"], "source": "server" },
+        "dataType": { "type": "string", "required": false, "default": null, "description": "Overrides entity type to switch into scan-config mode for memodel circuits. Allowed values: memodel_circuit", "values": ["memodel_circuit"], "source": "server" },
+        "initialCampaignId": { "type": "string", "required": false, "default": null, "description": "UUID of an existing simulation campaign to pre-populate the configuration form", "source": "server" },
+        "record": { "type": "string", "required": false, "default": "all", "description": "Which simulation recording to display in the results panel", "source": "client" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/simulate/configure/single-neuron-synaptome/[id]",
+      "description": "Single-neuron synaptome simulation configuration and execution page with a 3D neuron visualizer.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "id": "UUID of the synaptome entity to simulate" },
+      "searchParams": {
+        "sessionId": { "type": "string", "required": false, "default": "auto-generated UUID", "description": "Unique ID scoping all simulation state for this run; auto-generated if absent", "source": "server" },
+        "step": { "type": "string", "required": false, "default": null, "description": "Active step in the synaptome simulation wizard", "source": "client" },
+        "panel": { "type": "string", "required": false, "default": null, "description": "Which output panel is active", "values": ["configuration", "results"], "source": "client" },
+        "3d": { "type": "string", "required": false, "default": "expanded", "description": "Display state of the 3D neuron visualizer", "values": ["expanded", "collapsed"], "source": "server" },
+        "record": { "type": "string", "required": false, "default": "all", "description": "Which simulation recording to display in the results panel", "source": "client" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/simulate/configure/circuit/[id]",
+      "description": "Circuit simulation configuration page using a scan-config form.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "id": "UUID of the circuit entity to simulate" },
+      "searchParams": {
+        "sessionId": { "type": "string", "required": false, "default": "auto-generated UUID", "description": "Unique ID scoping simulation state for this run", "source": "server" },
+        "step": { "type": "string", "required": false, "default": null, "description": "Active step in the circuit simulation wizard", "source": "client" },
+        "panel": { "type": "string", "required": false, "default": null, "description": "Which output panel is active", "values": ["configuration", "results"], "source": "client" },
+        "initialCampaignId": { "type": "string", "required": false, "default": null, "description": "UUID of an existing simulation campaign to pre-populate the configuration form", "source": "server" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/simulate/configure/ion-channel-model-simulation",
+      "description": "Ion channel model simulation configuration page using a scan-config form. Unlike other simulate/configure routes, this one has no [id] path param — the campaign is loaded via initialCampaignId.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project" },
+      "searchParams": {
+        "sessionId": { "type": "string", "required": false, "default": "auto-generated UUID", "description": "Unique ID scoping simulation state for this run", "source": "server" },
+        "step": { "type": "string", "required": false, "default": null, "description": "Active step in the simulation wizard", "source": "client" },
+        "panel": { "type": "string", "required": false, "default": null, "description": "Which output panel is active", "values": ["configuration", "results"], "source": "client" },
+        "initialCampaignId": { "type": "string", "required": false, "default": null, "description": "UUID of an existing simulation campaign to pre-populate the configuration form", "source": "server" }
+      }
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/view/[type]/[id]",
+      "description": "Workflow result viewer — immediately redirects to the same URL with /overview appended, preserving all existing search params.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "type": "Workflow/entity type in kebab-case. Same allowed values as the data browse [type] param (e.g. memodel, single-neuron-synaptome, circuit, emodel, ion-channel-model, single-neuron-simulation, etc.)", "id": "UUID of the workflow result entity" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/view/[type]/[id]/[section]",
+      "description": "Workflow result detail viewer with a specific section/tab active.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "type": "Workflow/entity type in kebab-case. Same allowed values as the data browse [type] param (e.g. memodel, single-neuron-synaptome, circuit, emodel, ion-channel-model, single-neuron-simulation, etc.)", "id": "UUID of the workflow result entity", "section": "Active tab within the result viewer. Allowed values: overview, analysis, configuration, results, related-publications, related-artifacts. Not all sections are available for every entity type." },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/extract/new/[type]",
+      "description": "Entity picker for starting a new extraction workflow — browse and select a model to extract data from.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "type": "Type of model to extract from in kebab-case. Allowed values: circuit" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/virtual-lab/[virtualLabId]/[projectId]/workflows/extract/configure/circuit/[id]",
+      "description": "Circuit extraction configuration page — configure parameters for extracting data from a circuit model using a scan-config form.",
+      "pathParams": { "virtualLabId": "UUID of the virtual lab", "projectId": "UUID of the project", "id": "UUID of the circuit entity to extract from" },
+      "searchParams": {
+        "sessionId": { "type": "string", "required": false, "default": "auto-generated UUID", "description": "Unique ID scoping extraction state for this session", "source": "server" },
+        "step": { "type": "string", "required": false, "default": null, "description": "Active step in the extraction workflow wizard", "source": "client" },
+        "panel": { "type": "string", "required": false, "default": null, "description": "Which output panel is active", "values": ["configuration", "results"], "source": "client" },
+        "initialCampaignId": { "type": "string", "required": false, "default": null, "description": "UUID of an existing extraction campaign to pre-populate the configuration form", "source": "server" }
+      }
+    },
+    { "route": "/app/documentation", "description": "Documentation home page — hub for all platform documentation including features, tutorials, glossary, and AI tools.", "pathParams": {}, "searchParams": {} },
+    { "route": "/app/documentation/features", "description": "Listing page for all platform features.", "pathParams": {}, "searchParams": {} },
+    {
+      "route": "/app/documentation/features/[slug]",
+      "description": "Individual feature documentation page.",
+      "pathParams": { "slug": "Slug of the feature" },
+      "searchParams": {}
+    },
+    { "route": "/app/documentation/tutorials", "description": "Listing page for all tutorials with a help layout.", "pathParams": {}, "searchParams": {} },
+    {
+      "route": "/app/documentation/tutorials/[slug]",
+      "description": "Individual tutorial page.",
+      "pathParams": { "slug": "Slug of the tutorial" },
+      "searchParams": {}
+    },
+    { "route": "/app/documentation/glossary", "description": "Full glossary listing page with all glossary definitions.", "pathParams": {}, "searchParams": {} },
+    {
+      "route": "/app/documentation/glossary/[slug]",
+      "description": "Individual glossary entry page.",
+      "pathParams": { "slug": "Slug of the glossary term" },
+      "searchParams": {}
+    },
+    { "route": "/app/documentation/glossary/artifact-types", "description": "Glossary page listing all artifact types with an alphabetical filter.", "pathParams": {}, "searchParams": {} },
+    { "route": "/app/documentation/glossary/data-types", "description": "Glossary page listing all data types (experiments and models).", "pathParams": {}, "searchParams": {} },
+    { "route": "/app/documentation/glossary/features", "description": "Listing page for features within the glossary section.", "pathParams": {}, "searchParams": {} },
+    {
+      "route": "/app/documentation/glossary/features/[slug]",
+      "description": "Individual feature page within the glossary section.",
+      "pathParams": { "slug": "Slug of the feature" },
+      "searchParams": {}
+    },
+    { "route": "/app/documentation/glossary/cell-type", "description": "Cell types overview page showing both m-type and e-type cell type listings.", "pathParams": {}, "searchParams": {} },
+    {
+      "route": "/app/documentation/glossary/cell-type/[slug]",
+      "description": "Glossary page for a specific cell type.",
+      "pathParams": { "slug": "Slug of the cell type" },
+      "searchParams": {}
+    },
+    {
+      "route": "/app/documentation/glossary/cell-type/e-type/[slug]",
+      "description": "Glossary page for a specific electrical cell type (e-type), with a cell-type filter.",
+      "pathParams": { "slug": "Slug of the e-type" },
+      "searchParams": { "cell-type": { "type": "string", "required": false, "default": null, "description": "Currently selected cell type within the e-type glossary page", "source": "client" } }
+    },
+    {
+      "route": "/app/documentation/glossary/cell-type/m-type/[slug]",
+      "description": "Glossary page for a specific morphological cell type (m-type), with a cell-type filter.",
+      "pathParams": { "slug": "Slug of the m-type" },
+      "searchParams": { "cell-type": { "type": "string", "required": false, "default": null, "description": "Currently selected cell type within the m-type glossary page", "source": "client" } }
+    },
+    { "route": "/app/documentation/ai-chat-tools", "description": "Listing page for all AI chat tools available in the platform.", "pathParams": {}, "searchParams": {} },
+    {
+      "route": "/app/documentation/ai-chat-tools/[toolId]",
+      "description": "Documentation page for a specific AI chat tool.",
+      "pathParams": { "toolId": "ID of the AI chat tool" },
+      "searchParams": {}
+    },
+    { "route": "/app/documentation/new-features", "description": "New features page — placeholder for upcoming platform updates and features.", "pathParams": {}, "searchParams": {} },
+    { "route": "/app/documentation/projects", "description": "Projects documentation page (coming soon).", "pathParams": {}, "searchParams": {} },
+    { "route": "/app/documentation/virtual-lab", "description": "Virtual lab documentation page (coming soon).", "pathParams": {}, "searchParams": {} }
+  ]
+}

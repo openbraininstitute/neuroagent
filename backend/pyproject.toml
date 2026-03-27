@@ -67,7 +67,7 @@ where = ["src"]
 namespaces = false
 
 [tool.setuptools.package-data]
-neuroagent = ["rules/*.mdc", "mcp.json"]
+neuroagent = ["rules/*.mdc", "mcp.json", "sitemap-agent.json"]
 
 [tool.bandit]
 exclude_dirs = ["tests"]
