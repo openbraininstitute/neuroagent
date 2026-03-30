@@ -13,13 +13,13 @@ import re
 import shutil
 from pathlib import Path
 
-
 JQUERY_CDN_TAG_RE = re.compile(
     r'<script\s+src="https://code\.jquery\.com/jquery-3\.7\.1\.min\.js"[^>]*></script>'
 )
 
 
 def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="Build self-contained eval UI report")
     parser.add_argument(
         "--detailed-json",
@@ -76,6 +76,7 @@ def build_report(
     output_dir: Path,
     jquery_file: Path | None,
 ) -> None:
+    """Build the self-contained eval UI report."""
     if not detailed_json_path.exists():
         raise FileNotFoundError(f"Missing detailed.json: {detailed_json_path}")
     if not ui_dir.exists():
@@ -125,6 +126,7 @@ def build_report(
 
 
 def main() -> None:
+    """Entry point."""
     args = parse_args()
     build_report(
         detailed_json_path=args.detailed_json,
