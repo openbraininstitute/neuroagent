@@ -2,6 +2,11 @@ name: Eval UI Report
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag, or commit SHA to build the report from"
+        required: false
+        default: "main"
 
 jobs:
   build-eval-ui-report:
@@ -9,6 +14,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
