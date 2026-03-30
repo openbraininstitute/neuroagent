@@ -66,6 +66,7 @@ from neuroagent.tools import (
     ExperimentalNeuronDensityGetOneTool,
     ExperimentalSynapsesPerConnectionGetAllTool,
     ExperimentalSynapsesPerConnectionGetOneTool,
+    FeedbackSubmitTool,
     GetStateTool,
     IonChannelGetAllTool,
     IonChannelGetOneTool,
@@ -418,6 +419,7 @@ def get_tool_list(
         EtypeGetOneTool,
         ExperimentalBoutonDensityGetAllTool,
         ExperimentalBoutonDensityGetOneTool,
+        FeedbackSubmitTool,
         ExperimentalNeuronDensityGetAllTool,
         ExperimentalNeuronDensityGetOneTool,
         ExperimentalSynapsesPerConnectionGetAllTool,
@@ -745,6 +747,7 @@ async def get_context_variables(
         "exa_api_key": settings.tools.exa_api_key.get_secret_value()
         if settings.tools.exa_api_key
         else None,
+        "frontend_base_url": settings.tools.frontend_base_url,
         "httpx_client": httpx_client,
         "obi_one_url": settings.tools.obi_one.url,
         "openai_client": openai_client,

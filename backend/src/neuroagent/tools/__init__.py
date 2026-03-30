@@ -133,6 +133,7 @@ from neuroagent.tools.entitycore_strain_getall import StrainGetAllTool
 from neuroagent.tools.entitycore_strain_getone import StrainGetOneTool
 from neuroagent.tools.entitycore_subject_getall import SubjectGetAllTool
 from neuroagent.tools.entitycore_subject_getone import SubjectGetOneTool
+from neuroagent.tools.feedback_submit import FeedbackSubmitTool
 from neuroagent.tools.getstate import GetStateTool
 from neuroagent.tools.literature_search import LiteratureSearchTool
 from neuroagent.tools.navigate import NavigateTool
@@ -187,6 +188,7 @@ __all__ = [
     "EtypeGetAllTool",
     "EtypeGetOneTool",
     "ExperimentalBoutonDensityGetAllTool",
+    "FeedbackSubmitTool",
     "ExperimentalBoutonDensityGetOneTool",
     "ExperimentalNeuronDensityGetAllTool",
     "ExperimentalNeuronDensityGetOneTool",
