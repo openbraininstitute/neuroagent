@@ -308,8 +308,6 @@ class SearchMessagesList(BaseModel):
 class FrontendContextOutput(BaseModel):
     """Output of the Context Analyzer tool."""
 
-    raw_path: str
-    query_params: dict[str, list[str]]
-    brain_region_id: UUID | None = None
-    observed_entity_type: str | None = None
-    current_entity_id: UUID | None = None
+    route_description: str
+    path_params: dict[str, str]
+    search_params: dict[str, str]

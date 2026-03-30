@@ -511,7 +511,7 @@ async def filtered_tools(
     request: Request,
     thread: Annotated[Threads, Depends(get_thread)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
-    openai_client: Annotated[AsyncOpenAI, Depends(get_openrouter_client)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     filtered_models: Annotated[
         list[OpenRouterModelResponse], Depends(get_openrouter_models)
@@ -664,10 +664,10 @@ Current time: {datetime.now(timezone.utc).isoformat()}"""
         if body.get("frontend_url"):
             system_prompt += f"""
 Information extracted from the user's current page URL: {extract_frontend_context(body["frontend_url"]).model_dump(mode="json")}.
-NOTE: This context contains only IDs (e.g., brain_region_id, current_entity_id), not names or labels. Use these IDs ONLY when:
-- The user clearly references "this brain region," "current page," or similar terms
+NOTE: This context describes the page the user is currently viewing. Path and search parameter values (e.g. entity IDs, brain region IDs) are raw values from the URL — use them ONLY when:
+- The user clearly references "this entity," "current page," "this brain region," or similar terms
 - The user's query unmistakably concerns the viewed entity
-DO NOT assume relevance of these IDs unless the user specifies. For queries about brain regions by name or generic references (e.g., "a brain region"), ALWAYS use tool calls to resolve to the correct entity. Treat this context as a reference; do not override explicit user instructions or named entities."""
+DO NOT assume relevance of these values unless the user specifies. Treat this context as a reference; do not override explicit user instructions or named entities."""
         return system_prompt
 
 
