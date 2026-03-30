@@ -183,7 +183,14 @@ Available Tools:
                 context_output_json = context_output.model_dump(mode="json")
 
                 # Resolve brain region ID to name if present in search params
-                br_id_entry = context_output.search_params.get("br_id")
+                br_id_entry = next(
+                    (
+                        v
+                        for k, v in context_output.search_params.items()
+                        if "(br_id)" in k
+                    ),
+                    None,
+                )
                 if br_id_entry:
                     try:
                         UUID(br_id_entry)  # validate format
@@ -203,7 +210,7 @@ Available Tools:
                             ]
                     except (ValueError, TypeError, Exception):
                         pass
-                breakpoint()
+
                 context_info = f"\nCurrent page context: {context_output_json}"
             except Exception:
                 context_info = ""

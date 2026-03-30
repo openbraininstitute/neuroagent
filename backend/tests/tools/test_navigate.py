@@ -54,12 +54,15 @@ def _make_tool(description: str, openai_url: str = f"{PREFIX}/data") -> Navigate
 # ---------------------------------------------------------------------------
 
 
-class TestExtractBaseUrl:
-    """Tests for _extract_base_url."""
+class TestExtractUrlParts:
+    """Tests for _extract_url_parts."""
 
     def test_standard_project_url(self):
         tool = _make_tool("home")
-        assert tool._extract_base_url() == PREFIX
+        host, vlab, proj = tool._extract_url_parts()
+        assert host == BASE_URL
+        assert vlab == VLAB_ID
+        assert proj == PROJECT_ID
 
     def test_deep_path_after_project(self):
         url = f"{BASE_URL}/app/virtual-lab/{VLAB_ID}/{PROJECT_ID}/data/browse/entity/memodel"
@@ -70,7 +73,10 @@ class TestExtractBaseUrl:
             ),
             input_schema=NavigateInput(description="home"),
         )
-        assert tool._extract_base_url() == PREFIX
+        host, vlab, proj = tool._extract_url_parts()
+        assert host == BASE_URL
+        assert vlab == VLAB_ID
+        assert proj == PROJECT_ID
 
     def test_trailing_slash(self):
         url = f"{BASE_URL}/app/virtual-lab/{VLAB_ID}/{PROJECT_ID}/"
@@ -81,9 +87,11 @@ class TestExtractBaseUrl:
             ),
             input_schema=NavigateInput(description="home"),
         )
-        assert tool._extract_base_url() == PREFIX
+        host, vlab, proj = tool._extract_url_parts()
+        assert vlab == VLAB_ID
+        assert proj == PROJECT_ID
 
-    def test_non_virtual_lab_url_returns_host(self):
+    def test_non_virtual_lab_url_returns_empty_ids(self):
         url = f"{BASE_URL}/app/something-else/x/y"
         tool = NavigateTool(
             metadata=NavigateMetadata(
@@ -92,9 +100,12 @@ class TestExtractBaseUrl:
             ),
             input_schema=NavigateInput(description="home"),
         )
-        assert tool._extract_base_url() == BASE_URL
+        host, vlab, proj = tool._extract_url_parts()
+        assert host == BASE_URL
+        assert vlab == ""
+        assert proj == ""
 
-    def test_too_few_segments_returns_host(self):
+    def test_too_few_segments_returns_empty_ids(self):
         url = f"{BASE_URL}/app/virtual-lab/{VLAB_ID}"
         tool = NavigateTool(
             metadata=NavigateMetadata(
@@ -103,7 +114,9 @@ class TestExtractBaseUrl:
             ),
             input_schema=NavigateInput(description="home"),
         )
-        assert tool._extract_base_url() == BASE_URL
+        host, vlab, proj = tool._extract_url_parts()
+        assert host == BASE_URL
+        assert vlab == ""
 
 
 # ---------------------------------------------------------------------------
@@ -143,7 +156,8 @@ class TestArun:
         call_kwargs = tool.metadata.openai_client.chat.completions.create.call_args
         messages = call_kwargs.kwargs["messages"]
         assert messages[0]["role"] == "system"
-        assert PREFIX in messages[0]["content"]
+        assert VLAB_ID in messages[0]["content"]
+        assert PROJECT_ID in messages[0]["content"]
         assert messages[1]["role"] == "user"
         assert messages[1]["content"] == "the project home page"
 
@@ -154,6 +168,18 @@ class TestArun:
         await tool.arun()
         assert tool.metadata.token_consumption is not None
         assert "model" in tool.metadata.token_consumption
+
+    @pytest.mark.asyncio
+    async def test_not_found_returns_none_url(self):
+        tool = _make_tool("a page that does not exist", openai_url="not found")
+        result = await tool.arun()
+        assert result.url is None
+
+    @pytest.mark.asyncio
+    async def test_garbage_response_returns_none_url(self):
+        tool = _make_tool("something weird", openai_url="I don't know")
+        result = await tool.arun()
+        assert result.url is None
 
 
 # ---------------------------------------------------------------------------

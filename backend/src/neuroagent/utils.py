@@ -329,16 +329,25 @@ def extract_frontend_context(url: str) -> FrontendContextOutput:
 
         # --- path params (skip vlabId/projectId, always present) ---
         _SKIP_PATH_PARAMS = {"virtualLabId", "projectId"}
-        path_params: dict[str, str] = {
-            name: value
-            for name, value in m.groupdict().items()
-            if name not in _SKIP_PATH_PARAMS
-        }
+        path_param_defs: dict[str, Any] = route_entry.get("pathParams", {})
+        path_params: dict[str, str] = {}
+        for name, value in m.groupdict().items():
+            if name in _SKIP_PATH_PARAMS:
+                continue
+            defn = path_param_defs.get(name, name)
+            desc = defn["description"] if isinstance(defn, dict) else defn
+            path_params[f"{desc} ({name})"] = value
 
         # --- search params ---
+        search_param_defs: dict[str, dict[str, Any]] = route_entry.get(
+            "searchParams", {}
+        )
         search_params: dict[str, str] = {}
         for name, values in query.items():
-            search_params[name] = values[0] if len(values) == 1 else ", ".join(values)
+            value = values[0] if len(values) == 1 else ", ".join(values)
+            sp_def = search_param_defs.get(name)
+            desc = sp_def.get("description", name) if sp_def else name
+            search_params[f"{desc} ({name})"] = value
 
         return FrontendContextOutput(
             route_description=route_entry["description"],
