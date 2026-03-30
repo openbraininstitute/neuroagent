@@ -509,7 +509,7 @@ async def filtered_tools(
     request: Request,
     thread: Annotated[Threads, Depends(get_thread)],
     tool_list: Annotated[list[type[BaseTool]], Depends(get_selected_tools)],
-    openai_client: Annotated[AsyncOpenAI, Depends(get_openrouter_client)],
+    openai_client: Annotated[AsyncOpenAI, Depends(get_openai_client)],
     settings: Annotated[Settings, Depends(get_settings)],
     filtered_models: Annotated[
         list[OpenRouterModelResponse], Depends(get_openrouter_models)

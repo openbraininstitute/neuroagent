@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- obi-expert - better querying logic and better description
+- obi-expert - better querying logic and better description.
+
+### Changed
+- Switch to gpt-5.4-nano for tool pre-selection.
 
 ## [0.17.1] - 04.03.2026
 
