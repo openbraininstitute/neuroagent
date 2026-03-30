@@ -54,7 +54,9 @@ def _make_embedded_data_script(data: object) -> str:
     return f"<script>\nwindow.__EVAL_DATA__ = {payload};\n</script>\n"
 
 
-def _patch_html(html_text: str, embedded_data_script: str, bundle_local_jquery: bool) -> str:
+def _patch_html(
+    html_text: str, embedded_data_script: str, bundle_local_jquery: bool
+) -> str:
     patched = html_text
     if bundle_local_jquery:
         patched = JQUERY_CDN_TAG_RE.sub(
