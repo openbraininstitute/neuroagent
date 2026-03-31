@@ -1623,6 +1623,7 @@ class ServiceSubtype(
     RootModel[
         Literal[
             'ion-channel-build',
+            'ion-channel-sim',
             'ml-llm',
             'ml-rag',
             'ml-retrieval',
@@ -1646,6 +1647,7 @@ class ServiceSubtype(
 ):
     root: Literal[
         'ion-channel-build',
+        'ion-channel-sim',
         'ml-llm',
         'ml-rag',
         'ml-retrieval',
@@ -1942,6 +1944,7 @@ class TaskType(
             'circuit_simulation',
             'morphology_skeletonization',
             'ion_channel_model_simulation_execution',
+            'em_synapse_mapping',
         ]
     ]
 ):
@@ -1950,6 +1953,7 @@ class TaskType(
         'circuit_simulation',
         'morphology_skeletonization',
         'ion_channel_model_simulation_execution',
+        'em_synapse_mapping',
     ] = Field(
         ..., description='Task types supported for job submission.', title='TaskType'
     )
@@ -2222,6 +2226,40 @@ class ObiOneScientificTasksConnectivityMatrixExtractionConnectivityMatrixExtract
         default=None, title='Node Attributes'
     )
     with_matrix_config: bool = Field(default=False, title='With Matrix Config')
+
+
+class ObiOneScientificTasksEmSynapseMappingConfigEMSynapseMappingScanConfigInitialize(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['EMSynapseMappingScanConfig.Initialize'] = Field(
+        default='EMSynapseMappingScanConfig.Initialize', title='Type'
+    )
+    spiny_neuron: CellMorphologyFromID = Field(
+        ...,
+        description='A neuron morphology with spines obtained from an electron-microscopy\n            datasets through the skeletonization task.',
+        title='EM skeletonized morphology',
+    )
+    edge_population_name: str = Field(
+        default='afferent_synapses',
+        description='Name of the edge population to write the synapse information into',
+        min_length=1,
+        title='Edge population name',
+    )
+    node_population_pre: str = Field(
+        default='afferent_neurons',
+        description='Name of the node population to write the information about the\n            innervating neurons into',
+        min_length=1,
+        title='Presynaptic node population name',
+    )
+    node_population_post: str = Field(
+        default='biophysical_neuron',
+        description='Name of the node population to write the information about the\n            synaptome neuron into',
+        min_length=1,
+        title='Postsynaptic node population name',
+    )
 
 
 class ObiOneScientificTasksEphysExtractionElectrophysiologyMetricsScanConfigInitialize(
@@ -3124,6 +3162,8 @@ class CircuitMetricsEdgePopulation(BaseModel):
     number_of_edges: int = Field(..., title='Number Of Edges')
     name: str = Field(..., title='Name')
     population_type: EdgePopulationType
+    source_name: str | None = Field(default=None, title='Source Name')
+    target_name: str | None = Field(default=None, title='Target Name')
     property_names: list[str] = Field(..., title='Property Names')
     property_stats: dict[str, dict[str, float]] | None = Field(
         ..., title='Property Stats'
@@ -3340,6 +3380,19 @@ class DisconnectSynapticManipulation(BaseModel):
         description='An optional offset of the manipulation relative to each timestamp in milliseconds (ms).',
         title='Timestamp Offset',
     )
+
+
+class EMSynapseMappingScanConfig(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['EMSynapseMappingScanConfig'] = Field(
+        default='EMSynapseMappingScanConfig', title='Type'
+    )
+    info: Info = Field(..., description='Information about the campaign.')
+    initialize: (
+        ObiOneScientificTasksEmSynapseMappingConfigEMSynapseMappingScanConfigInitialize
+    ) = Field(..., description='Parameters for initializing...', title='Initialization')
 
 
 class ElectrophysiologyMetricsScanConfig(BaseModel):
@@ -4238,9 +4291,7 @@ class SkeletonizationScanConfig(BaseModel):
     type: Literal['SkeletonizationScanConfig'] = Field(
         default='SkeletonizationScanConfig', title='Type'
     )
-    info: Info = Field(
-        ..., description='Information about the skeletonization campaign.'
-    )
+    info: Info = Field(..., description='Information about the campaign.')
     initialize: (
         ObiOneScientificTasksSkeletonizationConfigSkeletonizationScanConfigInitialize
     ) = Field(
@@ -4361,6 +4412,7 @@ class TaskCallBackSuccessRequest(BaseModel):
         extra='ignore',
     )
     task_type: TaskType
+    accounting_service_subtype: ServiceSubtype
     job_id: UUID = Field(..., title='Job Id')
     count: int = Field(..., title='Count')
 
@@ -4479,6 +4531,7 @@ class CircuitSimulationScanConfig(BaseModel):
     type: Literal['CircuitSimulationScanConfig'] = Field(
         default='CircuitSimulationScanConfig', title='Type'
     )
+    info: Info = Field(..., description='Information about the campaign.')
     timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
         default=None, description='Timestamps for the simulation.', title='Timestamps'
     )
@@ -4487,7 +4540,6 @@ class CircuitSimulationScanConfig(BaseModel):
     ) = Field(
         default=None, description='Recordings for the simulation.', title='Recordings'
     )
-    info: Info = Field(..., description='Information about the simulation campaign.')
     neuron_sets: (
         dict[
             str,
@@ -4556,6 +4608,7 @@ class IonChannelModelSimulationScanConfig(BaseModel):
     type: Literal['IonChannelModelSimulationScanConfig'] = Field(
         default='IonChannelModelSimulationScanConfig', title='Type'
     )
+    info: Info = Field(..., description='Information about the campaign.')
     timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
         default=None, description='Timestamps for the simulation.', title='Timestamps'
     )
@@ -4569,9 +4622,6 @@ class IonChannelModelSimulationScanConfig(BaseModel):
         | None
     ) = Field(
         default=None, description='Recordings for the simulation.', title='Recordings'
-    )
-    info: Info = Field(
-        ..., description='Information about the ion channel model simulation campaign.'
     )
     initialize: ObiOneScientificTasksGenerateSimulationsConfigIonChannelModelsIonChannelModelSimulationScanConfigInitialize = Field(
         ...,
@@ -4615,6 +4665,7 @@ class MEModelSimulationScanConfig(BaseModel):
     type: Literal['MEModelSimulationScanConfig'] = Field(
         default='MEModelSimulationScanConfig', title='Type'
     )
+    info: Info = Field(..., description='Information about the campaign.')
     timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
         default=None, description='Timestamps for the simulation.', title='Timestamps'
     )
@@ -4623,7 +4674,6 @@ class MEModelSimulationScanConfig(BaseModel):
     ) = Field(
         default=None, description='Recordings for the simulation.', title='Recordings'
     )
-    info: Info = Field(..., description='Information about the simulation campaign.')
     initialize: ObiOneScientificTasksGenerateSimulationsConfigMeModelMEModelSimulationScanConfigInitialize = Field(
         ...,
         description='Parameters for initializing the simulation.',
@@ -4670,6 +4720,7 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
     type: Literal['MEModelWithSynapsesCircuitSimulationScanConfig'] = Field(
         default='MEModelWithSynapsesCircuitSimulationScanConfig', title='Type'
     )
+    info: Info = Field(..., description='Information about the campaign.')
     timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
         default=None, description='Timestamps for the simulation.', title='Timestamps'
     )
@@ -4678,7 +4729,6 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
     ) = Field(
         default=None, description='Recordings for the simulation.', title='Recordings'
     )
-    info: Info = Field(..., description='Information about the simulation campaign.')
     neuron_sets: dict[str, NbS1VPMInputs | NbS1POmInputs] | None = Field(
         default=None, description='Neuron sets for the simulation.', title='Neuron Sets'
     )
@@ -4733,6 +4783,7 @@ class SimulationsForm(BaseModel):
         extra='ignore',
     )
     type: Literal['SimulationsForm'] = Field(default='SimulationsForm', title='Type')
+    info: Info = Field(..., description='Information about the campaign.')
     timestamps: dict[str, SingleTimestamp | RegularTimestamps] | None = Field(
         default=None, description='Timestamps for the simulation.', title='Timestamps'
     )
@@ -4741,7 +4792,6 @@ class SimulationsForm(BaseModel):
     ) = Field(
         default=None, description='Recordings for the simulation.', title='Recordings'
     )
-    info: Info = Field(..., description='Information about the simulation campaign.')
     neuron_sets: (
         dict[
             str,
@@ -4804,6 +4854,7 @@ class GridScanParametersCountEndpointDeclaredScanConfigGridScanCoordinateCountPo
         CircuitSimulationScanConfig
         | SimulationsForm
         | CircuitExtractionScanConfig
+        | EMSynapseMappingScanConfig
         | BasicConnectivityPlotsScanConfig
         | ConnectivityMatrixExtractionScanConfig
         | ContributeMorphologyScanConfig
@@ -4824,6 +4875,7 @@ class GridScanParametersCountEndpointDeclaredScanConfigGridScanCoordinateCountPo
         CircuitSimulationScanConfig
         | SimulationsForm
         | CircuitExtractionScanConfig
+        | EMSynapseMappingScanConfig
         | BasicConnectivityPlotsScanConfig
         | ConnectivityMatrixExtractionScanConfig
         | ContributeMorphologyScanConfig

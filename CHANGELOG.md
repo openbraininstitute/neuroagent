@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Hierarchy default to enable arbitrary species.
-- obi-expert - better querying logic and better description
+- obi-expert - better querying logic and better description.
+
+### Changed
+- Switch to gpt-5.4-nano for tool pre-selection.
 
 ## [0.17.1] - 04.03.2026
 
@@ -21,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Retry mechanism for tool selection with exponential backoff.
 - Global state manipulation tools.
+- Feedback tool.
 
 ### Removed
 - `obione_designcircuitsimulationscanconfig` tool.
