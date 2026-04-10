@@ -440,7 +440,7 @@ class CalibrationCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(default_factory=lambda: ActivityStatus('done'))
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
 
@@ -606,11 +606,10 @@ class CircuitUserUpdate(BaseModel):
         default='<NOT_SET>', title='Number Connections'
     )
     scale: CircuitScale | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: CircuitScale('<NOT_SET>'), title='Scale'
+        default='<NOT_SET>', title='Scale', validate_default=True
     )
     build_category: CircuitBuildCategory | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: CircuitBuildCategory('<NOT_SET>'),
-        title='Build Category',
+        default='<NOT_SET>', title='Build Category', validate_default=True
     )
     root_circuit_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Root Circuit Id'
@@ -859,8 +858,7 @@ class EMCellMeshUserUpdate(BaseModel):
         default='<NOT_SET>', title='Dense Reconstruction Cell Id'
     )
     generation_method: EMCellMeshGenerationMethod | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: EMCellMeshGenerationMethod('<NOT_SET>'),
-        title='Generation Method',
+        default='<NOT_SET>', title='Generation Method', validate_default=True
     )
     level_of_detail: int | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Level Of Detail'
@@ -869,7 +867,7 @@ class EMCellMeshUserUpdate(BaseModel):
         default='<NOT_SET>', title='Generation Parameters'
     )
     mesh_type: EMCellMeshType | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: EMCellMeshType('<NOT_SET>'), title='Mesh Type'
+        default='<NOT_SET>', title='Mesh Type', validate_default=True
     )
     em_dense_reconstruction_dataset_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Em Dense Reconstruction Dataset Id'
@@ -967,14 +965,10 @@ class ElectricalRecordingStimulusUserUpdate(BaseModel):
     )
     dt: float | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Dt')
     injection_type: ElectricalRecordingStimulusType | Literal['<NOT_SET>'] | None = (
-        Field(
-            default_factory=lambda: ElectricalRecordingStimulusType('<NOT_SET>'),
-            title='Injection Type',
-        )
+        Field(default='<NOT_SET>', title='Injection Type', validate_default=True)
     )
     shape: ElectricalRecordingStimulusShape | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: ElectricalRecordingStimulusShape('<NOT_SET>'),
-        title='Shape',
+        default='<NOT_SET>', title='Shape', validate_default=True
     )
     start_time: float | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Start Time'
@@ -1297,7 +1291,9 @@ class HierarchyNode(BaseModel):
     id: UUID = Field(..., title='Id')
     name: str = Field(..., title='Name')
     parent_id: UUID | None = Field(..., title='Parent Id')
-    children: list[HierarchyNode] = Field(default_factory=list, title='Children')
+    children: list[HierarchyNode] = Field(
+        default=[], title='Children', validate_default=True
+    )
     authorized_public: bool = Field(..., title='Authorized Public')
     authorized_project_id: UUID = Field(..., title='Authorized Project Id')
 
@@ -1402,7 +1398,7 @@ class IonChannelModelingExecutionCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(default_factory=lambda: ActivityStatus('done'))
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
 
@@ -1512,12 +1508,10 @@ class IonChannelRecordingUserUpdate(BaseModel):
         default='<NOT_SET>', title='Recording Location'
     )
     recording_type: ElectricalRecordingType | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: ElectricalRecordingType('<NOT_SET>'),
-        title='Recording Type',
+        default='<NOT_SET>', title='Recording Type', validate_default=True
     )
     recording_origin: ElectricalRecordingOrigin | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: ElectricalRecordingOrigin('<NOT_SET>'),
-        title='Recording Origin',
+        default='<NOT_SET>', title='Recording Origin', validate_default=True
     )
     temperature: float | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Temperature'
@@ -2207,7 +2201,7 @@ class PublicationAdminUpdate(BaseModel):
     DOI: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Doi')
     title: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Title')
     authors: list[Author] | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Authors'
+        default='<NOT_SET>', title='Authors', validate_default=True
     )
     publication_year: int | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Publication Year'
@@ -2434,7 +2428,7 @@ class SimulationExecutionRead(BaseModel):
     type: ActivityType | None = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(default_factory=lambda: ActivityStatus('done'))
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
 
@@ -2446,16 +2440,16 @@ class SimulationExecutionUserUpdate(BaseModel):
     executor: ExecutorType | None = None
     execution_id: UUID | None = Field(default=None, title='Execution Id')
     start_time: AwareDatetime | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='Start Time'
+        default='<NOT_SET>', title='Start Time', validate_default=True
     )
     end_time: AwareDatetime | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='End Time'
+        default='<NOT_SET>', title='End Time', validate_default=True
     )
     generated_ids: list[UUID] | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='Generated Ids'
+        default='<NOT_SET>', title='Generated Ids', validate_default=True
     )
     status: ActivityStatus | NotSet | None = Field(
-        default_factory=lambda: ActivityStatus('<NOT_SET>'), title='Status'
+        default='<NOT_SET>', title='Status', validate_default=True
     )
 
 
@@ -2477,7 +2471,7 @@ class SimulationGenerationRead(BaseModel):
     type: ActivityType | None = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(default_factory=lambda: ActivityStatus('done'))
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
 
@@ -2487,16 +2481,16 @@ class SimulationGenerationUserUpdate(BaseModel):
         extra='allow',
     )
     start_time: AwareDatetime | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='Start Time'
+        default='<NOT_SET>', title='Start Time', validate_default=True
     )
     end_time: AwareDatetime | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='End Time'
+        default='<NOT_SET>', title='End Time', validate_default=True
     )
     generated_ids: list[UUID] | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='Generated Ids'
+        default='<NOT_SET>', title='Generated Ids', validate_default=True
     )
     status: ActivityStatus | NotSet | None = Field(
-        default_factory=lambda: ActivityStatus('<NOT_SET>'), title='Status'
+        default='<NOT_SET>', title='Status', validate_default=True
     )
 
 
@@ -2657,7 +2651,7 @@ class SkeletonizationCampaignCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
     input_meshes: list[NestedEntityCreate] = Field(
-        default_factory=list, title='Input Meshes'
+        default=[], title='Input Meshes', validate_default=True
     )
 
 
@@ -2673,7 +2667,7 @@ class SkeletonizationCampaignUserUpdate(BaseModel):
         default='<NOT_SET>', title='Scan Parameters'
     )
     input_meshes: list[NestedEntityCreate] | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Input Meshes'
+        default='<NOT_SET>', title='Input Meshes', validate_default=True
     )
 
 
@@ -2926,7 +2920,7 @@ class SubjectUserUpdate(BaseModel):
         default='<NOT_SET>', title='Description'
     )
     sex: Sex | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: Sex('<NOT_SET>'), title='Sex'
+        default='<NOT_SET>', title='Sex', validate_default=True
     )
     weight: float | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Weight'
@@ -2941,7 +2935,7 @@ class SubjectUserUpdate(BaseModel):
         default='<NOT_SET>', title='Age Max'
     )
     age_period: AgePeriod | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: AgePeriod('<NOT_SET>'), title='Age Period'
+        default='<NOT_SET>', title='Age Period', validate_default=True
     )
     species_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Species Id'
@@ -2993,16 +2987,16 @@ class TaskActivityUserUpdate(BaseModel):
     execution_id: UUID | None = Field(default=None, title='Execution Id')
     task_activity_type: TaskActivityType | None = None
     start_time: AwareDatetime | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='Start Time'
+        default='<NOT_SET>', title='Start Time', validate_default=True
     )
     end_time: AwareDatetime | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='End Time'
+        default='<NOT_SET>', title='End Time', validate_default=True
     )
     generated_ids: list[UUID] | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='Generated Ids'
+        default='<NOT_SET>', title='Generated Ids', validate_default=True
     )
     status: ActivityStatus | NotSet | None = Field(
-        default_factory=lambda: ActivityStatus('<NOT_SET>'), title='Status'
+        default='<NOT_SET>', title='Status', validate_default=True
     )
 
 
@@ -3049,7 +3043,7 @@ class TaskConfigUserUpdate(BaseModel):
         default='<NOT_SET>', title='Description'
     )
     task_config_type: TaskConfigType | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: TaskConfigType('<NOT_SET>'), title='Task Config Type'
+        default='<NOT_SET>', title='Task Config Type', validate_default=True
     )
     meta: dict[str, Any] | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Meta'
@@ -3058,7 +3052,7 @@ class TaskConfigUserUpdate(BaseModel):
         default='<NOT_SET>', title='Task Config Generator Id'
     )
     inputs: list[NestedEntityCreate] | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Inputs'
+        default='<NOT_SET>', title='Inputs', validate_default=True
     )
 
 
@@ -3298,6 +3292,10 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     )
     update_date__gte: AwareDatetime | None = Field(
         default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
@@ -3800,6 +3798,10 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     )
     update_date__gte: AwareDatetime | None = Field(
         default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
@@ -10254,6 +10256,10 @@ class ReadManyTaskActivityGetParametersQuery(BaseModel):
     update_date__gte: AwareDatetime | None = Field(
         default=None, title='Update Date  Gte'
     )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
@@ -10590,7 +10596,7 @@ class AnalysisNotebookEnvironmentUpdate(BaseModel):
         extra='allow',
     )
     runtime_info: RuntimeInfo | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Runtime Info'
+        default='<NOT_SET>', title='Runtime Info', validate_default=True
     )
 
 
@@ -10603,7 +10609,7 @@ class AnalysisNotebookExecutionCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(default_factory=lambda: ActivityStatus('done'))
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
     analysis_notebook_template_id: UUID | None = Field(
@@ -10621,16 +10627,16 @@ class AnalysisNotebookExecutionUpdate(BaseModel):
     executor: ExecutorType | None = None
     execution_id: UUID | None = Field(default=None, title='Execution Id')
     start_time: AwareDatetime | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='Start Time'
+        default='<NOT_SET>', title='Start Time', validate_default=True
     )
     end_time: AwareDatetime | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='End Time'
+        default='<NOT_SET>', title='End Time', validate_default=True
     )
     generated_ids: list[UUID] | NotSet | None = Field(
-        default_factory=lambda: NotSet('<NOT_SET>'), title='Generated Ids'
+        default='<NOT_SET>', title='Generated Ids', validate_default=True
     )
     status: ActivityStatus | NotSet | None = Field(
-        default_factory=lambda: ActivityStatus('<NOT_SET>'), title='Status'
+        default='<NOT_SET>', title='Status', validate_default=True
     )
     analysis_notebook_template_id: UUID | None = Field(
         default=None, title='Analysis Notebook Template Id'
@@ -10649,7 +10655,7 @@ class AnalysisNotebookTemplateInputType(BaseModel):
     is_list: bool = Field(default=False, title='Is List')
     count_min: int = Field(default=1, ge=0, title='Count Min')
     count_max: CountMax | None = Field(
-        default_factory=lambda: CountMax(1), title='Count Max'
+        default=1, title='Count Max', validate_default=True
     )
 
 
@@ -10661,7 +10667,7 @@ class AnalysisNotebookTemplateSpecificationsInput(BaseModel):
     python: PythonDependency | None = None
     docker: DockerDependency | None = None
     inputs: list[AnalysisNotebookTemplateInputType] = Field(
-        default_factory=list, title='Inputs'
+        default=[], title='Inputs', validate_default=True
     )
 
 
@@ -10681,9 +10687,9 @@ class AnalysisNotebookTemplateUpdate(BaseModel):
     )
     specifications: (
         AnalysisNotebookTemplateSpecificationsInput | Literal['<NOT_SET>'] | None
-    ) = Field(default='<NOT_SET>', title='Specifications')
+    ) = Field(default='<NOT_SET>', title='Specifications', validate_default=True)
     scale: AnalysisScale | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: AnalysisScale('<NOT_SET>'), title='Scale'
+        default='<NOT_SET>', title='Scale', validate_default=True
     )
 
 
@@ -10887,7 +10893,7 @@ class CellMorphologyUserUpdate(BaseModel):
         default='<NOT_SET>', title='Notice Text'
     )
     location: PointLocationBase | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Location'
+        default='<NOT_SET>', title='Location', validate_default=True
     )
     legacy_id: list[str] | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Legacy Id'
@@ -10896,8 +10902,7 @@ class CellMorphologyUserUpdate(BaseModel):
         default='<NOT_SET>', title='Has Segmented Spines'
     )
     repair_pipeline_state: RepairPipelineType | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: RepairPipelineType('<NOT_SET>'),
-        title='Repair Pipeline State',
+        default='<NOT_SET>', title='Repair Pipeline State', validate_default=True
     )
     cell_morphology_protocol_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Cell Morphology Protocol Id'
@@ -11207,9 +11212,10 @@ class EModelCreate(BaseModel):
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     exemplar_morphology_id: UUID = Field(..., title='Exemplar Morphology Id')
     ion_channel_models: list[NestedEntityCreate] = Field(
-        default_factory=list,
+        default=[],
         description='List of ion channel models (only ids).',
         title='Ion Channel Models',
+        validate_default=True,
     )
 
 
@@ -11241,7 +11247,7 @@ class EModelUserUpdate(BaseModel):
         default='<NOT_SET>', title='Exemplar Morphology Id'
     )
     ion_channel_models: list[NestedEntityCreate] | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Ion Channel Models'
+        default='<NOT_SET>', title='Ion Channel Models', validate_default=True
     )
 
 
@@ -11355,12 +11361,10 @@ class ElectricalCellRecordingUserUpdate(BaseModel):
         default='<NOT_SET>', title='Recording Location'
     )
     recording_type: ElectricalRecordingType | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: ElectricalRecordingType('<NOT_SET>'),
-        title='Recording Type',
+        default='<NOT_SET>', title='Recording Type', validate_default=True
     )
     recording_origin: ElectricalRecordingOrigin | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: ElectricalRecordingOrigin('<NOT_SET>'),
-        title='Recording Origin',
+        default='<NOT_SET>', title='Recording Origin', validate_default=True
     )
     temperature: float | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Temperature'
@@ -11462,7 +11466,7 @@ class IonChannelModelingCampaignCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
     input_recordings: list[NestedEntityCreate] = Field(
-        default_factory=list, title='Input Recordings'
+        default=[], title='Input Recordings', validate_default=True
     )
 
 
@@ -11478,7 +11482,7 @@ class IonChannelModelingCampaignUserUpdate(BaseModel):
         default='<NOT_SET>', title='Scan Parameters'
     )
     input_recordings: list[NestedEntityCreate] | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Input Recordings'
+        default='<NOT_SET>', title='Input Recordings', validate_default=True
     )
 
 
@@ -11836,7 +11840,7 @@ class MEModelCreate(BaseModel):
     description: str = Field(..., title='Description')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     validation_status: ValidationStatus = Field(
-        default_factory=lambda: ValidationStatus('created')
+        default='created', validate_default=True
     )
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     morphology_id: UUID = Field(..., title='Morphology Id')
@@ -11854,7 +11858,7 @@ class MEModelUserUpdate(BaseModel):
         default='<NOT_SET>', title='Description'
     )
     validation_status: ValidationStatus | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: ValidationStatus('<NOT_SET>'), title='Validation Status'
+        default='<NOT_SET>', title='Validation Status', validate_default=True
     )
     brain_region_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Brain Region Id'
@@ -12039,7 +12043,7 @@ class NestedMEModel(BaseModel):
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     validation_status: ValidationStatus = Field(
-        default_factory=lambda: ValidationStatus('created')
+        default='created', validate_default=True
     )
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
@@ -12078,7 +12082,7 @@ class NeuronBlock(BaseModel):
         default=[], alias='global', title='Global'
     )
     range: list[dict[str, str | None]] = Field(default=[], title='Range')
-    useion: list[UseIon] = Field(default_factory=list, title='Useion')
+    useion: list[UseIon] = Field(default=[], title='Useion', validate_default=True)
     nonspecific: list[dict[str, str | None]] = Field(default=[], title='Nonspecific')
 
 
@@ -12266,7 +12270,7 @@ class TaskActivityCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(default_factory=lambda: ActivityStatus('done'))
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
 
@@ -12288,7 +12292,7 @@ class TaskActivityRead(BaseModel):
     type: ActivityType | None = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(default_factory=lambda: ActivityStatus('done'))
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
 
@@ -12306,9 +12310,10 @@ class TaskConfigCreate(BaseModel):
         default=None, title='Task Config Generator Id'
     )
     inputs: list[NestedEntityCreate] = Field(
-        default_factory=list,
+        default=[],
         description='List of input entities (only ids).',
         title='Inputs',
+        validate_default=True,
     )
 
 
@@ -12336,7 +12341,10 @@ class TaskConfigRead(BaseModel):
         default=None, title='Task Config Generator Id'
     )
     inputs: list[NestedEntityRead] = Field(
-        default_factory=list, description='List of input entities.', title='Inputs'
+        default=[],
+        description='List of input entities.',
+        title='Inputs',
+        validate_default=True,
     )
 
 
@@ -12389,7 +12397,7 @@ class AnalysisNotebookExecutionRead(BaseModel):
     type: ActivityType | None = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(default_factory=lambda: ActivityStatus('done'))
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
     analysis_notebook_template: NestedAnalysisNotebookTemplateRead | None
@@ -12893,7 +12901,7 @@ class ExperimentalBoutonDensityUserUpdate(BaseModel):
         default='<NOT_SET>', title='Legacy Id'
     )
     measurements: list[MeasurementRecordCreate] | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Measurements'
+        default='<NOT_SET>', title='Measurements', validate_default=True
     )
 
 
@@ -12998,7 +13006,7 @@ class ExperimentalSynapsesPerConnectionUserUpdate(BaseModel):
         default='<NOT_SET>', title='Legacy Id'
     )
     measurements: list[MeasurementRecordCreate] | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Measurements'
+        default='<NOT_SET>', title='Measurements', validate_default=True
     )
     pre_mtype_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Pre Mtype Id'
@@ -13206,7 +13214,7 @@ class IonChannelModelUserUpdate(BaseModel):
         default='<NOT_SET>', title='Is Stochastic'
     )
     neuron_block: NeuronBlock | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Neuron Block'
+        default='<NOT_SET>', title='Neuron Block', validate_default=True
     )
     conductance_name: str | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Conductance Name'
@@ -13729,10 +13737,10 @@ class MeasurementAnnotationUserUpdate(BaseModel):
         default='<NOT_SET>', title='Entity Id'
     )
     entity_type: MeasurableEntity | Literal['<NOT_SET>'] | None = Field(
-        default_factory=lambda: MeasurableEntity('<NOT_SET>'), title='Entity Type'
+        default='<NOT_SET>', title='Entity Type', validate_default=True
     )
     measurement_kinds: list[MeasurementKindCreate] | Literal['<NOT_SET>'] | None = (
-        Field(default='<NOT_SET>', title='Measurement Kinds')
+        Field(default='<NOT_SET>', title='Measurement Kinds', validate_default=True)
     )
 
 
@@ -13982,7 +13990,7 @@ class MEModelRead(BaseModel):
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     validation_status: ValidationStatus = Field(
-        default_factory=lambda: ValidationStatus('created')
+        default='created', validate_default=True
     )
     id: UUID = Field(..., title='Id')
     species: NestedSpeciesRead
