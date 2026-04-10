@@ -887,6 +887,11 @@ class MorphologyMetricsOutput(BaseModel):
     )
     total_height: float | None = Field(
         default=None,
+        description='The total height (Y-range) of the morphology in micrometers.',
+        title='total_height [μm]',
+    )
+    total_width: float | None = Field(
+        default=None,
         description='The total width (X-range) of the morphology in micrometers.',
         title='total_width [μm]',
     )

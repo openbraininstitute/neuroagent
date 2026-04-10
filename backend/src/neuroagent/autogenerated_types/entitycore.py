@@ -3299,6 +3299,10 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
     update_date__gte: AwareDatetime | None = Field(
         default=None, title='Update Date  Gte'
     )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
+    )
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
@@ -3800,6 +3804,10 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
     )
     update_date__gte: AwareDatetime | None = Field(
         default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
@@ -10253,6 +10261,10 @@ class ReadManyTaskActivityGetParametersQuery(BaseModel):
     )
     update_date__gte: AwareDatetime | None = Field(
         default=None, title='Update Date  Gte'
+    )
+    authorized_public: bool | None = Field(default=None, title='Authorized Public')
+    authorized_project_id: UUID | None = Field(
+        default=None, title='Authorized Project Id'
     )
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
