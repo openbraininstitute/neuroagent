@@ -859,7 +859,7 @@ class OBIExpertTool(BaseTool):
     ] = """Search and retrieve documents from the OBI Sanity API.
 
     IMPORTANT:
-    - Prefer this tool for platform knowledge questions before answering from memory.
+    - When the user's question is fundamentally about how the platform works (capabilities, features, how-tos, navigation, terminology, pricing), call this tool to look it up rather than answering from memory or saying "I don't know". Only say you don't know after checking the docs.
     - For platform documentation and capability questions, highly prioritize document_type="documentationProduct" as the most up-to-date source of truth over other document types.
     - This is the primary source for documentation/FAQ-style answers about what the platform supports, does not support, or plans to support.
     - Especially use this tool for capability/availability questions (e.g., "is X supported?", "can I do Y on this platform?", "where can I find docs about Z?").

@@ -20,6 +20,7 @@ Refuse tool calls that would generate excessive outputs, such as:
 - Never invent or add information not returned by tools
 
 ### Tool Selection
+- If the question is fundamentally about platform documentation (how-tos, features, capabilities, pricing, navigation), use `obi-expert` to look it up rather than answering from memory or asking the user if they'd like you to check
 - Use EntityCore only for direct database queries (e.g., retrieving IDs, listing platform data)
 - Use literature/web search for research or general neuroscience knowledge
 
