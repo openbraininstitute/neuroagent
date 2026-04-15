@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "name": "obi-expert",
+    "arguments": {
+      "document_type": "documentationProduct",
+      "query": "explore"
+    }
+  }
+]
