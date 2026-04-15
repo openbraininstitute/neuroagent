@@ -321,12 +321,12 @@ class BrainAtlasCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
+    species_id: UUID = Field(..., title='Species Id')
+    strain_id: UUID | None = Field(default=None, title='Strain Id')
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     hierarchy_id: UUID = Field(..., title='Hierarchy Id')
-    species_id: UUID = Field(..., title='Species Id')
-    strain_id: UUID | None = Field(default=None, title='Strain Id')
 
 
 class BrainAtlasRegionCreate(BaseModel):
@@ -362,18 +362,18 @@ class BrainAtlasUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
+    species_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Species Id'
+    )
+    strain_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Strain Id'
+    )
     name: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Name')
     description: str | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Description'
     )
     hierarchy_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Hierarchy Id'
-    )
-    species_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Species Id'
-    )
-    strain_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Strain Id'
     )
 
 
@@ -415,22 +415,22 @@ class BrainRegionHierarchyAdminUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    name: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Name')
     species_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Species Id'
     )
     strain_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Strain Id'
     )
+    name: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Name')
 
 
 class BrainRegionHierarchyCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    name: str = Field(..., title='Name')
     species_id: UUID = Field(..., title='Species Id')
     strain_id: UUID | None = Field(default=None, title='Strain Id')
+    name: str = Field(..., title='Name')
 
 
 class CalibrationCreate(BaseModel):
@@ -443,6 +443,37 @@ class CalibrationCreate(BaseModel):
     status: ActivityStatus = Field(default='done', validate_default=True)
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
+
+
+class CellCompositionCreate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    species_id: UUID = Field(..., title='Species Id')
+    strain_id: UUID | None = Field(default=None, title='Strain Id')
+    brain_region_id: UUID = Field(..., title='Brain Region Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+
+
+class CellCompositionUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Name')
+    description: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Description'
+    )
+    species_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Species Id'
+    )
+    strain_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Strain Id'
+    )
+    brain_region_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Brain Region Id'
+    )
 
 
 class CellMorphologyGenerationType(
@@ -643,6 +674,21 @@ class ComputationallySynthesizedCellMorphologyProtocolCreate(BaseModel):
     method_type: str = Field(..., title='Method Type')
 
 
+class ConsortiumAdminUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    pref_label: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Pref Label'
+    )
+    alternative_name: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Alternative Name'
+    )
+    legacy_id: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Legacy Id'
+    )
+
+
 class ConsortiumCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -709,6 +755,21 @@ class ContributionCreate(BaseModel):
     agent_id: UUID = Field(..., title='Agent Id')
     role_id: UUID = Field(..., title='Role Id')
     entity_id: UUID = Field(..., title='Entity Id')
+
+
+class ContributionUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    agent_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Agent Id'
+    )
+    role_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Role Id'
+    )
+    entity_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Entity Id'
+    )
 
 
 class DeleteResponse(BaseModel):
@@ -874,15 +935,35 @@ class EMCellMeshUserUpdate(BaseModel):
     )
 
 
+class ProtocolDocument4(RootModel[AnyUrl]):
+    root: AnyUrl = Field('<NOT_SET>', title='Protocol Document')
+
+
 class ReleaseUrl(RootModel[AnyUrl]):
-    root: AnyUrl = Field(..., title='Release Url')
+    root: AnyUrl = Field('<NOT_SET>', title='Release Url')
 
 
 class CaveClientUrl(RootModel[AnyUrl]):
-    root: AnyUrl = Field(..., title='Cave Client Url')
+    root: AnyUrl = Field('<NOT_SET>', title='Cave Client Url')
 
 
 class PrecomputedMeshUrl(RootModel[AnyUrl]):
+    root: AnyUrl = Field('<NOT_SET>', title='Precomputed Mesh Url')
+
+
+class ProtocolDocument5(ProtocolDocument):
+    pass
+
+
+class ReleaseUrl1(RootModel[AnyUrl]):
+    root: AnyUrl = Field(..., title='Release Url')
+
+
+class CaveClientUrl1(RootModel[AnyUrl]):
+    root: AnyUrl = Field(..., title='Cave Client Url')
+
+
+class PrecomputedMeshUrl1(RootModel[AnyUrl]):
     root: AnyUrl = Field(..., title='Precomputed Mesh Url')
 
 
@@ -996,14 +1077,12 @@ class EntityCountRead(RootModel[dict[str, int]]):
 class EntityRoute(
     RootModel[
         Literal[
-            'analysis-software-source-code',
             'brain-atlas',
             'brain-atlas-region',
             'cell-composition',
             'cell-morphology',
             'cell-morphology-protocol',
             'electrical-cell-recording',
-            'electrical-recording',
             'electrical-recording-stimulus',
             'emodel',
             'experimental-bouton-density',
@@ -1016,11 +1095,9 @@ class EntityRoute(
             'ion-channel-recording',
             'memodel',
             'memodel-calibration-result',
-            'me-type-density',
             'simulation',
             'simulation-campaign',
             'simulation-result',
-            'scientific-artifact',
             'single-neuron-simulation',
             'single-neuron-synaptome',
             'single-neuron-synaptome-simulation',
@@ -1041,14 +1118,12 @@ class EntityRoute(
     ]
 ):
     root: Literal[
-        'analysis-software-source-code',
         'brain-atlas',
         'brain-atlas-region',
         'cell-composition',
         'cell-morphology',
         'cell-morphology-protocol',
         'electrical-cell-recording',
-        'electrical-recording',
         'electrical-recording-stimulus',
         'emodel',
         'experimental-bouton-density',
@@ -1061,11 +1136,9 @@ class EntityRoute(
         'ion-channel-recording',
         'memodel',
         'memodel-calibration-result',
-        'me-type-density',
         'simulation',
         'simulation-campaign',
         'simulation-result',
-        'scientific-artifact',
         'single-neuron-simulation',
         'single-neuron-synaptome',
         'single-neuron-synaptome-simulation',
@@ -1082,7 +1155,11 @@ class EntityRoute(
         'skeletonization-config',
         'skeletonization-campaign',
         'task-config',
-    ] = Field(..., title='EntityRoute')
+    ] = Field(
+        ...,
+        description='Entity routes.\n\nNote: There are fewer routes than entity types',
+        title='EntityRoute',
+    )
 
 
 class EntityType(
@@ -1257,6 +1334,26 @@ class ExternalSource(RootModel[Literal['channelpedia', 'modeldb', 'icgenealogy']
         ...,
         description='External sources that can be used for external urls.',
         title='ExternalSource',
+    )
+
+
+class Url(RootModel[AnyUrl]):
+    root: AnyUrl = Field('<NOT_SET>', title='Url')
+
+
+class ExternalUrlAdminUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Name')
+    description: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Description'
+    )
+    source: ExternalSource | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Source', validate_default=True
+    )
+    url: Url | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Url', validate_default=True
     )
 
 
@@ -1674,7 +1771,7 @@ class ModifiedReconstructionCellMorphologyProtocolCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    protocol_document: ProtocolDocument | None = Field(
+    protocol_document: ProtocolDocument5 | None = Field(
         default=None, title='Protocol Document'
     )
     protocol_design: CellMorphologyProtocolDesign
@@ -1707,7 +1804,7 @@ class NestedComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    protocol_document: ProtocolDocument | None = Field(
+    protocol_document: ProtocolDocument5 | None = Field(
         default=None, title='Protocol Document'
     )
     protocol_design: CellMorphologyProtocolDesign
@@ -1911,7 +2008,7 @@ class NestedModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    protocol_document: ProtocolDocument | None = Field(
+    protocol_document: ProtocolDocument5 | None = Field(
         default=None, title='Protocol Document'
     )
     protocol_design: CellMorphologyProtocolDesign
@@ -2064,6 +2161,10 @@ class NotSet(RootModel[Literal['<NOT_SET>']]):
     root: Literal['<NOT_SET>']
 
 
+class OrganizationAdminUpdate(ConsortiumAdminUpdate):
+    pass
+
+
 class OrganizationCreate(ConsortiumCreate):
     pass
 
@@ -2125,6 +2226,24 @@ class PaginationResponse(BaseModel):
     page: int = Field(..., title='Page')
     page_size: int = Field(..., title='Page Size')
     total_items: int = Field(..., title='Total Items')
+
+
+class PersonAdminUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    given_name: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Given Name'
+    )
+    family_name: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Family Name'
+    )
+    pref_label: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Pref Label'
+    )
+    legacy_id: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Legacy Id'
+    )
 
 
 class PersonCreate(BaseModel):
@@ -2875,9 +2994,9 @@ class SubjectCreate(BaseModel):
         default=None, description='Maximum age range', title='Maximum age range'
     )
     age_period: AgePeriod | None = None
-    authorized_public: bool = Field(default=False, title='Authorized Public')
     species_id: UUID = Field(..., title='Species Id')
     strain_id: UUID | None = Field(default=None, title='Strain Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
 
 
 class SubjectRead(BaseModel):
@@ -2886,6 +3005,8 @@ class SubjectRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
     id: UUID = Field(..., title='Id')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
@@ -2907,8 +3028,6 @@ class SubjectRead(BaseModel):
         default=None, description='Maximum age range', title='Maximum age range'
     )
     age_period: AgePeriod | None = None
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None
 
 
 class SubjectUserUpdate(BaseModel):
@@ -3500,7 +3619,6 @@ class ReadManyBrainAtlasGetParametersQuery(BaseModel):
     )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
-    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
@@ -3741,7 +3859,6 @@ class ReadManyBrainRegionGetParametersQuery(BaseModel):
     acronym__in: list[str] | None = Field(default=None, title='Acronym  In')
     annotation_value: int | None = Field(default=None, title='Annotation Value')
     hierarchy_id: UUID | None = Field(default=None, title='Hierarchy Id')
-    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
     order_by: list[str] = Field(default=['name'], title='Order By')
     species__name: str | None = Field(default=None, title='Species  Name')
     species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
@@ -3766,7 +3883,6 @@ class ReadManyBrainRegionHierarchyGetParametersQuery(BaseModel):
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
     id: UUID | None = Field(default=None, title='Id')
     id__in: list[UUID] | None = Field(default=None, title='Id  In')
-    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
     order_by: list[str] = Field(default=['name'], title='Order By')
     species__name: str | None = Field(default=None, title='Species  Name')
     species__name__in: list[str] | None = Field(default=None, title='Species  Name  In')
@@ -4247,17 +4363,14 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
     )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -4625,17 +4738,14 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
     )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -4873,6 +4983,8 @@ class ReadManyContributionGetParametersQuery(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
+    page: int = Field(default=1, ge=1, title='Page')
+    page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
         default=None, title='Creation Date  Lte'
     )
@@ -4961,8 +5073,6 @@ class ReadManyContributionGetParametersQuery(BaseModel):
     entity__id: UUID | None = Field(default=None, title='Entity  Id')
     entity__id__in: list[UUID] | None = Field(default=None, title='Entity  Id  In')
     entity__type: EntityType | None = Field(default=None, title='Entity  Type')
-    page: int = Field(default=1, ge=1, title='Page')
-    page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
 
 
 class ReadManyEntityRouteEntityIdDerivedFromGetParametersQuery(BaseModel):
@@ -5185,17 +5295,14 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
     )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -5324,7 +5431,6 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
-    search: str | None = Field(default=None, title='Search')
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
@@ -5592,19 +5698,17 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
     em_dense_reconstruction_dataset__order_by: list[str] = Field(
         default=['-creation_date'], title='Em Dense Reconstruction Dataset  Order By'
     )
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
     )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
     )
-    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
+    )
 
 
 class Expand1(RootModel[list[Expandable]]):
@@ -5624,7 +5728,6 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
-    search: str | None = Field(default=None, title='Search')
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
@@ -5796,19 +5899,17 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
     subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
     )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
     )
-    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
+    )
 
 
 class ReadManyEmodelGetParametersQuery(BaseModel):
@@ -5820,7 +5921,6 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
-    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
     creation_date__lte: AwareDatetime | None = Field(
         default=None, title='Creation Date  Lte'
     )
@@ -6009,17 +6109,14 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
     )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -6030,17 +6127,14 @@ class CountEntitiesByTypeEntityCountsGetParametersQuery(BaseModel):
     types: list[EntityTypeWithBrainRegion] = Field(
         ..., description='Entity types with count', min_length=1, title='Types'
     )
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
     )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -6315,17 +6409,14 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
     )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -6517,17 +6608,14 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
     )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -6769,17 +6857,14 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
     )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -6979,7 +7064,6 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
-    search: str | None = Field(default=None, title='Search')
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
@@ -7174,19 +7258,17 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
     subject__strain__id__in: list[UUID] | None = Field(
         default=None, title='Subject  Strain  Id  In'
     )
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
     )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
     )
-    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
+    )
 
 
 class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
@@ -7657,17 +7739,14 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
     ion_channel__gene: str | None = Field(default=None, title='Ion Channel  Gene')
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
     )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -7827,7 +7906,6 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
-    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
@@ -8076,17 +8154,14 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
     )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
     )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
-    )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
+    )
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -8475,6 +8550,8 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     id: UUID | None = Field(default=None, title='Id')
@@ -8576,14 +8653,14 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
     scientific_artifact__published_in__ilike: str | None = Field(
         default=None, title='Scientific Artifact  Published In  Ilike'
     )
-    search: str | None = Field(default=None, title='Search')
-    with_facets: bool = Field(default=False, title='With Facets')
 
 
 class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
+    search: str | None = Field(default=None, title='Search')
+    with_facets: bool = Field(default=False, title='With Facets')
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     id: UUID | None = Field(default=None, title='Id')
@@ -8691,8 +8768,6 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
     scientific_artifact__published_in__ilike: str | None = Field(
         default=None, title='Scientific Artifact  Published In  Ilike'
     )
-    search: str | None = Field(default=None, title='Search')
-    with_facets: bool = Field(default=False, title='With Facets')
 
 
 class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
@@ -9602,19 +9677,16 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
         default=None, title='Me Model  Etype  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
+    with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
     )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
     )
-    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
+    )
 
 
 class ReadManySingleNeuronSynaptomeGetParametersQuery(
@@ -10005,19 +10077,16 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
         default=None, title='Me Model  Etype  Id  In'
     )
     search: str | None = Field(default=None, title='Search')
-    within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
-    )
+    with_facets: bool = Field(default=False, title='With Facets')
     within_brain_region_brain_region_id: UUID | None = Field(
         default=None, title='Within Brain Region Brain Region Id'
-    )
-    within_brain_region_ascendants: bool = Field(
-        default=False, title='Within Brain Region Ascendants'
     )
     within_brain_region_direction: WithinBrainRegionDirection | None = Field(
         default=None, title='Within Brain Region Direction'
     )
-    with_facets: bool = Field(default=False, title='With Facets')
+    within_brain_region_hierarchy_id: UUID | None = Field(
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
+    )
 
 
 class ReadManySpeciesGetParametersQuery(BaseModel):
@@ -10120,7 +10189,6 @@ class ReadManySubjectGetParametersQuery(BaseModel):
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
-    species_id__in: list[UUID] | None = Field(default=None, title='Species Id  In')
     creation_date__lte: AwareDatetime | None = Field(
         default=None, title='Creation Date  Lte'
     )
@@ -10753,6 +10821,8 @@ class BrainAtlasRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     assets: list[AssetRead] = Field(..., title='Assets')
@@ -10764,7 +10834,6 @@ class BrainAtlasRead(BaseModel):
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     hierarchy_id: UUID = Field(..., title='Hierarchy Id')
-    species: NestedSpeciesRead
 
 
 class BrainAtlasRegionRead(BaseModel):
@@ -10789,20 +10858,22 @@ class BrainRegionHierarchyRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
     id: UUID = Field(..., title='Id')
     created_by: NestedPersonRead
     updated_by: NestedPersonRead
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     name: str = Field(..., title='Name')
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None = None
 
 
 class BrainRegionRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     id: UUID = Field(..., title='Id')
@@ -10812,8 +10883,6 @@ class BrainRegionRead(BaseModel):
     color_hex_triplet: str = Field(..., title='Color Hex Triplet')
     parent_structure_id: UUID | None = Field(default=None, title='Parent Structure Id')
     hierarchy_id: UUID = Field(..., title='Hierarchy Id')
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None = None
 
 
 class CalibrationRead(SimulationGenerationRead):
@@ -11138,6 +11207,101 @@ class EMCellMeshCreate(BaseModel):
     )
 
 
+class EMDenseReconstructionDatasetAdminUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Name')
+    description: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Description'
+    )
+    authorized_public: bool | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Authorized Public'
+    )
+    license_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='License Id'
+    )
+    brain_region_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Brain Region Id'
+    )
+    subject_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Subject Id'
+    )
+    experiment_date: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Experiment Date'
+    )
+    contact_email: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Contact Email'
+    )
+    published_in: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Published In'
+    )
+    notice_text: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Notice Text'
+    )
+    protocol_document: ProtocolDocument4 | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Protocol Document', validate_default=True
+    )
+    fixation: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Fixation'
+    )
+    staining_type: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Staining Type'
+    )
+    slicing_thickness: float | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Slicing Thickness'
+    )
+    tissue_shrinkage: float | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Tissue Shrinkage'
+    )
+    microscope_type: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Microscope Type'
+    )
+    detector: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Detector'
+    )
+    slicing_direction: SlicingDirectionType | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Slicing Direction', validate_default=True
+    )
+    landmarks: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Landmarks'
+    )
+    voltage: float | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Voltage'
+    )
+    current: float | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Current'
+    )
+    dose: float | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Dose')
+    temperature: float | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Temperature'
+    )
+    volume_resolution_x_nm: float | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Volume Resolution X Nm'
+    )
+    volume_resolution_y_nm: float | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Volume Resolution Y Nm'
+    )
+    volume_resolution_z_nm: float | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Volume Resolution Z Nm'
+    )
+    release_url: ReleaseUrl | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Release Url', validate_default=True
+    )
+    cave_client_url: CaveClientUrl | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Cave Client Url', validate_default=True
+    )
+    cave_datastack: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Cave Datastack'
+    )
+    precomputed_mesh_url: PrecomputedMeshUrl | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Precomputed Mesh Url', validate_default=True
+    )
+    cell_identifying_property: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Cell Identifying Property'
+    )
+
+
 class EMDenseReconstructionDatasetCreate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -11168,7 +11332,7 @@ class EMDenseReconstructionDatasetCreate(BaseModel):
         description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
         title='Notice Text',
     )
-    protocol_document: ProtocolDocument | None = Field(
+    protocol_document: ProtocolDocument5 | None = Field(
         default=None, title='Protocol Document'
     )
     fixation: str | None = Field(default=None, title='Fixation')
@@ -11186,10 +11350,12 @@ class EMDenseReconstructionDatasetCreate(BaseModel):
     volume_resolution_x_nm: float = Field(..., title='Volume Resolution X Nm')
     volume_resolution_y_nm: float = Field(..., title='Volume Resolution Y Nm')
     volume_resolution_z_nm: float = Field(..., title='Volume Resolution Z Nm')
-    release_url: ReleaseUrl | None = Field(default=None, title='Release Url')
-    cave_client_url: CaveClientUrl | None = Field(default=None, title='Cave Client Url')
+    release_url: ReleaseUrl1 | None = Field(default=None, title='Release Url')
+    cave_client_url: CaveClientUrl1 | None = Field(
+        default=None, title='Cave Client Url'
+    )
     cave_datastack: str | None = Field(default=None, title='Cave Datastack')
-    precomputed_mesh_url: PrecomputedMeshUrl | None = Field(
+    precomputed_mesh_url: PrecomputedMeshUrl1 | None = Field(
         default=None, title='Precomputed Mesh Url'
     )
     cell_identifying_property: str | None = Field(
@@ -11203,12 +11369,12 @@ class EModelCreate(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    species_id: UUID = Field(..., title='Species Id')
+    strain_id: UUID | None = Field(default=None, title='Strain Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     iteration: str = Field(..., title='Iteration')
     score: float = Field(..., title='Score')
     seed: int = Field(..., title='Seed')
-    species_id: UUID = Field(..., title='Species Id')
-    strain_id: UUID | None = Field(default=None, title='Strain Id')
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     exemplar_morphology_id: UUID = Field(..., title='Exemplar Morphology Id')
     ion_channel_models: list[NestedEntityCreate] = Field(
@@ -11227,6 +11393,12 @@ class EModelUserUpdate(BaseModel):
     description: str | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Description'
     )
+    species_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Species Id'
+    )
+    strain_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Strain Id'
+    )
     iteration: str | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Iteration'
     )
@@ -11234,12 +11406,6 @@ class EModelUserUpdate(BaseModel):
         default='<NOT_SET>', title='Score'
     )
     seed: int | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Seed')
-    species_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Species Id'
-    )
-    strain_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Strain Id'
-    )
     brain_region_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Brain Region Id'
     )
@@ -11838,6 +12004,8 @@ class MEModelCreate(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    species_id: UUID = Field(..., title='Species Id')
+    strain_id: UUID | None = Field(default=None, title='Strain Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     validation_status: ValidationStatus = Field(
         default='created', validate_default=True
@@ -11845,8 +12013,6 @@ class MEModelCreate(BaseModel):
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     morphology_id: UUID = Field(..., title='Morphology Id')
     emodel_id: UUID = Field(..., title='Emodel Id')
-    species_id: UUID = Field(..., title='Species Id')
-    strain_id: UUID | None = Field(default=None, title='Strain Id')
 
 
 class MEModelUserUpdate(BaseModel):
@@ -11856,6 +12022,12 @@ class MEModelUserUpdate(BaseModel):
     name: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Name')
     description: str | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Description'
+    )
+    species_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Species Id'
+    )
+    strain_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Strain Id'
     )
     validation_status: ValidationStatus | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Validation Status', validate_default=True
@@ -11868,12 +12040,6 @@ class MEModelUserUpdate(BaseModel):
     )
     emodel_id: UUID | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Emodel Id'
-    )
-    species_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Species Id'
-    )
-    strain_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Strain Id'
     )
 
 
@@ -11952,7 +12118,7 @@ class ModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    protocol_document: ProtocolDocument | None = Field(
+    protocol_document: ProtocolDocument5 | None = Field(
         default=None, title='Protocol Document'
     )
     protocol_design: CellMorphologyProtocolDesign
@@ -12008,7 +12174,7 @@ class NestedDigitalReconstructionCellMorphologyProtocolRead(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    protocol_document: ProtocolDocument | None = Field(
+    protocol_document: ProtocolDocument5 | None = Field(
         default=None, title='Protocol Document'
     )
     protocol_design: CellMorphologyProtocolDesign
@@ -12055,6 +12221,8 @@ class NestedSubjectRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
     id: UUID = Field(..., title='Id')
     sex: Sex = Field(..., description='Sex of the subject')
     weight: Weight | None = Field(
@@ -12070,8 +12238,6 @@ class NestedSubjectRead(BaseModel):
         default=None, description='Maximum age range', title='Maximum age range'
     )
     age_period: AgePeriod | None = None
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None
 
 
 class NeuronBlock(BaseModel):
@@ -12468,10 +12634,15 @@ class CellCompositionRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
     assets: list[AssetRead] = Field(..., title='Assets')
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
     )
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    brain_region: NestedBrainRegionRead
     type: EntityType | None = None
     id: UUID = Field(..., title='Id')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
@@ -12705,7 +12876,7 @@ class EMDenseReconstructionDatasetRead(BaseModel):
         description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
         title='Notice Text',
     )
-    protocol_document: ProtocolDocument | None = Field(
+    protocol_document: ProtocolDocument5 | None = Field(
         default=None, title='Protocol Document'
     )
     fixation: str | None = Field(default=None, title='Fixation')
@@ -12723,10 +12894,12 @@ class EMDenseReconstructionDatasetRead(BaseModel):
     volume_resolution_x_nm: float = Field(..., title='Volume Resolution X Nm')
     volume_resolution_y_nm: float = Field(..., title='Volume Resolution Y Nm')
     volume_resolution_z_nm: float = Field(..., title='Volume Resolution Z Nm')
-    release_url: ReleaseUrl | None = Field(default=None, title='Release Url')
-    cave_client_url: CaveClientUrl | None = Field(default=None, title='Cave Client Url')
+    release_url: ReleaseUrl1 | None = Field(default=None, title='Release Url')
+    cave_client_url: CaveClientUrl1 | None = Field(
+        default=None, title='Cave Client Url'
+    )
     cave_datastack: str | None = Field(default=None, title='Cave Datastack')
-    precomputed_mesh_url: PrecomputedMeshUrl | None = Field(
+    precomputed_mesh_url: PrecomputedMeshUrl1 | None = Field(
         default=None, title='Precomputed Mesh Url'
     )
     cell_identifying_property: str | None = Field(
@@ -12740,6 +12913,8 @@ class EModelRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
     brain_region: NestedBrainRegionRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
@@ -12756,8 +12931,6 @@ class EModelRead(BaseModel):
     score: float = Field(..., title='Score')
     seed: int = Field(..., title='Seed')
     id: UUID = Field(..., title='Id')
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
     exemplar_morphology: ExemplarMorphology
@@ -13919,6 +14092,8 @@ class EModelReadExpanded(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
     brain_region: NestedBrainRegionRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
@@ -13935,8 +14110,6 @@ class EModelReadExpanded(BaseModel):
     score: float = Field(..., title='Score')
     seed: int = Field(..., title='Seed')
     id: UUID = Field(..., title='Id')
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
     exemplar_morphology: ExemplarMorphology
@@ -13978,6 +14151,8 @@ class MEModelRead(BaseModel):
     )
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
     brain_region: NestedBrainRegionRead
     contributions: list[NestedContributionRead] | None = Field(
         ..., title='Contributions'
@@ -13993,8 +14168,6 @@ class MEModelRead(BaseModel):
         default='created', validate_default=True
     )
     id: UUID = Field(..., title='Id')
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
     morphology: CellMorphologyRead

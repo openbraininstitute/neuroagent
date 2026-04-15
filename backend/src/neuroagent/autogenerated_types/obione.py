@@ -1020,6 +1020,39 @@ class NamedTuple(BaseModel):
     type: Literal['NamedTuple'] = Field(default='NamedTuple', title='Type')
 
 
+class NeuronSectionInfo(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    index: int = Field(..., title='Index')
+    name: str = Field(..., title='Name')
+    nseg: int = Field(..., title='Nseg')
+    distance_from_soma: float = Field(..., title='Distance From Soma')
+    sec_length: float = Field(..., title='Sec Length')
+    xstart: list[float] = Field(..., title='Xstart')
+    xend: list[float] = Field(..., title='Xend')
+    xcenter: list[float] = Field(..., title='Xcenter')
+    xdirection: list[float] = Field(..., title='Xdirection')
+    ystart: list[float] = Field(..., title='Ystart')
+    yend: list[float] = Field(..., title='Yend')
+    ycenter: list[float] = Field(..., title='Ycenter')
+    ydirection: list[float] = Field(..., title='Ydirection')
+    zstart: list[float] = Field(..., title='Zstart')
+    zend: list[float] = Field(..., title='Zend')
+    zcenter: list[float] = Field(..., title='Zcenter')
+    zdirection: list[float] = Field(..., title='Zdirection')
+    diam: list[float] = Field(..., title='Diam')
+    length: list[float] = Field(..., title='Length')
+    distance: list[float] = Field(..., title='Distance')
+    segment_distance_from_soma: list[float] = Field(
+        ..., title='Segment Distance From Soma'
+    )
+    segx: list[float] = Field(..., title='Segx')
+    neuron_section_id: int = Field(..., title='Neuron Section Id')
+    neuron_segments_offset: list[int] = Field(..., title='Neuron Segments Offset')
+    parent_index: int = Field(..., title='Parent Index')
+
+
 class NeuronSetReference(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -1033,6 +1066,25 @@ class NeuronSetReference(BaseModel):
     type: Literal['NeuronSetReference'] = Field(
         default='NeuronSetReference', title='Type'
     )
+
+
+class Node(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    morphology_file: str = Field(
+        ...,
+        description="Path to the morphology file in the circuit's sonata directory",
+        title='Morphology File',
+    )
+    morphology_name: str | None = Field(..., title='Morphology Name')
+    position: tuple[float, float, float] = Field(
+        ..., description='Position coordinates (x,y,z)', title='Position'
+    )
+    orientation: tuple[float, float, float, float] = Field(
+        ..., description='Orientation quaternion (x, y, z, w)', title='Orientation'
+    )
+    soma_radius: float | None = Field(..., title='Soma Radius')
 
 
 class NodePopulationType(RootModel[Literal['biophysical', 'virtual']]):
@@ -2843,6 +2895,11 @@ class ObiOneScientificTasksSkeletonizationConfigSkeletonizationScanConfigInitial
         title='Spine Voxel Size',
         validate_default=True,
     )
+    write_raw_spines: bool = Field(
+        default=False,
+        description='By default a morphology h5 file is created with reconstructed spines. Set this parameter to True to additionally include the initially extracted full resolution segmented spine meshes in the h5 file. This may be useful for use cases which require the full resolution spine data.',
+        title='Include Full Resolution Spines',
+    )
 
 
 class SimulationLength8(SimulationLength):
@@ -2912,6 +2969,31 @@ class HealthHealthGetResponse(RootGetResponse):
 
 class VersionVersionGetResponse(RootGetResponse):
     pass
+
+
+class CircuitNodesCircuitVizCircuitIdNodesGetResponse(RootModel[list[Node]]):
+    root: list[Node] = Field(
+        ..., title='Response Circuit Nodes Circuit Viz  Circuit Id  Nodes Get'
+    )
+
+
+class CircuitMorphologyCircuitVizCircuitIdMorphologiesMorphologyFileGetParametersQuery(
+    BaseModel
+):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    name: str | None = Field(
+        default=None,
+        description='The name of the morphology. Required if morphology_file is a collection.',
+        title='Name',
+    )
+
+
+class CircuitMorphologyCircuitVizCircuitIdMorphologiesMorphologyFileGetResponse(
+    RootModel[dict[str, NeuronSectionInfo]]
+):
+    root: dict[str, NeuronSectionInfo]
 
 
 class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
