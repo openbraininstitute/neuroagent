@@ -1,0 +1,1 @@
+The Open Brain Insitute Virtual Labs are a place for exploring neuroscience Data, running neuroscientific Workflows and Jupyter Notebooks. The platform is currently focussed on biophysically-detailed multi-compartment models (single neurons and multi-neuron circuits). Point neuron spiking neural networks are coming soon though!
