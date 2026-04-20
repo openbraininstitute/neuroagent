@@ -17,6 +17,7 @@ import httpx
 import pandas as pd
 from deepeval.evaluate import evaluate
 from deepeval.metrics import ArgumentCorrectnessMetric, GEval, ToolCorrectnessMetric
+from deepeval.metrics.g_eval import Rubric
 from deepeval.test_case import LLMTestCase, LLMTestCaseParams, ToolCall, ToolCallParams
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field, ValidationError
@@ -717,17 +718,32 @@ async def run_eval(
     # 1. Answer Relevance (GEval)
     answer_relevance = GEval(
         name="Correctness",
-        evaluation_steps=[
-            "If 'expected output' is empty after trimming whitespace, assign score 0.0 and fail immediately. Do not evaluate further.",
-            "If 'expected output' is non-empty, treat it as the only ground truth and score only by alignment of 'actual output' to 'expected output'.",
-            "Do not use external knowledge or personal judgment to override 'expected output'.",
-            "Ignore differences only inside '{{...}}' placeholders in 'expected output'; compare structure and non-placeholder content strictly.",
-            "Heavily penalize omissions of required details from 'expected output'.",
+        criteria=(
+            "Evaluate whether the actual output conveys the same key information "
+            "and intent as the expected output. Focus on semantic equivalence, not "
+            "exact wording. Ignore differences in formatting, phrasing, or extra "
+            "helpful details not present in the expected output. "
+            "If the expected output is empty after trimming whitespace, assign score 0 immediately. "
+            "Ignore differences inside '{{...}}' placeholders in the expected output; "
+            "compare structure and non-placeholder content only. "
+            "Disregard any preamble, hedging, or preparatory statements in the actual output "
+            "(e.g. 'I will now...', 'Let me...', 'Sure, here is...'). "
+            "Also disregard any suggested next steps, follow-up actions, or closing remarks "
+            "(e.g. 'Would you like me to...', 'You can also...'). "
+            "Score only the core informational content of the response."
+        ),
+        rubric=[
+            Rubric(score_range=(0, 2), expected_outcome="The answer is wrong, contradicts the expected output, addresses a completely different topic, or the expected output is empty."),
+            Rubric(score_range=(3, 4), expected_outcome="The answer touches on the right topic but misses most key points from the expected output."),
+            Rubric(score_range=(5, 6), expected_outcome="The answer captures some key points but has significant omissions or inaccuracies relative to the expected output."),
+            Rubric(score_range=(7, 8), expected_outcome="The answer conveys most of the key information from the expected output with minor omissions or extra detail."),
+            Rubric(score_range=(9, 10), expected_outcome="The answer is semantically equivalent to the expected output, covering all key points regardless of wording."),
         ],
         evaluation_params=[
             LLMTestCaseParams.ACTUAL_OUTPUT,
             LLMTestCaseParams.EXPECTED_OUTPUT,
         ],
+        threshold=0.5,
         model="gpt-4o-mini",
     )
 
