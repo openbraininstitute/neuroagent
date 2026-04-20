@@ -733,11 +733,26 @@ async def run_eval(
             "Score only the core informational content of the response."
         ),
         rubric=[
-            Rubric(score_range=(0, 2), expected_outcome="The answer is wrong, contradicts the expected output, addresses a completely different topic, or the expected output is empty."),
-            Rubric(score_range=(3, 4), expected_outcome="The answer touches on the right topic but misses most key points from the expected output."),
-            Rubric(score_range=(5, 6), expected_outcome="The answer captures some key points but has significant omissions or inaccuracies relative to the expected output."),
-            Rubric(score_range=(7, 8), expected_outcome="The answer conveys most of the key information from the expected output with minor omissions or extra detail."),
-            Rubric(score_range=(9, 10), expected_outcome="The answer is semantically equivalent to the expected output, covering all key points regardless of wording."),
+            Rubric(
+                score_range=(0, 2),
+                expected_outcome="The answer is wrong, contradicts the expected output, addresses a completely different topic, or the expected output is empty.",
+            ),
+            Rubric(
+                score_range=(3, 4),
+                expected_outcome="The answer touches on the right topic but misses most key points from the expected output.",
+            ),
+            Rubric(
+                score_range=(5, 6),
+                expected_outcome="The answer captures some key points but has significant omissions or inaccuracies relative to the expected output.",
+            ),
+            Rubric(
+                score_range=(7, 8),
+                expected_outcome="The answer conveys most of the key information from the expected output with minor omissions or extra detail.",
+            ),
+            Rubric(
+                score_range=(9, 10),
+                expected_outcome="The answer is semantically equivalent to the expected output, covering all key points regardless of wording.",
+            ),
         ],
         evaluation_params=[
             LLMTestCaseParams.ACTUAL_OUTPUT,
