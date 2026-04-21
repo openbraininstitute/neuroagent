@@ -310,7 +310,7 @@
       "Correctness [GEval]": 0.2689422718248764,
       "Tool Correctness": 0.5,
       "Argument Correctness": 0.5,
-      "Deterministic Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.5,
       "Overall Argument Correctness": 0.5
     },
     {
