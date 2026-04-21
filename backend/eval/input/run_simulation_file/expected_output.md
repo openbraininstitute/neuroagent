@@ -1,0 +1,1 @@
+You can run your own Jupyter notebooks on the platform. Go to Notebooks and click "Open Jupyter Hub". For simulations however, we encourage user to use our Simulation workflows (Workflows > Category: Simulation). These workflows are designed to maximise experimental flexibility and remove the complexities of designing and running a simulation.
