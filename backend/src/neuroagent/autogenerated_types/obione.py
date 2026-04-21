@@ -2321,28 +2321,31 @@ class ObiOneScientificTasksEmSynapseMappingConfigEMSynapseMappingScanConfigIniti
     type: Literal['EMSynapseMappingScanConfig.Initialize'] = Field(
         default='EMSynapseMappingScanConfig.Initialize', title='Type'
     )
-    spiny_neuron: CellMorphologyFromID = Field(
+    neurons: list[CellMorphologyFromID | MEModelFromID] = Field(
         ...,
-        description='A neuron morphology with spines obtained from an electron-microscopy\n            datasets through the skeletonization task.',
-        title='EM skeletonized morphology',
-    )
-    edge_population_name: str = Field(
-        default='afferent_synapses',
-        description='Name of the edge population to write the synapse information into',
+        description='Neurons to include in the circuit (>= 1).',
         min_length=1,
-        title='Edge population name',
+        title='Neurons',
     )
-    node_population_pre: str = Field(
-        default='afferent_neurons',
-        description='Name of the node population to write the information about the\n            innervating neurons into',
-        min_length=1,
-        title='Presynaptic node population name',
+    physical_edge_population_name: str = Field(
+        default='physical_connections',
+        description='Edge population for connections between neurons in the set.',
+        title='Physical edge population name',
     )
-    node_population_post: str = Field(
-        default='biophysical_neuron',
-        description='Name of the node population to write the information about the\n            synaptome neuron into',
-        min_length=1,
-        title='Postsynaptic node population name',
+    virtual_edge_population_name: str = Field(
+        default='virtual_afferents',
+        description='Edge population for connections from virtual neurons.',
+        title='Virtual edge population name',
+    )
+    biophysical_node_population: str = Field(
+        default='biophysical_neurons',
+        description='Node population for the physical neurons in the circuit.',
+        title='Biophysical node population name',
+    )
+    virtual_node_population: str = Field(
+        default='virtual_afferent_neurons',
+        description='Node population for external presynaptic neurons.',
+        title='Virtual node population name',
     )
 
 
