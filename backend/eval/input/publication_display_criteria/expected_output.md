@@ -1,1 +1,1 @@
-We are using an external web/literature search service called exa.ai
+Publications are retrieved using the literature search tool, which is powered by Exa AI. It searches across 100M+ research papers from sources like arxiv.org, PubMed, Nature, and others. Results are ranked by relevance to your query, and you can also filter by publication date range.

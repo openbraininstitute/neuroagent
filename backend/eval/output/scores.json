@@ -62,8 +62,8 @@
       "Correctness [GEval]": 0.24058539766463105,
       "Tool Correctness": 0.0,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 0.0,
-      "Overall Argument Correctness": 0.0
+      "Deterministic Argument Correctness": 1.0,
+      "Overall Argument Correctness": 1.0
     },
     {
       "test_name": "get_specific_circuit",
@@ -302,8 +302,8 @@
       "Correctness [GEval]": 0.17248778378664198,
       "Tool Correctness": 0.3333333333333333,
       "Argument Correctness": 0.0,
-      "Deterministic Argument Correctness": 0.3333333333333333,
-      "Overall Argument Correctness": 0.3333333333333333
+      "Deterministic Argument Correctness": 0.5,
+      "Overall Argument Correctness": 0.5
     },
     {
       "test_name": "state_editstate_add_stimulus",
@@ -372,9 +372,9 @@
     {
       "test_name": "warning_test",
       "Correctness [GEval]": 0.0,
-      "Tool Correctness": 0.0,
-      "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 0.0,
+      "Tool Correctness": 1.0,
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
     {

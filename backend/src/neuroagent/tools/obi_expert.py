@@ -775,10 +775,9 @@ class OBIExpertInput(BaseModel):
     sort: Literal["newest", "oldest"] = Field(
         default="newest", description="Sort order of the documents"
     )
-    query: str | None = Field(
-        default=None,
-        description="Optional single word to match in title or content. Use whenever you want to narrow down the results.",
-        pattern=r"^[a-zA-Z0-9_-]+$",
+    query: str = Field(
+        description="A simple, lowercase keyword to match in title or content. Always provide a query — use a broad term (e.g. 'simulation', 'neuron', 'download') rather than omitting it. Do NOT use hyphens, slugs, or multi-word phrases — just a single plain word.",
+        pattern=r"^[a-z0-9]+$",
     )
 
 
@@ -860,17 +859,16 @@ class OBIExpertTool(BaseTool):
     ] = """Search and retrieve documents from the OBI Sanity API.
 
     IMPORTANT:
-    - Prefer this tool for platform knowledge questions before answering from memory.
+    - When the user's question is fundamentally about how the platform works (capabilities, features, how-tos, navigation, terminology, pricing), call this tool to look it up rather than answering from memory or saying "I don't know". Only say you don't know after checking the docs.
     - For platform documentation and capability questions, highly prioritize document_type="documentationProduct" as the most up-to-date source of truth over other document types.
     - This is the primary source for documentation/FAQ-style answers about what the platform supports, does not support, or plans to support.
     - Especially use this tool for capability/availability questions (e.g., "is X supported?", "can I do Y on this platform?", "where can I find docs about Z?").
     - Query matching is currently keyword-based (no semantic search), so if the first query returns no results, try multiple related keywords before concluding there is no relevant documentation.
-    - Use the 'query' parameter when you can identify a clear keyword to search for (e.g., "neuron", "simulation", "tutorial"). The search is case-insensitive.
+    - Always provide a 'query' parameter with a simple lowercase keyword (e.g., "neuron", "simulation", "tutorial"). Do NOT use hyphens, slugs, or compound terms — just a single plain word.
     - Results are paginated. If you don't find what you're looking for on the first page, try:
-      * Dropping the query parameter to see all results, or
       * Increasing the page number to see more results
-      * Adjusting the query keyword if it's too specific
-    - For generic platform FAQ requests, use document_type="documentationProduct" with query terms like "FAQ" or a specific feature keyword.
+      * Adjusting the query keyword to a broader or different term
+    - For generic platform FAQ requests, use document_type="documentationProduct" with query terms like "overview" or a specific feature keyword.
 
     Use this tool to:
 

@@ -66,11 +66,11 @@ class WebSearchTool(BaseTool):
         "Search the web for this",
     ]
     description: ClassVar[str] = (
-        "Search the web. Performs real-time web searches and can scrape content from specific URLs. "
+        "Search the web, powered by Exa AI (exa.ai). Performs real-time web searches and can scrape content from specific URLs. "
         "Supports configurable result counts and returns the content from the most relevant websites."
     )
     description_frontend: ClassVar[str] = (
-        "Search the web. Performs real-time web searches and can scrape content from specific URLs. "
+        "Search the web, powered by Exa AI (exa.ai). Performs real-time web searches and can scrape content from specific URLs. "
         "Supports configurable result counts and returns the content from the most relevant websites."
     )
     metadata: WebSearchMetadata

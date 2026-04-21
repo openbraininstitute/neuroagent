@@ -126,8 +126,8 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['run-python'] and out-of-order tools ['run-python']; expected ['run-python'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -140,8 +140,8 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"run-python\",\n    input_parameters={\n        \"python_script\": \"import warnings\\nwarnings.warn(\\\"Warning...........Message\\\")\\nprint(\\\"DONE\\\")\"\n    }\n)]; expected ['run-python'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -437,8 +437,8 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['get-obi-software-docs'] and out-of-order tools ['get-obi-software-docs']; expected ['get-obi-software-docs'], called ['obi-expert', 'obi-expert', 'obi-expert', 'obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -451,15 +451,15 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 0.5,
+          "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"get-obi-software-docs\",\n    input_parameters={\n        \"context7CompatibleLibraryID\": \"/openbraininstitute/entitysdk\",\n        \"topic\": \"get all cell morphologies\",\n        \"tokens\": 2000\n    }\n)]; expected ['get-obi-software-docs'], called ['obi-expert', 'obi-expert', 'obi-expert', 'obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 0.5,
+          "success": true,
           "threshold": 0.5,
           "reason": ""
         }
@@ -757,15 +757,15 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.3333333333333333,
-          "success": false,
+          "score": 0.5,
+          "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"validatestate\"\n), ToolCall(\n    name=\"editstate\",\n    input_parameters={\n        \"patches\": [\n            {\n                \"op\": \"replace\",\n                \"path\": \"/smc_simulation_config/info/title\",\n                \"value\": \"Complete Setup\"\n            },\n            {\n                \"op\": \"replace\",\n                \"path\": \"/smc_simulation_config/initialize/duration\",\n                \"value\": 1500.0\n            }\n        ]\n    }\n)]; expected ['getstate', 'editstate', 'validatestate'], called ['getstate']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.3333333333333333,
-          "success": false,
+          "score": 0.5,
+          "success": true,
           "threshold": 0.5,
           "reason": ""
         }
@@ -1196,25 +1196,25 @@
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools [] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Correct ordering: all expected tools ['obi-expert'] were called in the correct order.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
-          "reason": "No tool calls provided"
+          "reason": "The score is 0.00 because the input does not specifically address the request for 'mechanism MOD files for a specific neuron model', leading to confusion in tool calls."
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: All expected tools [] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"obi-expert\",\n    input_parameters={\n        \"document_type\": \"documentationProduct\",\n        \"query\": \"ion\"\n    }\n)]; expected ['obi-expert'], called ['obi-expert', 'obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -1315,7 +1315,7 @@
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.5,
+          "score": 0.6666666666666666,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -1353,6 +1353,22 @@
           "start_publish_date": "2021-01-01T00:00:00Z",
           "end_publish_date": "2026-03-30T00:00:00Z",
           "num_results": 7
+        }
+      },
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "page_size": 10,
+          "query": "paired"
+        }
+      },
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "page_size": 10,
+          "query": "extracellular"
         }
       }
     ],
@@ -1451,7 +1467,7 @@
         },
         {
           "name": "Argument Correctness",
-          "score": 0.0,
+          "score": 0.3333333333333333,
           "success": false,
           "threshold": 0.5,
           "reason": "The score is 0.00 because the input parameter does not correctly specify the action to open the simulation configuration page, leading to a complete failure in execution."
@@ -2291,8 +2307,8 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"read-paper\",\n    input_parameters={\n        \"urls\": [\n            \"https://pubmed.ncbi.nlm.nih.gov/\"\n        ]\n    }\n)]; expected ['read-paper'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -2359,8 +2375,8 @@
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": ""
         }
@@ -3492,8 +3508,8 @@
         },
         {
           "name": "Tool Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['navigate'] and out-of-order tools ['navigate']; expected ['navigate'], called []. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
@@ -3505,7 +3521,7 @@
           "reason": "No tool calls provided"
         },
         {
-          "name": "Deterministic Argument Correctness",
+          "name": "Argument Correctness",
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
@@ -3513,7 +3529,7 @@
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -3733,8 +3749,8 @@
         },
         {
           "name": "Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "The score is 0.00 because there were critical missing parameters in the tool calls, specifically for the getstate and navigate tools, which prevented the simulation from being set up correctly."
         },
