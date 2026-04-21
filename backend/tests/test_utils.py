@@ -412,7 +412,7 @@ class TestExtractFrontendContextRouteMatching:
     def test_project_home(self):
         result = extract_frontend_context(BASE)
         assert "project home page" in result.route_description.lower()
-        assert result.path_params == {}
+        assert result.path_params == []
 
     def test_team_page(self):
         result = extract_frontend_context(f"{BASE}/team")
@@ -444,47 +444,47 @@ class TestExtractFrontendContextPathParams:
 
     def test_data_browse_entity_type(self):
         result = extract_frontend_context(f"{BASE}/data/browse/entity/memodel")
-        assert any("memodel" == v for v in result.path_params.values())
-        type_key = [k for k, v in result.path_params.items() if v == "memodel"][0]
-        assert "(type)" in type_key
+        assert any("memodel" == p.value for p in result.path_params)
+        type_param = next(p for p in result.path_params if p.value == "memodel")
+        assert type_param.name == "type"
 
     def test_data_detail_view(self):
         result = extract_frontend_context(
             f"{BASE}/data/view/emodel/{ENTITY_ID}/analysis"
         )
-        assert any(ENTITY_ID == v for v in result.path_params.values())
-        assert any("emodel" == v for v in result.path_params.values())
-        assert any("analysis" == v for v in result.path_params.values())
+        assert any(ENTITY_ID == p.value for p in result.path_params)
+        assert any("emodel" == p.value for p in result.path_params)
+        assert any("analysis" == p.value for p in result.path_params)
 
     def test_notebooks_scope(self):
         result = extract_frontend_context(f"{BASE}/notebooks/public")
-        assert any("public" == v for v in result.path_params.values())
+        assert any("public" == p.value for p in result.path_params)
 
     def test_simulate_configure_memodel(self):
         result = extract_frontend_context(
             f"{BASE}/workflows/simulate/configure/memodel/{ENTITY_ID}"
         )
-        assert any(ENTITY_ID == v for v in result.path_params.values())
+        assert any(ENTITY_ID == p.value for p in result.path_params)
 
     def test_workflow_view_with_section(self):
         result = extract_frontend_context(
             f"{BASE}/workflows/view/single-neuron-simulation/{ENTITY_ID}/results"
         )
-        assert any("results" == v for v in result.path_params.values())
-        assert any(ENTITY_ID == v for v in result.path_params.values())
-        assert any("single-neuron-simulation" == v for v in result.path_params.values())
+        assert any("results" == p.value for p in result.path_params)
+        assert any(ENTITY_ID == p.value for p in result.path_params)
+        assert any("single-neuron-simulation" == p.value for p in result.path_params)
 
     def test_obi_showcase_slug(self):
         result = extract_frontend_context(
             f"{BASE}/reports/obi-showcase/my-showcase-slug"
         )
-        assert any("my-showcase-slug" == v for v in result.path_params.values())
+        assert any("my-showcase-slug" == p.value for p in result.path_params)
 
     def test_extract_configure_circuit(self):
         result = extract_frontend_context(
             f"{BASE}/workflows/extract/configure/circuit/{ENTITY_ID}"
         )
-        assert any(ENTITY_ID == v for v in result.path_params.values())
+        assert any(ENTITY_ID == p.value for p in result.path_params)
 
 
 class TestExtractFrontendContextSearchParams:
@@ -492,27 +492,27 @@ class TestExtractFrontendContextSearchParams:
 
     def test_data_landing_with_group_and_scope(self):
         result = extract_frontend_context(f"{BASE}/data?group=models&scope=project")
-        assert any("models" == v for v in result.search_params.values())
-        assert any("project" == v for v in result.search_params.values())
+        assert any("models" == p.value for p in result.search_params)
+        assert any("project" == p.value for p in result.search_params)
 
     def test_data_landing_with_brain_region(self):
         br_id = "d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a"
         result = extract_frontend_context(f"{BASE}/data?br_id={br_id}&br_av=567")
-        assert any(br_id == v for v in result.search_params.values())
-        assert any("567" == v for v in result.search_params.values())
+        assert any(br_id == p.value for p in result.search_params)
+        assert any("567" == p.value for p in result.search_params)
 
     def test_help_with_section_and_scale(self):
         result = extract_frontend_context(
             f"{BASE}/help?section=features&scale=cellular"
         )
-        assert any("features" == v for v in result.search_params.values())
-        assert any("cellular" == v for v in result.search_params.values())
+        assert any("features" == p.value for p in result.search_params)
+        assert any("cellular" == p.value for p in result.search_params)
 
     def test_browse_entity_with_scope(self):
         result = extract_frontend_context(
             f"{BASE}/data/browse/entity/cell-morphology?scope=project"
         )
-        assert any("project" == v for v in result.search_params.values())
+        assert any("project" == p.value for p in result.search_params)
 
     def test_simulate_configure_with_session_and_panel(self):
         session = "abc-123"
@@ -520,16 +520,16 @@ class TestExtractFrontendContextSearchParams:
             f"{BASE}/workflows/simulate/configure/circuit/{ENTITY_ID}"
             f"?sessionId={session}&panel=results"
         )
-        assert any(session == v for v in result.search_params.values())
-        assert any("results" == v for v in result.search_params.values())
+        assert any(session == p.value for p in result.search_params)
+        assert any("results" == p.value for p in result.search_params)
 
     def test_unknown_search_param_still_captured(self):
         result = extract_frontend_context(f"{BASE}/data?unknown_param=hello")
-        assert any("hello" == v for v in result.search_params.values())
+        assert any("hello" == p.value for p in result.search_params)
 
     def test_reports_section_param(self):
         result = extract_frontend_context(f"{BASE}/reports?section=summaries")
-        assert any("summaries" == v for v in result.search_params.values())
+        assert any("summaries" == p.value for p in result.search_params)
 
 
 class TestExtractFrontendContextNonProjectRoutes:
@@ -552,7 +552,7 @@ class TestExtractFrontendContextNonProjectRoutes:
 
     def test_entity_shortcut(self):
         result = extract_frontend_context(f"https://example.com/app/entity/{ENTITY_ID}")
-        assert any(ENTITY_ID == v for v in result.path_params.values())
+        assert any(ENTITY_ID == p.value for p in result.path_params)
 
     def test_documentation_home(self):
         result = extract_frontend_context("https://example.com/app/documentation")
@@ -562,7 +562,7 @@ class TestExtractFrontendContextNonProjectRoutes:
         result = extract_frontend_context(
             "https://example.com/app/documentation/tutorials/my-tutorial"
         )
-        assert any("my-tutorial" == v for v in result.path_params.values())
+        assert any("my-tutorial" == p.value for p in result.path_params)
 
 
 class TestExtractFrontendContextEdgeCases:
@@ -573,8 +573,8 @@ class TestExtractFrontendContextEdgeCases:
             "https://example.com/this/does/not/exist/at/all"
         )
         assert "unknown" in result.route_description.lower()
-        assert result.path_params == {}
-        assert result.search_params == {}
+        assert result.path_params == []
+        assert result.search_params == []
 
     def test_trailing_slash_still_matches(self):
         result = extract_frontend_context(f"{BASE}/team")
@@ -582,11 +582,11 @@ class TestExtractFrontendContextEdgeCases:
 
     def test_empty_search_params(self):
         result = extract_frontend_context(f"{BASE}/credits")
-        assert result.search_params == {}
+        assert result.search_params == []
 
     def test_empty_path_params_for_static_route(self):
         result = extract_frontend_context("https://example.com/gallery")
-        assert result.path_params == {}
+        assert result.path_params == []
 
     def test_virtual_lab_sync(self):
         result = extract_frontend_context(
@@ -596,4 +596,4 @@ class TestExtractFrontendContextEdgeCases:
             "sync" in result.route_description.lower()
             or "workspace" in result.route_description.lower()
         )
-        assert any("/app/home" == v for v in result.search_params.values())
+        assert any("/app/home" == p.value for p in result.search_params)

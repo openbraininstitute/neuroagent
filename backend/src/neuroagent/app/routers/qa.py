@@ -185,9 +185,9 @@ Available Tools:
                 # Resolve brain region ID to name if present in search params
                 br_id_entry = next(
                     (
-                        v
-                        for k, v in context_output.search_params.items()
-                        if "(br_id)" in k
+                        p.value
+                        for p in context_output.search_params
+                        if p.name == "br_id"
                     ),
                     None,
                 )

@@ -140,10 +140,12 @@ def test_question_suggestions(
     expected_context = (
         "\nCurrent page context: {'route_description': 'Browse and filter a specific entity type "
         "(e.g. cell morphologies, ME-models) within the project data.', "
-        "'path_params': {'Entity type in kebab-case (type)': 'experimental-synapses-per-connection'}, "
-        "'search_params': {'ID of the selected brain region used to filter the entity listing (br_id)': "
-        "'676b00ec-1b9e-478d-96ef-069b25f17f9a', "
-        "'Annotation value of the selected brain region; always paired with br_id (br_av)': '803'}, "
+        "'path_params': [{'name': 'type', 'value': 'experimental-synapses-per-connection', "
+        "'description': 'Entity type in kebab-case'}], "
+        "'search_params': [{'name': 'br_id', 'value': '676b00ec-1b9e-478d-96ef-069b25f17f9a', "
+        "'description': 'ID of the selected brain region used to filter the entity listing'}, "
+        "{'name': 'br_av', 'value': '803', "
+        "'description': 'Annotation value of the selected brain region; always paired with br_id'}], "
         "'brain_region_name': 'Amazing BR'}"
     )
 

@@ -16,7 +16,7 @@ from neuroagent.app.database.sql_schemas import (
     Entity,
     Messages,
 )
-from neuroagent.app.schemas import FrontendContextOutput
+from neuroagent.app.schemas import FrontendContextOutput, Param
 
 logger = logging.getLogger(__name__)
 
@@ -330,24 +330,24 @@ def extract_frontend_context(url: str) -> FrontendContextOutput:
         # --- path params (skip vlabId/projectId, always present) ---
         _SKIP_PATH_PARAMS = {"virtualLabId", "projectId"}
         path_param_defs: dict[str, Any] = route_entry.get("pathParams", {})
-        path_params: dict[str, str] = {}
+        path_params: list[Param] = []
         for name, value in m.groupdict().items():
             if name in _SKIP_PATH_PARAMS:
                 continue
             defn = path_param_defs.get(name, name)
             desc = defn["description"] if isinstance(defn, dict) else defn
-            path_params[f"{desc} ({name})"] = value
+            path_params.append(Param(name=name, value=value, description=desc))
 
         # --- search params ---
         search_param_defs: dict[str, dict[str, Any]] = route_entry.get(
             "searchParams", {}
         )
-        search_params: dict[str, str] = {}
+        search_params: list[Param] = []
         for name, values in query.items():
             value = values[0] if len(values) == 1 else ", ".join(values)
             sp_def = search_param_defs.get(name)
             desc = sp_def.get("description", name) if sp_def else name
-            search_params[f"{desc} ({name})"] = value
+            search_params.append(Param(name=name, value=value, description=desc))
 
         return FrontendContextOutput(
             route_description=route_entry["description"],
@@ -358,6 +358,6 @@ def extract_frontend_context(url: str) -> FrontendContextOutput:
     # No route matched — return a minimal context.
     return FrontendContextOutput(
         route_description=f"Unknown page: /{path}",
-        path_params={},
-        search_params={},
+        path_params=[],
+        search_params=[],
     )

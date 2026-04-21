@@ -305,9 +305,17 @@ class SearchMessagesList(BaseModel):
     result_list: list[SearchMessagesResult]
 
 
+class Param(BaseModel):
+    """URL parameter definition."""
+
+    name: str
+    value: Any
+    description: str
+
+
 class FrontendContextOutput(BaseModel):
     """Output of the Context Analyzer tool."""
 
     route_description: str
-    path_params: dict[str, str]
-    search_params: dict[str, str]
+    path_params: list[Param]
+    search_params: list[Param]
