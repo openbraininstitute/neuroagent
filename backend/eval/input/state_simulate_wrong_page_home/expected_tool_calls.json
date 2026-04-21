@@ -1,0 +1,18 @@
+[
+  {
+    "name": "getstate",
+    "arguments": {
+      "path": "/smc_simulation_config"
+    }
+  },
+  {
+    "name": "navigate",
+    "arguments": {
+      "page_type": "workflows",
+      "workflow_phase": "simulate",
+      "workflow_action": "configure",
+      "workflow_entity_type": "circuit",
+      "entity_id": "d7344f4b-422a-4484-9cc4-794dbe0cf388"
+    }
+  }
+]

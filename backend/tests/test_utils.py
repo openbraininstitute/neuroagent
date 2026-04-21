@@ -8,6 +8,7 @@ import pytest
 from neuroagent.utils import (
     complete_partial_json,
     delete_from_storage,
+    extract_frontend_context,
     merge_chunk,
     merge_fields,
     save_to_storage,
@@ -399,205 +400,200 @@ def test_empty_string():
     assert is_uuid("") is False
 
 
-@pytest.mark.asyncio
-async def test_basic_url_parsing():
-    """Test basic URL parsing without query params."""
-
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/cell-morphology"
-
-    result = extract_frontend_context(url)
-
-    assert result.raw_path == "cell-morphology"
-    assert result.query_params == {}
-    assert result.brain_region_id is None
-    assert result.observed_entity_type == "cell-morphology"
-    assert result.current_entity_id is None
-
-
-@pytest.mark.asyncio
-async def test_url_with_entity_id():
-    """Test URL parsing with entity ID."""
-    from uuid import UUID
-
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
-
-    result = extract_frontend_context(url)
-
-    assert result.raw_path == "cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
-    assert result.observed_entity_type == "cell-morphology"
-    assert result.current_entity_id == UUID("c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f")
-
-
-@pytest.mark.asyncio
-async def test_url_with_query_params():
-    """Test URL parsing with query parameters."""
-    from uuid import UUID
-
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/electrical-cell-recording?br_id=d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a&filter=active"
-
-    result = extract_frontend_context(url)
-
-    assert result.raw_path == "electrical-cell-recording"
-    assert result.query_params["br_id"] == ["d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a"]
-    assert result.query_params["filter"] == ["active"]
-    assert result.brain_region_id == UUID("d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a")
-    assert result.observed_entity_type == "electrical-cell-recording"
-
-
-@pytest.mark.asyncio
-async def test_url_with_nested_path():
-    """Test URL parsing with nested paths."""
-    from uuid import UUID
-
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/emodel/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f/results"
-
-    result = extract_frontend_context(url)
-
-    assert result.raw_path == "emodel/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f/results"
-    assert result.current_entity_id == UUID("c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f")
-    assert result.observed_entity_type == "emodel"
-
-
-@pytest.mark.asyncio
-async def test_complex_url_with_cell_morphology():
-    """Test URL with complex path including cell-morphology."""
-    from uuid import UUID
-
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://mydomain.org/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/some/path/entity/cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f?br_id=d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a"
-
-    result = extract_frontend_context(url)
-
-    assert (
-        result.raw_path
-        == "some/path/entity/cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
-    )
-    assert result.observed_entity_type == "cell-morphology"
-    assert result.current_entity_id == UUID("c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f")
-    assert result.brain_region_id == UUID("d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a")
-
-
-@pytest.mark.asyncio
-async def test_complex_url_without_optional_uuid():
-    """Test URL with complex path without optional UUID."""
-    from uuid import UUID
-
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://mydomain.org/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/some/path/entity/cell-morphology?br_id=d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a"
-
-    result = extract_frontend_context(url)
-
-    assert result.raw_path == "some/path/entity/cell-morphology"
-    assert result.observed_entity_type == "cell-morphology"
-    assert result.current_entity_id is None
-    assert result.brain_region_id == UUID("d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a")
-
-
-@pytest.mark.asyncio
-async def test_invalid_url_raises_error():
-    """Test that invalid URL raises ValueError."""
-    from neuroagent.utils import extract_frontend_context
-
-    invalid_url = "https://example.com/some/other/path"
-
-    with pytest.raises(ValueError, match="Invalid URL"):
-        extract_frontend_context(invalid_url)
-
-
-@pytest.mark.asyncio
-async def test_url_without_br_id_param():
-    """Test URL without br_id query parameter."""
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/morphologies?other_param=value"
-
-    result = extract_frontend_context(url)
-
-    assert result.brain_region_id is None
-    assert "other_param" in result.query_params
-
-
-@pytest.mark.asyncio
-async def test_url_with_trailing_slash():
-    """Test URL with trailing slash."""
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/morphologies/"
-
-    result = extract_frontend_context(url)
-
-    assert "morphologies" in result.raw_path
-
-
-@pytest.mark.asyncio
-async def test_no_matching_entity_type():
-    """Test URL with no matching entity type."""
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/unknown-route"
-
-    result = extract_frontend_context(url)
-
-    assert result.observed_entity_type is None
-    assert result.raw_path == "unknown-route"
-
-
-@pytest.mark.asyncio
-async def test_url_with_multiple_uuid():
-    """Test URL parsing with multiple UUIDs."""
-    from uuid import UUID
-
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"
-
-    result = extract_frontend_context(url)
-
-    assert (
-        result.raw_path
-        == "cell-morphology/c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"
-    )
-    assert result.observed_entity_type == "cell-morphology"
-    assert result.current_entity_id == UUID("c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f")
-
-
-@pytest.mark.asyncio
-async def test_url_with_simulation():
-    """Test URL parsing with simulation campaign."""
-    from neuroagent.utils import extract_frontend_context
-
-    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/small-microcircuit-simulation?br_id=4642cddb-4fbe-4aae-bbf7-0946d6ada066&br_av=8&group=simulations&view=flat"
-
-    result = extract_frontend_context(url)
-
-    assert result.raw_path == "small-microcircuit-simulation"
-    assert result.observed_entity_type == "simulation-campaign"
-    assert result.current_entity_id is None
-    assert result.query_params["br_id"] == ["4642cddb-4fbe-4aae-bbf7-0946d6ada066"]
-    assert result.query_params["br_av"] == ["8"]
-    assert result.query_params["group"] == ["simulations"]
-    assert result.query_params["view"] == ["flat"]
-    assert result.query_params["circuit__scale"] == ["small"]
-
-    url = "https://example.com/app/virtual-lab/a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d/b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e/paired-neuron-circuit-simulation?br_id=4642cddb-4fbe-4aae-bbf7-0946d6ada066&br_av=8&group=simulations&view=flat"
-
-    result = extract_frontend_context(url)
-
-    assert result.raw_path == "paired-neuron-circuit-simulation"
-    assert result.observed_entity_type == "simulation-campaign"
-    assert result.current_entity_id is None
-    assert result.query_params["br_id"] == ["4642cddb-4fbe-4aae-bbf7-0946d6ada066"]
-    assert result.query_params["br_av"] == ["8"]
-    assert result.query_params["group"] == ["simulations"]
-    assert result.query_params["view"] == ["flat"]
-    assert result.query_params["circuit__scale"] == ["pair"]
+VLAB_ID = "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"
+PROJECT_ID = "b2c3d4e5-f6a7-4b5c-9d0e-1f2a3b4c5d6e"
+ENTITY_ID = "c3d4e5f6-a7b8-4c5d-0e1f-2a3b4c5d6e7f"
+BASE = f"https://example.com/app/virtual-lab/{VLAB_ID}/{PROJECT_ID}"
+
+
+class TestExtractFrontendContextRouteMatching:
+    """Test that URLs are matched to the correct sitemap route."""
+
+    def test_project_home(self):
+        result = extract_frontend_context(BASE)
+        assert "project home page" in result.route_description.lower()
+        assert result.path_params == []
+
+    def test_team_page(self):
+        result = extract_frontend_context(f"{BASE}/team")
+        assert "team" in result.route_description.lower()
+
+    def test_credits_page(self):
+        result = extract_frontend_context(f"{BASE}/credits")
+        assert "credit" in result.route_description.lower()
+
+    def test_help_page(self):
+        result = extract_frontend_context(f"{BASE}/help")
+        assert "help" in result.route_description.lower()
+
+    def test_data_landing(self):
+        result = extract_frontend_context(f"{BASE}/data")
+        assert "data" in result.route_description.lower()
+
+    def test_workflows_landing(self):
+        result = extract_frontend_context(f"{BASE}/workflows")
+        assert "workflow" in result.route_description.lower()
+
+    def test_reports_page(self):
+        result = extract_frontend_context(f"{BASE}/reports")
+        assert "report" in result.route_description.lower()
+
+
+class TestExtractFrontendContextPathParams:
+    """Test that path parameters are extracted with their descriptions."""
+
+    def test_data_browse_entity_type(self):
+        result = extract_frontend_context(f"{BASE}/data/browse/entity/memodel")
+        assert any("memodel" == p.value for p in result.path_params)
+        type_param = next(p for p in result.path_params if p.value == "memodel")
+        assert type_param.name == "type"
+
+    def test_data_detail_view(self):
+        result = extract_frontend_context(
+            f"{BASE}/data/view/emodel/{ENTITY_ID}/analysis"
+        )
+        assert any(ENTITY_ID == p.value for p in result.path_params)
+        assert any("emodel" == p.value for p in result.path_params)
+        assert any("analysis" == p.value for p in result.path_params)
+
+    def test_notebooks_scope(self):
+        result = extract_frontend_context(f"{BASE}/notebooks/public")
+        assert any("public" == p.value for p in result.path_params)
+
+    def test_simulate_configure_memodel(self):
+        result = extract_frontend_context(
+            f"{BASE}/workflows/simulate/configure/memodel/{ENTITY_ID}"
+        )
+        assert any(ENTITY_ID == p.value for p in result.path_params)
+
+    def test_workflow_view_with_section(self):
+        result = extract_frontend_context(
+            f"{BASE}/workflows/view/single-neuron-simulation/{ENTITY_ID}/results"
+        )
+        assert any("results" == p.value for p in result.path_params)
+        assert any(ENTITY_ID == p.value for p in result.path_params)
+        assert any("single-neuron-simulation" == p.value for p in result.path_params)
+
+    def test_obi_showcase_slug(self):
+        result = extract_frontend_context(
+            f"{BASE}/reports/obi-showcase/my-showcase-slug"
+        )
+        assert any("my-showcase-slug" == p.value for p in result.path_params)
+
+    def test_extract_configure_circuit(self):
+        result = extract_frontend_context(
+            f"{BASE}/workflows/extract/configure/circuit/{ENTITY_ID}"
+        )
+        assert any(ENTITY_ID == p.value for p in result.path_params)
+
+
+class TestExtractFrontendContextSearchParams:
+    """Test that search parameters are extracted with their descriptions."""
+
+    def test_data_landing_with_group_and_scope(self):
+        result = extract_frontend_context(f"{BASE}/data?group=models&scope=project")
+        assert any("models" == p.value for p in result.search_params)
+        assert any("project" == p.value for p in result.search_params)
+
+    def test_data_landing_with_brain_region(self):
+        br_id = "d4e5f6a7-b8c9-4d5e-1f2a-3b4c5d6e7f8a"
+        result = extract_frontend_context(f"{BASE}/data?br_id={br_id}&br_av=567")
+        assert any(br_id == p.value for p in result.search_params)
+        assert any("567" == p.value for p in result.search_params)
+
+    def test_help_with_section_and_scale(self):
+        result = extract_frontend_context(
+            f"{BASE}/help?section=features&scale=cellular"
+        )
+        assert any("features" == p.value for p in result.search_params)
+        assert any("cellular" == p.value for p in result.search_params)
+
+    def test_browse_entity_with_scope(self):
+        result = extract_frontend_context(
+            f"{BASE}/data/browse/entity/cell-morphology?scope=project"
+        )
+        assert any("project" == p.value for p in result.search_params)
+
+    def test_simulate_configure_with_session_and_panel(self):
+        session = "abc-123"
+        result = extract_frontend_context(
+            f"{BASE}/workflows/simulate/configure/circuit/{ENTITY_ID}"
+            f"?sessionId={session}&panel=results"
+        )
+        assert any(session == p.value for p in result.search_params)
+        assert any("results" == p.value for p in result.search_params)
+
+    def test_unknown_search_param_still_captured(self):
+        result = extract_frontend_context(f"{BASE}/data?unknown_param=hello")
+        assert any("hello" == p.value for p in result.search_params)
+
+    def test_reports_section_param(self):
+        result = extract_frontend_context(f"{BASE}/reports?section=summaries")
+        assert any("summaries" == p.value for p in result.search_params)
+
+
+class TestExtractFrontendContextNonProjectRoutes:
+    """Test routes that are not under /app/virtual-lab/[vlabId]/[projectId]."""
+
+    def test_public_landing(self):
+        result = extract_frontend_context("https://example.com/")
+        assert "landing" in result.route_description.lower()
+
+    def test_gallery(self):
+        result = extract_frontend_context("https://example.com/gallery")
+        assert "gallery" in result.route_description.lower()
+
+    def test_login(self):
+        result = extract_frontend_context("https://example.com/app/log-in")
+        assert (
+            "login" in result.route_description.lower()
+            or "log" in result.route_description.lower()
+        )
+
+    def test_entity_shortcut(self):
+        result = extract_frontend_context(f"https://example.com/app/entity/{ENTITY_ID}")
+        assert any(ENTITY_ID == p.value for p in result.path_params)
+
+    def test_documentation_home(self):
+        result = extract_frontend_context("https://example.com/app/documentation")
+        assert "documentation" in result.route_description.lower()
+
+    def test_documentation_tutorial_slug(self):
+        result = extract_frontend_context(
+            "https://example.com/app/documentation/tutorials/my-tutorial"
+        )
+        assert any("my-tutorial" == p.value for p in result.path_params)
+
+
+class TestExtractFrontendContextEdgeCases:
+    """Edge cases and fallback behavior."""
+
+    def test_unknown_route_returns_unknown(self):
+        result = extract_frontend_context(
+            "https://example.com/this/does/not/exist/at/all"
+        )
+        assert "unknown" in result.route_description.lower()
+        assert result.path_params == []
+        assert result.search_params == []
+
+    def test_trailing_slash_still_matches(self):
+        result = extract_frontend_context(f"{BASE}/team")
+        assert "team" in result.route_description.lower()
+
+    def test_empty_search_params(self):
+        result = extract_frontend_context(f"{BASE}/credits")
+        assert result.search_params == []
+
+    def test_empty_path_params_for_static_route(self):
+        result = extract_frontend_context("https://example.com/gallery")
+        assert result.path_params == []
+
+    def test_virtual_lab_sync(self):
+        result = extract_frontend_context(
+            "https://example.com/app/virtual-lab/sync?redirectUrl=/app/home"
+        )
+        assert (
+            "sync" in result.route_description.lower()
+            or "workspace" in result.route_description.lower()
+        )
+        assert any("/app/home" == p.value for p in result.search_params)

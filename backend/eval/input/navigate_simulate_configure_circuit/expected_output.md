@@ -1,0 +1,1 @@
+Here is the link to the simulation configuration page for your circuit: [Configure simulation](https://staging.openbraininstitute.org/app/virtual-lab/82b783eb-fac6-45ec-a928-84322e3a9672/7ef8dc29-233a-4c01-94b8-8c1420105304/workflows/simulate/configure/circuit/3700dfb4-c7e2-40a9-ad2e-378430437d16).

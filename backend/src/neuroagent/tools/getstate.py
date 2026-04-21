@@ -4,7 +4,11 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, Field
 
-from neuroagent.shared_state import SharedStateLoosened
+from neuroagent.shared_state import (
+    STATE_KEY_ALLOWED_PAGES,
+    SharedStateLoosened,
+    check_state_key_page_access,
+)
 from neuroagent.tools.base_tool import BaseMetadata, BaseTool
 
 
@@ -21,6 +25,7 @@ class GetStateMetadata(BaseMetadata):
     """Metadata for the GetState tool."""
 
     shared_state: SharedStateLoosened
+    current_frontend_url: str | None = None
 
 
 class GetStateOutput(BaseModel):
@@ -48,6 +53,11 @@ Returns the current shared state JSON from the application. The state contains c
 # When NOT to Use
 - Right after calling a tool that already returns the state in its output.
 
+# Page Restriction
+State can only be read on predefined pages. If this tool errors out because the user is not on the correct page:
+1. If you believe a state-enabled page exists for the user's request, call the `navigate` tool to get a link. NEVER construct the URL yourself. Present its output URL verbatim (do NOT modify it) and ask the user to click it. Keep the message short.
+2. If you believe no state-enabled page exists for the request, tell the user that this action is not available from their current page.
+
 # Output Format
 - Summarize the relevant parts of the state concisely in natural language. Do not dump raw JSON in chat.
 """
@@ -59,6 +69,18 @@ Returns the current shared state JSON from the application. The state contains c
         """Return the current shared state or a sub-path of it."""
         if not self.metadata.shared_state:
             raise ValueError("No shared state was provided in the request body.")
+
+        # Check that the user is on a page associated with at least one state key
+        if self.metadata.current_frontend_url and not any(
+            check_state_key_page_access(key, self.metadata.current_frontend_url)
+            for key in STATE_KEY_ALLOWED_PAGES
+        ):
+            valid_pages = {k: v.pattern for k, v in STATE_KEY_ALLOWED_PAGES.items()}
+            raise ValueError(
+                "Cannot get state: the current page is not associated with any state key. "
+                f"Valid page patterns: {valid_pages}"
+                "Use `navigate` tool to get to a valid page."
+            )
 
         full_state = self.metadata.shared_state.model_dump()
 

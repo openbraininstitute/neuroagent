@@ -1,7 +1,6 @@
 """Get All SimulationResult tool."""
 
-from typing import ClassVar, Literal
-from uuid import UUID
+from typing import ClassVar
 
 from httpx import AsyncClient
 from pydantic import Field
@@ -22,21 +21,11 @@ class SimulationResultGetAllInput(
 ):
     """Inputs for the simulation-result get all tool."""
 
-    within_brain_region_brain_region_id: UUID | None = Field(
-        default=None,
-        description="ID of the brain region of interest in UUID format.",
-    )
     page_size: int = Field(
         ge=1,
         le=10,
         default=5,
         description="Number of items per page",
-    )
-    within_brain_region_direction: Literal[
-        "ascendants", "descendants", "ascendants_and_descendants"
-    ] = Field(
-        default="ascendants_and_descendants",
-        description="Controls whether to search in parent regions (ascendants), child regions (descendants), or both when filtering by brain region.",
     )
 
 
@@ -78,9 +67,6 @@ class SimulationResultGetAllTool(BaseTool):
         """
         query_params = self.input_schema.model_dump(exclude_defaults=True, mode="json")
         query_params["page_size"] = self.input_schema.page_size
-        query_params["within_brain_region_direction"] = (
-            self.input_schema.within_brain_region_direction
-        )
 
         headers: dict[str, str] = {}
         if self.metadata.vlab_id is not None:

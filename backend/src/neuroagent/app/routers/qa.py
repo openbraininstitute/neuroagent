@@ -180,34 +180,36 @@ Available Tools:
                 # Get current page info
                 context_output = extract_frontend_context(body.frontend_url)
 
-                # Get BR name from ID
-                if context_output.brain_region_id is not None:
-                    headers: dict[str, str] = {}
-                    if vlab_id is not None:
-                        headers["virtual-lab-id"] = str(vlab_id)
-                    if project_id is not None:
-                        headers["project-id"] = str(project_id)
+                context_output_json = context_output.model_dump(mode="json")
 
-                    # Query GET ONE Brain Region in entitycore
-                    response = await httpx_client.get(
-                        url=settings.tools.entitycore.url.rstrip("/")
-                        + f"/brain-region/{str(context_output.brain_region_id)}",
-                        headers=headers,
-                    )
-                    if response.status_code != 200:
-                        brain_region_name = None
-
-                    brain_region_name = response.json()["name"]
-                else:
-                    brain_region_name = None
-
-                # Dump page context
-                context_output_json = context_output.model_dump(
-                    mode="json", exclude={"raw_path", "query_params"}
+                # Resolve brain region ID to name if present in search params
+                br_id_entry = next(
+                    (
+                        p.value
+                        for p in context_output.search_params
+                        if p.name == "br_id"
+                    ),
+                    None,
                 )
-
-                # Add resolved BR name. Even if `None` it carries info
-                context_output_json["brain_region_name"] = brain_region_name
+                if br_id_entry:
+                    try:
+                        UUID(br_id_entry)  # validate format
+                        headers: dict[str, str] = {}
+                        if vlab_id is not None:
+                            headers["virtual-lab-id"] = str(vlab_id)
+                        if project_id is not None:
+                            headers["project-id"] = str(project_id)
+                        response = await httpx_client.get(
+                            url=settings.tools.entitycore.url.rstrip("/")
+                            + f"/brain-region/{br_id_entry}",
+                            headers=headers,
+                        )
+                        if response.status_code == 200:
+                            context_output_json["brain_region_name"] = response.json()[
+                                "name"
+                            ]
+                    except (ValueError, TypeError, Exception):
+                        pass
 
                 context_info = f"\nCurrent page context: {context_output_json}"
             except Exception:
@@ -246,16 +248,15 @@ Tool Description Format
 
 Input format:
 - Current page context with fields:
-- `observed_entity_type`: Type of entity being viewed. `None` means a general page.
-- `current_entity_id`: UUID of the specific entity being viewed. (`brain_region_id` is NOT an entity ID.) `None` means a list/overview page.
-- `brain_region_id`: This identifies the selected brain region but is not an entity ID. `None` means no region filter is active.
-- `brain_region_name`: Name of the brain region with this ID. `None` means that the name resolving could not be performed from the ID
+- `route_description`: Human-readable description of the page the user is currently viewing.
+- `path_params`: Dictionary mapping path parameter descriptions to their current values (e.g. entity IDs, entity types, section tabs).
+- `search_params`: Dictionary mapping search parameter descriptions to their current values (e.g. scope, brain region filters, active tabs).
 
 Typical action patterns:
-- If `current_entity_id` is present: Suggest actions to analyze, visualize, or get more details about that specific entity (mention the entity ID explicitly. The entity ID is NOT `brain_region_id`.).
-- If `current_entity_id` is None but `observed_entity_type` is present: Suggest actions to search, filter, or retrieve entities of that type.
-- If `brain_region_name` is present: Suggest actions about that brain region by name (e.g., find related entities in the region, search literature about it etc...).
-- If most fields are None, or there is no user input: Suggest exploratory actions to help users discover available data or features.
+- If path_params contain an entity ID: Suggest actions to analyze, visualize, or get more details about that specific entity (mention the entity ID explicitly).
+- If path_params contain an entity type but no entity ID: Suggest actions to search, filter, or retrieve entities of that type.
+- If search_params contain a brain region filter: Suggest actions about that brain region (e.g., find related entities in the region, search literature about it etc...).
+- If the context is minimal (e.g. a landing page): Suggest exploratory actions to help users discover available data or features.
 - For the literature-related action, use only high-level concepts or keywords from the current page context (e.g., page topics, regions, or scientific terms), not database-specific IDs.
 - The remaining two actions must focus on features or data available from the current page context.
 

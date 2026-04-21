@@ -1,7 +1,5 @@
 """Tests for state management tools (getstate, editstate)."""
 
-from uuid import UUID
-
 import pytest
 from pydantic import ValidationError
 
@@ -198,12 +196,10 @@ class TestEditStateTool:
             await tool.arun()
 
     @pytest.mark.asyncio
-    async def test_no_url_links_without_frontend_url(
-        self, shared_state: SharedStateLoosened
-    ) -> None:
-        """Test that url_links is None when no frontend URL is provided."""
+    async def test_no_shared_state_raises(self) -> None:
+        """Test that editing without shared state raises an error."""
         tool = EditStateTool(
-            metadata=EditStateMetadata(shared_state=shared_state),
+            metadata=EditStateMetadata(shared_state=SharedStateLoosened()),
             input_schema=EditStateInput(
                 patches=[
                     JSONPatchOperation(
@@ -214,189 +210,8 @@ class TestEditStateTool:
                 ],
             ),
         )
-        result = await tool.arun()
-        assert result.url_links is None
-
-    @pytest.mark.asyncio
-    async def test_url_links_for_simulation_config_change(
-        self, shared_state: SharedStateLoosened
-    ) -> None:
-        """Test that url_links is generated when smc_simulation_config is modified."""
-        circuit_id = "12345678-1234-1234-1234-123456789abc"
-        request_id = "test-request-123"
-
-        tool = EditStateTool(
-            metadata=EditStateMetadata(
-                shared_state=shared_state,
-                current_frontend_url="https://example.com/app/virtual-lab/vlab-123/project-456/other-page",
-                request_id=request_id,
-            ),
-            input_schema=EditStateInput(
-                patches=[
-                    JSONPatchOperation(
-                        op="replace",
-                        path="/smc_simulation_config/info/title",
-                        value="Updated",
-                    )
-                ],
-            ),
-        )
-        result = await tool.arun()
-
-        assert result.url_links is not None
-        assert "smc_simulation_config" in result.url_links
-        assert (
-            f"/workflows/simulate/configure/circuit/{circuit_id}"
-            in result.url_links["smc_simulation_config"]
-        )
-        assert f"x-request-id={request_id}" in result.url_links["smc_simulation_config"]
-
-    @pytest.mark.asyncio
-    async def test_no_url_links_when_already_on_simulation_page(
-        self, shared_state: SharedStateLoosened
-    ) -> None:
-        """Test that url_links is None when user is already on the simulation page."""
-        circuit_id = "12345678-1234-1234-1234-123456789abc"
-
-        tool = EditStateTool(
-            metadata=EditStateMetadata(
-                shared_state=shared_state,
-                current_frontend_url=f"https://example.com/app/virtual-lab/vlab-123/project-456/workflows/simulate/configure/circuit/{circuit_id}",
-                request_id="test-request-123",
-            ),
-            input_schema=EditStateInput(
-                patches=[
-                    JSONPatchOperation(
-                        op="replace",
-                        path="/smc_simulation_config/info/title",
-                        value="Updated",
-                    )
-                ],
-            ),
-        )
-        result = await tool.arun()
-
-        # Should not return URL since user is already on the correct page
-        assert result.url_links is None
-
-    @pytest.mark.asyncio
-    async def test_url_links_not_generated_for_non_simulation_changes(
-        self, shared_state: SharedStateLoosened
-    ) -> None:
-        """Test that url_links is None when modifying non-simulation state fields."""
-        # Modify a field within smc_simulation_config but not the top-level key
-        # This should still generate URLs since we're modifying smc_simulation_config
-        tool = EditStateTool(
-            metadata=EditStateMetadata(
-                shared_state=shared_state,
-                current_frontend_url="https://example.com/app/virtual-lab/vlab-123/project-456/other-page",
-                request_id="test-request-123",
-            ),
-            input_schema=EditStateInput(
-                patches=[
-                    JSONPatchOperation(
-                        op="replace",
-                        path="/smc_simulation_config/initialize/dt",
-                        value=0.05,
-                    )
-                ],
-            ),
-        )
-        result = await tool.arun()
-
-        # Should generate URL since we modified smc_simulation_config
-        assert result.url_links is not None
-        assert "smc_simulation_config" in result.url_links
-
-
-class TestEditStateToolURLGeneration:
-    """Tests specifically for the get_return_url and is_correct_simulation_page methods."""
-
-    def test_is_correct_simulation_page_with_valid_url(self) -> None:
-        """Test is_correct_simulation_page returns True for valid simulation URLs."""
-        circuit_id = UUID("12345678-1234-1234-1234-123456789abc")
-        url = f"https://example.com/app/virtual-lab/vlab-123/project-456/workflows/simulate/configure/circuit/{circuit_id}"
-
-        assert EditStateTool.is_correct_simulation_page(url, circuit_id) is True
-
-    def test_is_correct_simulation_page_with_wrong_circuit_id(self) -> None:
-        """Test is_correct_simulation_page returns False when circuit ID doesn't match."""
-        circuit_id = UUID("12345678-1234-1234-1234-123456789abc")
-        different_id = UUID("87654321-4321-4321-4321-cba987654321")
-        url = f"https://example.com/app/virtual-lab/vlab-123/project-456/workflows/simulate/configure/circuit/{different_id}"
-
-        assert EditStateTool.is_correct_simulation_page(url, circuit_id) is False
-
-    def test_is_correct_simulation_page_with_non_simulation_url(self) -> None:
-        """Test is_correct_simulation_page returns False for non-simulation URLs."""
-        circuit_id = UUID("12345678-1234-1234-1234-123456789abc")
-        url = "https://example.com/app/virtual-lab/vlab-123/project-456/other-page"
-
-        assert EditStateTool.is_correct_simulation_page(url, circuit_id) is False
-
-    def test_is_correct_simulation_page_with_no_url(self) -> None:
-        """Test is_correct_simulation_page returns False when URL is None."""
-        circuit_id = UUID("12345678-1234-1234-1234-123456789abc")
-
-        assert EditStateTool.is_correct_simulation_page(None, circuit_id) is False
-
-    def test_is_correct_simulation_page_without_circuit_id(self) -> None:
-        """Test is_correct_simulation_page works without circuit ID check."""
-        url = "https://example.com/app/virtual-lab/vlab-123/project-456/workflows/simulate/configure/circuit/12345678-1234-1234-1234-123456789abc"
-
-        assert EditStateTool.is_correct_simulation_page(url, None) is True
-
-    def test_get_return_url_with_invalid_frontend_url(
-        self, shared_state: SharedStateLoosened
-    ) -> None:
-        """Test get_return_url returns None for invalid frontend URLs."""
-        tool = EditStateTool(
-            metadata=EditStateMetadata(
-                shared_state=shared_state,
-                current_frontend_url="https://example.com/invalid/path",
-                request_id="test-123",
-            ),
-            input_schema=EditStateInput(
-                patches=[
-                    JSONPatchOperation(
-                        op="replace",
-                        path="/smc_simulation_config/info/title",
-                        value="Test",
-                    )
-                ],
-            ),
-        )
-
-        result = tool.get_return_url(shared_state)
-        assert result is None
-
-    def test_get_return_url_with_missing_circuit_id(
-        self, shared_state: SharedStateLoosened
-    ) -> None:
-        """Test get_return_url handles missing circuit ID gracefully."""
-        # Remove circuit ID from state
-        shared_state.smc_simulation_config["initialize"]["circuit"] = {}  # type: ignore
-
-        tool = EditStateTool(
-            metadata=EditStateMetadata(
-                shared_state=shared_state,
-                current_frontend_url="https://example.com/app/virtual-lab/vlab-123/project-456/other-page",
-                request_id="test-123",
-            ),
-            input_schema=EditStateInput(
-                patches=[
-                    JSONPatchOperation(
-                        op="replace",
-                        path="/smc_simulation_config/info/title",
-                        value="Test",
-                    )
-                ],
-            ),
-        )
-
-        result = tool.get_return_url(shared_state)
-        # Should return None or empty dict when circuit ID is missing
-        assert result is None or result == {}
+        with pytest.raises(Exception):
+            await tool.arun()
 
 
 class TestStateToolsWorkflow:

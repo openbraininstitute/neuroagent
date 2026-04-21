@@ -137,13 +137,25 @@ def test_question_suggestions(
     # At the end we check if the calls were made with the right arguments:
     call_list = mock_openai_client.beta.chat.completions.parse.call_args_list
 
+    expected_context = (
+        "\nCurrent page context: {'route_description': 'Browse and filter a specific entity type "
+        "(e.g. cell morphologies, ME-models) within the project data.', "
+        "'path_params': [{'name': 'type', 'value': 'experimental-synapses-per-connection', "
+        "'description': 'Entity type in kebab-case'}], "
+        "'search_params': [{'name': 'br_id', 'value': '676b00ec-1b9e-478d-96ef-069b25f17f9a', "
+        "'description': 'ID of the selected brain region used to filter the entity listing'}, "
+        "{'name': 'br_av', 'value': '803', "
+        "'description': 'Annotation value of the selected brain region; always paired with br_id'}], "
+        "'brain_region_name': 'Amazing BR'}"
+    )
+
     assert call_list[0].kwargs["messages"][1] == {
         "role": "user",
-        "content": "\nCurrent page context: {'brain_region_id': '676b00ec-1b9e-478d-96ef-069b25f17f9a', 'observed_entity_type': 'experimental-synapses-per-connection', 'current_entity_id': None, 'brain_region_name': 'Amazing BR'}",
+        "content": expected_context,
     }
     assert call_list[1].kwargs["messages"][1] == {
         "role": "user",
-        "content": "\nCurrent page context: {'brain_region_id': '676b00ec-1b9e-478d-96ef-069b25f17f9a', 'observed_entity_type': 'experimental-synapses-per-connection', 'current_entity_id': None, 'brain_region_name': 'Amazing BR'}",
+        "content": expected_context,
     }
     assert call_list[2].kwargs["messages"][1:] == [
         {"content": "This is my query.", "role": "user"},
