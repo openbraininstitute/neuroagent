@@ -1224,13 +1224,13 @@ class Duration7(RootModel[float]):
         200.0,
         description='Time duration in milliseconds for how long input is activated.',
         ge=0.0,
-        le=5000.0,
+        le=12000.0,
         title='Duration',
     )
 
 
 class DurationItem7(RootModel[float]):
-    root: float = Field(..., ge=0.0, le=5000.0)
+    root: float = Field(..., ge=0.0, le=12000.0)
 
 
 class Frequency1(RootModel[float]):
@@ -1810,7 +1810,7 @@ class Duration14(RootModel[float]):
         200.0,
         description='Time duration of the stimulus in milliseconds.',
         ge=0.0,
-        le=5000.0,
+        le=12000.0,
         title='Duration',
     )
 
@@ -1895,7 +1895,7 @@ class Duration15(RootModel[float]):
         200.0,
         description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         ge=0.0,
-        le=5000.0,
+        le=12000.0,
         title='Duration',
     )
 
@@ -2464,13 +2464,13 @@ class SimulationLength(RootModel[float]):
         1000.0,
         description='Simulation length in milliseconds (ms).',
         ge=1.0,
-        le=5000.0,
+        le=12000.0,
         title='Duration',
     )
 
 
 class SimulationLength1Item(RootModel[float]):
-    root: float = Field(..., ge=1.0, le=5000.0)
+    root: float = Field(..., ge=1.0, le=12000.0)
 
 
 class SimulationLength1(RootModel[list[SimulationLength1Item]]):
@@ -3319,6 +3319,9 @@ class CircuitMetricsNodePopulation(BaseModel):
     )
     property_value_counts: dict[str, dict[str, int]] = Field(
         ..., title='Property Value Counts'
+    )
+    dynamics_param_names: list[str] | None = Field(
+        default=None, title='Dynamics Param Names'
     )
     node_location_info: dict[SpatialCoordinate, dict[str, float]] | None = Field(
         ..., title='Node Location Info'
