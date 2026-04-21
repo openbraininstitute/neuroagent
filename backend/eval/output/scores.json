@@ -61,9 +61,9 @@
       "test_name": "frontend_url_brain_region",
       "Correctness [GEval]": 0.3478739717715634,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 1.0,
-      "Overall Argument Correctness": 1.0
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.5,
+      "Overall Argument Correctness": 0.5
     },
     {
       "test_name": "get_specific_circuit",
@@ -125,7 +125,7 @@
       "test_name": "me_model_glossary",
       "Correctness [GEval]": 0.4381085992968887,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0,
+      "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
@@ -173,7 +173,7 @@
       "test_name": "off_topic_sports",
       "Correctness [GEval]": 0.5282925258134056,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0,
+      "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },
@@ -189,9 +189,9 @@
       "test_name": "platform_explore",
       "Correctness [GEval]": 0.1,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0,
-      "Deterministic Argument Correctness": 1.0,
-      "Overall Argument Correctness": 1.0
+      "Argument Correctness": 0.0,
+      "Deterministic Argument Correctness": 0.6666666666666666,
+      "Overall Argument Correctness": 0.6666666666666666
     },
     {
       "test_name": "platform_news",
@@ -205,7 +205,7 @@
       "test_name": "platform_ui_simulate",
       "Correctness [GEval]": 0.33283606968514934,
       "Tool Correctness": 1.0,
-      "Argument Correctness": 1.0,
+      "Argument Correctness": 0.0,
       "Deterministic Argument Correctness": 1.0,
       "Overall Argument Correctness": 1.0
     },

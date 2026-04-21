@@ -1,0 +1,3 @@
+The platform currently does not have human striatal projection neuron models or morphologies. The platform has mouse striatal single neuron (ME-Models) models and morhologies from Caudoputamen brain region. You can simulate them using workflows. Go to Workflow Simualte > Single Neuron > Search for the ME-Model with Caudoputamen brain region. You can also them via Workflows > Simualte > Single Neuron (beta) workflows.
+
+You can make your own hybrid human-mouse ME-model and then simualte it. However, the paltform does not have human striatal morphologies yet. But you can upload your own morphology in a minute via the Upload functionality of the platform and then immediately build human morphology (M-Model) + mouse E-Model, build a hybrid ME-Model.

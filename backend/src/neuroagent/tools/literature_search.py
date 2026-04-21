@@ -78,7 +78,7 @@ class LiteratureSearchTool(BaseTool):
         "What research has been done on",
     ]
     description: ClassVar[str] = (
-        "Search across 100M+ research papers with full text access using Exa AI - performs targeted academic paper searches with deep research content coverage. "
+        "Search across 100M+ research papers with full text access, powered by Exa AI (exa.ai). Performs targeted academic paper searches with deep research content coverage. "
         "Returns detailed information about relevant academic papers including titles, authors, publication dates, and full text excerpts. "
         "You can control the number of results as well as the start/end publication date."
         "This tool returns only partial content of pages. In your reply, mention that you can attempt to read the full articles using the `read-paper-tool` if the paper is publicly available."

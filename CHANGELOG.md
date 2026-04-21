@@ -7,12 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.2] - 15.04.2026
+
 ### Fixed
 - Hierarchy default to enable arbitrary species.
 - obi-expert - better querying logic and better description.
 
 ### Changed
 - Switch to gpt-5.4-nano for tool pre-selection.
+- Encourage the LLM to look up information in docs without explicitly asking for permission.
 
 ## [0.17.1] - 04.03.2026
 
