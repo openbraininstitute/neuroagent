@@ -1,0 +1,1 @@
+At the moment our platform is focussed on biophysically-detailed models of 1 to several hundred thousand neurons, so maybe we can't support you use-case currently. Please feel free to contact us though at info@openbraininstitute.org if you would like to discuss how we might support your use case further.

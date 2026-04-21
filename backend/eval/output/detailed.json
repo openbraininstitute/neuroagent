@@ -80,7 +80,7 @@
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
+          "score": 0.75,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -141,6 +141,108 @@
         },
         {
           "name": "Deterministic Argument Correctness",
+          "score": 0.5,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"obi-expert\",\n    input_parameters={\n        \"document_type\": \"documentationProduct\",\n        \"query\": \"simulation\"\n    }\n)]; expected ['obi-expert'], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Overall Argument Correctness",
+          "score": 0.5,
+          "success": true,
+          "threshold": 0.5,
+          "reason": ""
+        }
+      ],
+      "created_at": "2026-04-20 16:11:19.947660"
+    }
+  },
+  "circuit_connectivity_metrics": {
+    "user": "Find a circuit with around 5000 neurons and show me the connectivity metrics.\n",
+    "expected_output": "Here is a list of circuits with around 5000 neurons:\n\n{{circuit_list_table}}\n\n{{connectivity_metrics}}\n",
+    "expected_tool_calls": [
+      {
+        "name": "entitycore-circuit-getall",
+        "arguments": {
+          "number_neurons__gte": 4000,
+          "number_neurons__lte": 6000
+        }
+      },
+      {
+        "name": "obione-circuitconnectivitymetrics-getone",
+        "arguments": {
+          "circuit_id": "dynamic"
+        }
+      }
+    ],
+    "params": {
+      "tags": [
+        "benchmark",
+        "01aea746-0e1f-4e21-bd83-6a0a2e741510",
+        "data-query",
+        "circuit",
+        "connectivity",
+        "metrics",
+        "product:explore"
+      ],
+      "frontend_url": null,
+      "shared_state": null
+    },
+    "ai_response": "I'll search the circuit database for circuits with ~5000 neurons. Then I'll retrieve detailed circuit metrics (node and edge populations) for the best match.I'll retry the search without brain-region filters.I'll retry the search specifying no brain-region direction to avoid the validation error.I'll do a broader search (no within_brain_region fields) by omitting those parameters entirely.I ran a search but the circuit API is returning a validation error related to brain-region filtering (the endpoint requires matching brain-region parameters). I can proceed in two ways \\u2014 pick one and I\\u2019ll run the query again:\\n\\nOptions\\n- I can retry the database search for circuits with ~5000 neurons (4,000\\u20136,000) and include a brain-region filter you provide (give me a brain region name or its UUID).\\n- I can broaden the search by a different criterion you choose (species, atlas, or circuit name pattern) to find circuits near 5k neurons.\\n- If you don\\u2019t want any filter, I can attempt a workaround: query for circuits with number_neurons >= 4,000 (no upper bound) and then filter results on my side and return candidates around 5k \\u2014 allow me to try this.\\n\\nWhich option do you prefer?",
+    "actual_tool_calls": [
+      {
+        "name": "entitycore-circuit-getall",
+        "arguments": {
+          "page_size": 10,
+          "number_neurons__lte": 6000,
+          "number_neurons__gte": 4000
+        }
+      },
+      {
+        "name": "entitycore-circuit-getall",
+        "arguments": {
+          "page_size": 10,
+          "number_neurons__lte": 6000,
+          "number_neurons__gte": 4000
+        }
+      },
+      {
+        "name": "entitycore-circuit-getall",
+        "arguments": {
+          "page": 1,
+          "page_size": 10,
+          "number_neurons__gte": 4000,
+          "number_neurons__lte": 6000,
+          "within_brain_region_direction": null
+        }
+      },
+      {
+        "name": "entitycore-circuit-getall",
+        "arguments": {
+          "page_size": 10,
+          "number_neurons__lte": 6000,
+          "number_neurons__gte": 4000
+        }
+      }
+    ],
+    "results": {
+      "metrics": [
+        {
+          "name": "Correctness [GEval]",
+          "score": 0.2675177322988239,
+          "success": false,
+          "threshold": 0.5,
+          "reason": "The actual output addresses the topic of searching for circuits with around 5000 neurons but fails to provide a list of circuits or any connectivity metrics as required by the expected output. It includes excessive detail about the search process and options, which are not part of the expected content."
+        },
+        {
+          "name": "Tool Correctness",
+          "score": 0.5,
+          "success": true,
+          "threshold": 0.5,
+          "reason": "[\n\t Tool Calling Reason: Incorrect tool usage: missing tools ['obione-circuitconnectivitymetrics-getone'] and out-of-order tools ['obione-circuitconnectivitymetrics-getone']; expected ['entitycore-circuit-getall', 'obione-circuitconnectivitymetrics-getone'], called ['entitycore-circuit-getall', 'entitycore-circuit-getall', 'entitycore-circuit-getall', 'entitycore-circuit-getall']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+        },
+        {
+          "name": "Argument Correctness",
           "score": 1.0,
           "success": true,
           "threshold": 0.5,
@@ -252,6 +354,14 @@
         "arguments": {
           "document_type": "news"
         }
+      },
+      {
+        "name": "obi-expert",
+        "arguments": {
+          "document_type": "documentationProduct",
+          "page_size": 10,
+          "query": "species"
+        }
       }
     ],
     "results": {
@@ -361,8 +471,8 @@
         },
         {
           "name": "Argument Correctness",
-          "score": 1.0,
-          "success": true,
+          "score": 0.0,
+          "success": false,
           "threshold": 0.5,
           "reason": "The score is 1.00 because there were no incorrect tool calls and the input was clear and appropriate for the task."
         },
@@ -623,7 +733,7 @@
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.5,
+          "score": 1.0,
           "success": true,
           "threshold": 0.5,
           "reason": ""
@@ -1028,14 +1138,14 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "The score is 0.00 because the input does not specifically address the request for 'mechanism MOD files for a specific neuron model', leading to confusion in tool calls."
+          "reason": "The score is 0.00 because the input lacks specificity regarding the neuron model and the type of MOD files needed, which are crucial for a correct response."
         },
         {
           "name": "Deterministic Argument Correctness",
           "score": 0.5,
           "success": true,
           "threshold": 0.5,
-          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"obi-expert\",\n    input_parameters={\n        \"document_type\": \"documentationProduct\",\n        \"query\": \"ion\"\n    }\n)]; expected ['obi-expert'], called ['obi-expert', 'obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
+          "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"obi-expert\",\n    input_parameters={\n        \"document_type\": \"documentationProduct\",\n        \"query\": \"ion\"\n    }\n)]; expected ['obi-expert'], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
@@ -1971,8 +2081,8 @@
         },
         {
           "name": "Argument Correctness",
-          "score": 0.0,
-          "success": false,
+          "score": 1.0,
+          "success": true,
           "threshold": 0.5,
           "reason": "The score is 0.00 because there was no input parameter provided to address the cost of additional credits, which is essential for a relevant response."
         },
@@ -2730,7 +2840,7 @@
           "score": 0.0,
           "success": false,
           "threshold": 0.5,
-          "reason": "The score is 0.00 because no input parameter was provided, which is essential for generating a relevant response."
+          "reason": "The score is 0.00 because there was no input parameter provided, which is essential for generating a relevant response."
         },
         {
           "name": "Deterministic Argument Correctness",
@@ -3578,15 +3688,15 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 0.5,
-          "success": true,
+          "score": 0.3333333333333333,
+          "success": false,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: Incomplete tool usage: missing tools [ToolCall(\n    name=\"obi-expert\",\n    input_parameters={\n        \"document_type\": \"planV2\"\n    }\n)]; expected ['obi-expert'], called ['obi-expert']. See more details above.\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 0.5,
-          "success": true,
+          "score": 0.3333333333333333,
+          "success": false,
           "threshold": 0.5,
           "reason": ""
         }
@@ -3867,14 +3977,14 @@
         },
         {
           "name": "Deterministic Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
           "reason": "[\n\t Tool Calling Reason: All expected tools ['getstate', 'editstate'] were called (order not considered).\n\t Tool Selection Reason: No available tools were provided to assess tool selection criteria\n]\n"
         },
         {
           "name": "Overall Argument Correctness",
-          "score": 1.0,
+          "score": 0.5,
           "success": true,
           "threshold": 0.5,
           "reason": ""
