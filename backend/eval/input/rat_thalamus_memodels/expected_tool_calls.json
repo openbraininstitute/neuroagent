@@ -1,0 +1,21 @@
+[
+  {
+    "name": "entitycore-species-getall",
+    "arguments": {
+      "semantic_search": "Rattus norvegicus"
+    }
+  },
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "semantic_search": "thalamus",
+      "species__id": "3b1c2a25-b4fb-468d-98d2-d2d431ac8b4a"
+    }
+  },
+  {
+    "name": "entitycore-memodel-getall",
+    "arguments": {
+      "within_brain_region_brain_region_id": "97ba7cdb-28a5-49eb-b219-cc7830e3413c"
+    }
+  }
+]

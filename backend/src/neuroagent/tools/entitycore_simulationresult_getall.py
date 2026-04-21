@@ -88,21 +88,6 @@ class SimulationResultGetAllTool(BaseTool):
         if self.metadata.project_id is not None:
             headers["project-id"] = str(self.metadata.project_id)
 
-        # Retrieve the hierarchy_id from br_id
-        if self.input_schema.within_brain_region_brain_region_id is not None:
-            brain_region = await self.metadata.httpx_client.get(
-                url=self.metadata.entitycore_url.rstrip("/")
-                + f"/brain-region/{self.input_schema.within_brain_region_brain_region_id}",
-                headers=headers,
-            )
-            if brain_region.status_code != 200:
-                raise ValueError(
-                    f"The Brain Region endpoint returned a non 200 response code. Error: {brain_region.text}"
-                )
-            query_params["within_brain_region_hierarchy_id"] = brain_region.json()[
-                "hierarchy_id"
-            ]
-
         response = await self.metadata.httpx_client.get(
             url=self.metadata.entitycore_url.rstrip("/") + "/simulation-result",
             headers=headers,

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.17.2] - 15.04.2026
 
 ### Fixed
+- Hierarchy default to enable arbitrary species.
 - obi-expert - better querying logic and better description.
 
 ### Changed
