@@ -586,70 +586,6 @@ class CircuitScale(
     )
 
 
-class CircuitUserUpdate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    name: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Name')
-    description: str | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Description'
-    )
-    license_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='License Id'
-    )
-    brain_region_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Brain Region Id'
-    )
-    subject_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Subject Id'
-    )
-    experiment_date: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Experiment Date'
-    )
-    contact_email: str | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Contact Email'
-    )
-    published_in: str | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Published In'
-    )
-    notice_text: str | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Notice Text'
-    )
-    has_morphologies: bool | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Has Morphologies'
-    )
-    has_point_neurons: bool | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Has Point Neurons'
-    )
-    has_electrical_cell_models: bool | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Has Electrical Cell Models'
-    )
-    has_spines: bool | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Has Spines'
-    )
-    number_neurons: int | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Number Neurons'
-    )
-    number_synapses: int | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Number Synapses'
-    )
-    number_connections: int | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Number Connections'
-    )
-    scale: CircuitScale | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Scale', validate_default=True
-    )
-    build_category: CircuitBuildCategory | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Build Category', validate_default=True
-    )
-    root_circuit_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Root Circuit Id'
-    )
-    atlas_id: UUID | Literal['<NOT_SET>'] | None = Field(
-        default='<NOT_SET>', title='Atlas Id'
-    )
-
-
 class ProtocolDocument(RootModel[AnyUrl]):
     root: AnyUrl = Field(..., title='Protocol Document')
 
@@ -3064,6 +3000,16 @@ class SubjectUserUpdate(BaseModel):
     )
 
 
+class TargetSimulator(
+    RootModel[Literal['NEURON', 'CORENEURON', 'LearningEngine', 'Brian2']]
+):
+    root: Literal['NEURON', 'CORENEURON', 'LearningEngine', 'Brian2'] = Field(
+        ...,
+        description='Target simulator values as used in libsonata.\n\nSee: https://sonata-extension.readthedocs.io/en/latest/sonata_config.html#target-simulator',
+        title='TargetSimulator',
+    )
+
+
 class TaskActivityType(
     RootModel[
         Literal[
@@ -4547,6 +4493,9 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
     build_category__in: list[CircuitBuildCategory] | None = Field(
         default=None, title='Build Category  In'
     )
+    target_simulator: TargetSimulator | None = Field(
+        default=None, title='Target Simulator'
+    )
     name: str | None = Field(default=None, title='Name')
     name__in: list[str] | None = Field(default=None, title='Name  In')
     name__ilike: str | None = Field(default=None, title='Name  Ilike')
@@ -4881,6 +4830,9 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     )
     circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
         default=None, title='Circuit  Build Category  In'
+    )
+    circuit__target_simulator: TargetSimulator | None = Field(
+        default=None, title='Circuit  Target Simulator'
     )
     circuit__name: str | None = Field(default=None, title='Circuit  Name')
     circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
@@ -9160,6 +9112,9 @@ class ReadManySimulationGetParametersQuery(BaseModel):
     circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
         default=None, title='Circuit  Build Category  In'
     )
+    circuit__target_simulator: TargetSimulator | None = Field(
+        default=None, title='Circuit  Target Simulator'
+    )
     circuit__name: str | None = Field(default=None, title='Circuit  Name')
     circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
     circuit__name__ilike: str | None = Field(default=None, title='Circuit  Name  Ilike')
@@ -9294,6 +9249,9 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     )
     circuit__build_category__in: list[CircuitBuildCategory] | None = Field(
         default=None, title='Circuit  Build Category  In'
+    )
+    circuit__target_simulator: TargetSimulator | None = Field(
+        default=None, title='Circuit  Target Simulator'
     )
     circuit__name: str | None = Field(default=None, title='Circuit  Name')
     circuit__name__in: list[str] | None = Field(default=None, title='Circuit  Name  In')
@@ -10727,7 +10685,7 @@ class AnalysisNotebookTemplateInputType(BaseModel):
     )
 
 
-class AnalysisNotebookTemplateSpecificationsInput(BaseModel):
+class AnalysisNotebookTemplateSpecifications(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
@@ -10739,12 +10697,6 @@ class AnalysisNotebookTemplateSpecificationsInput(BaseModel):
     )
 
 
-class AnalysisNotebookTemplateSpecificationsOutput(
-    AnalysisNotebookTemplateSpecificationsInput
-):
-    pass
-
-
 class AnalysisNotebookTemplateUpdate(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -10754,7 +10706,7 @@ class AnalysisNotebookTemplateUpdate(BaseModel):
         default='<NOT_SET>', title='Description'
     )
     specifications: (
-        AnalysisNotebookTemplateSpecificationsInput | Literal['<NOT_SET>'] | None
+        AnalysisNotebookTemplateSpecifications | Literal['<NOT_SET>'] | None
     ) = Field(default='<NOT_SET>', title='Specifications', validate_default=True)
     scale: AnalysisScale | Literal['<NOT_SET>'] | None = Field(
         default='<NOT_SET>', title='Scale', validate_default=True
@@ -10927,9 +10879,7 @@ class CellMorphologyCreate(BaseModel):
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
     repair_pipeline_state: RepairPipelineType | None = None
-    cell_morphology_protocol_id: UUID | None = Field(
-        default=None, title='Cell Morphology Protocol Id'
-    )
+    cell_morphology_protocol_id: UUID = Field(..., title='Cell Morphology Protocol Id')
 
 
 class CellMorphologyUserUpdate(BaseModel):
@@ -11021,6 +10971,7 @@ class CircuitCreate(BaseModel):
     build_category: CircuitBuildCategory
     root_circuit_id: UUID | None = Field(default=None, title='Root Circuit Id')
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
+    target_simulator: TargetSimulator = Field(default='NEURON', validate_default=True)
 
 
 class CircuitExtractionConfigGenerationRead(SimulationGenerationRead):
@@ -11041,6 +10992,73 @@ class CircuitExtractionExecutionRead(SimulationExecutionRead):
 
 class CircuitExtractionExecutionUserUpdate(SimulationExecutionUserUpdate):
     pass
+
+
+class CircuitUserUpdate(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str | Literal['<NOT_SET>'] | None = Field(default='<NOT_SET>', title='Name')
+    description: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Description'
+    )
+    license_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='License Id'
+    )
+    brain_region_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Brain Region Id'
+    )
+    subject_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Subject Id'
+    )
+    experiment_date: AwareDatetime | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Experiment Date'
+    )
+    contact_email: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Contact Email'
+    )
+    published_in: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Published In'
+    )
+    notice_text: str | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Notice Text'
+    )
+    has_morphologies: bool | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Has Morphologies'
+    )
+    has_point_neurons: bool | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Has Point Neurons'
+    )
+    has_electrical_cell_models: bool | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Has Electrical Cell Models'
+    )
+    has_spines: bool | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Has Spines'
+    )
+    number_neurons: int | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Number Neurons'
+    )
+    number_synapses: int | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Number Synapses'
+    )
+    number_connections: int | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Number Connections'
+    )
+    scale: CircuitScale | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Scale', validate_default=True
+    )
+    build_category: CircuitBuildCategory | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Build Category', validate_default=True
+    )
+    root_circuit_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Root Circuit Id'
+    )
+    atlas_id: UUID | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Atlas Id'
+    )
+    target_simulator: TargetSimulator | Literal['<NOT_SET>'] | None = Field(
+        default='<NOT_SET>', title='Target Simulator', validate_default=True
+    )
 
 
 class ComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
@@ -11590,21 +11608,6 @@ class EntityRead(BaseModel):
     type: str = Field(..., title='Type')
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(..., title='Authorized Public')
-
-
-class ExemplarMorphology(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    id: UUID = Field(..., title='Id')
-    location: PointLocationBase | None
-    legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
-    has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
-    repair_pipeline_state: RepairPipelineType | None = None
-    creation_date: AwareDatetime = Field(..., title='Creation Date')
-    update_date: AwareDatetime = Field(..., title='Update Date')
 
 
 class ExternalUrlRead(BaseModel):
@@ -12157,7 +12160,7 @@ class NestedAnalysisNotebookTemplateRead(BaseModel):
     description: str = Field(..., title='Description')
     id: UUID = Field(..., title='Id')
     type: EntityType | None = None
-    specifications: AnalysisNotebookTemplateSpecificationsOutput | None = None
+    specifications: AnalysisNotebookTemplateSpecifications | None = None
     scale: AnalysisScale
 
 
@@ -12594,7 +12597,7 @@ class AnalysisNotebookTemplateCreate(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    specifications: AnalysisNotebookTemplateSpecificationsInput | None = None
+    specifications: AnalysisNotebookTemplateSpecifications | None = None
     scale: AnalysisScale
 
 
@@ -12616,7 +12619,7 @@ class AnalysisNotebookTemplateRead(BaseModel):
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
     type: EntityType | None = None
-    specifications: AnalysisNotebookTemplateSpecificationsOutput | None = None
+    specifications: AnalysisNotebookTemplateSpecifications | None = None
     scale: AnalysisScale
 
 
@@ -12780,6 +12783,7 @@ class CircuitRead(BaseModel):
     build_category: CircuitBuildCategory
     root_circuit_id: UUID | None = Field(default=None, title='Root Circuit Id')
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
+    target_simulator: TargetSimulator = Field(default='NEURON', validate_default=True)
 
 
 class EMCellMeshRead(BaseModel):
@@ -12905,35 +12909,6 @@ class EMDenseReconstructionDatasetRead(BaseModel):
     cell_identifying_property: str | None = Field(
         default=None, title='Cell Identifying Property'
     )
-
-
-class EModelRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    name: str = Field(..., title='Name')
-    description: str = Field(..., title='Description')
-    species: NestedSpeciesRead
-    strain: NestedStrainRead | None = None
-    brain_region: NestedBrainRegionRead
-    contributions: list[NestedContributionRead] | None = Field(
-        ..., title='Contributions'
-    )
-    created_by: NestedPersonRead
-    updated_by: NestedPersonRead
-    assets: list[AssetRead] = Field(..., title='Assets')
-    type: EntityType | None = None
-    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
-    authorized_public: bool = Field(default=False, title='Authorized Public')
-    creation_date: AwareDatetime = Field(..., title='Creation Date')
-    update_date: AwareDatetime = Field(..., title='Update Date')
-    iteration: str = Field(..., title='Iteration')
-    score: float = Field(..., title='Score')
-    seed: int = Field(..., title='Seed')
-    id: UUID = Field(..., title='Id')
-    mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
-    etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
-    exemplar_morphology: ExemplarMorphology
 
 
 class ElectricalCellRecordingRead(BaseModel):
@@ -13979,7 +13954,7 @@ class CellMorphologyAnnotationExpandedRead(BaseModel):
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
     repair_pipeline_state: RepairPipelineType | None = None
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
-    cell_morphology_protocol: NestedCellMorphologyProtocolRead | None
+    cell_morphology_protocol: NestedCellMorphologyProtocolRead
     measurement_annotation: MeasurementAnnotationRead | None
 
 
@@ -14029,7 +14004,7 @@ class CellMorphologyRead(BaseModel):
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
     repair_pipeline_state: RepairPipelineType | None = None
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
-    cell_morphology_protocol: NestedCellMorphologyProtocolRead | None
+    cell_morphology_protocol: NestedCellMorphologyProtocolRead
 
 
 class EMCellMeshAnnotationExpandedRead(BaseModel):
@@ -14086,6 +14061,85 @@ class EMCellMeshAnnotationExpandedRead(BaseModel):
     measurement_annotation: MeasurementAnnotationRead | None
 
 
+class ExemplarMorphology(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    id: UUID = Field(..., title='Id')
+    location: PointLocationBase | None
+    legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
+    has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
+    repair_pipeline_state: RepairPipelineType | None = None
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    cell_morphology_protocol: NestedCellMorphologyProtocolRead
+
+
+class ListResponseCellMorphologyRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[CellMorphologyRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ListResponseMeasurementAnnotationRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    data: list[MeasurementAnnotationRead] = Field(..., title='Data')
+    pagination: PaginationResponse
+    facets: Facets | None = None
+
+
+class ReadOneCellMorphologyIdGetResponse(
+    RootModel[CellMorphologyRead | CellMorphologyAnnotationExpandedRead]
+):
+    root: CellMorphologyRead | CellMorphologyAnnotationExpandedRead = Field(
+        ..., title='Response Read One Cell Morphology  Id   Get'
+    )
+
+
+class ReadOneEmCellMeshIdGetResponse(
+    RootModel[EMCellMeshRead | EMCellMeshAnnotationExpandedRead]
+):
+    root: EMCellMeshRead | EMCellMeshAnnotationExpandedRead = Field(
+        ..., title='Response Read One Em Cell Mesh  Id   Get'
+    )
+
+
+class EModelRead(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
+    name: str = Field(..., title='Name')
+    description: str = Field(..., title='Description')
+    species: NestedSpeciesRead
+    strain: NestedStrainRead | None = None
+    brain_region: NestedBrainRegionRead
+    contributions: list[NestedContributionRead] | None = Field(
+        ..., title='Contributions'
+    )
+    created_by: NestedPersonRead
+    updated_by: NestedPersonRead
+    assets: list[AssetRead] = Field(..., title='Assets')
+    type: EntityType | None = None
+    authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
+    authorized_public: bool = Field(default=False, title='Authorized Public')
+    creation_date: AwareDatetime = Field(..., title='Creation Date')
+    update_date: AwareDatetime = Field(..., title='Update Date')
+    iteration: str = Field(..., title='Iteration')
+    score: float = Field(..., title='Score')
+    seed: int = Field(..., title='Seed')
+    id: UUID = Field(..., title='Id')
+    mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
+    etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
+    exemplar_morphology: ExemplarMorphology
+
+
 class EModelReadExpanded(BaseModel):
     model_config = ConfigDict(
         extra='allow',
@@ -14118,29 +14172,11 @@ class EModelReadExpanded(BaseModel):
     )
 
 
-class ListResponseCellMorphologyRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    data: list[CellMorphologyRead] = Field(..., title='Data')
-    pagination: PaginationResponse
-    facets: Facets | None = None
-
-
 class ListResponseEModelReadExpanded(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
     data: list[EModelReadExpanded] = Field(..., title='Data')
-    pagination: PaginationResponse
-    facets: Facets | None = None
-
-
-class ListResponseMeasurementAnnotationRead(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    data: list[MeasurementAnnotationRead] = Field(..., title='Data')
     pagination: PaginationResponse
     facets: Facets | None = None
 
@@ -14173,22 +14209,6 @@ class MEModelRead(BaseModel):
     morphology: CellMorphologyRead
     emodel: EModelRead
     calibration_result: MEModelCalibrationResultRead | None
-
-
-class ReadOneCellMorphologyIdGetResponse(
-    RootModel[CellMorphologyRead | CellMorphologyAnnotationExpandedRead]
-):
-    root: CellMorphologyRead | CellMorphologyAnnotationExpandedRead = Field(
-        ..., title='Response Read One Cell Morphology  Id   Get'
-    )
-
-
-class ReadOneEmCellMeshIdGetResponse(
-    RootModel[EMCellMeshRead | EMCellMeshAnnotationExpandedRead]
-):
-    root: EMCellMeshRead | EMCellMeshAnnotationExpandedRead = Field(
-        ..., title='Response Read One Em Cell Mesh  Id   Get'
-    )
 
 
 class ListResponseMEModelRead(BaseModel):
