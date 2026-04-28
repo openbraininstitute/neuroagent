@@ -7,7 +7,7 @@ description: Entitycore tools
 1. Brain regions are uniquely tied to a species via either `species_id` or `hierarchy_id`. If you already have either of these from prior context, you can proceed directly — no extra species lookup is needed.
 2. If neither is available and the user specifies a species by name, resolve `species_id` using `entitycore-species-getall`.
 3. Use `entitycore-brainregion-getall` with the `semantic_search` parameter to resolve brain region names to IDs. Pass `species__id` or `hierarchy_id` if available to narrow results.
-4. With the resolved brain region ID, retrieve entities using the appropriate tool (e.g., `entitycore-cellmorphology-getall`) with the `within_brain_region_brain_region_id` parameter.
+4. With the resolved brain region ID, retrieve entities using the appropriate tool (e.g., `entitycore-cellmorphology-getall`) with the `within_brain_region_brain_region_id` parameter. You MUST also specify `within_brain_region_direction` only when `within_brain_region_brain_region_id` is specified.
 Brain regions belong to exactly one species and one hierarchy. Therefore, `within_brain_region_brain_region_id` is enough to uniquely identify the species on downstream tool calls.
 
 
