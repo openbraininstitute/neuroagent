@@ -848,6 +848,12 @@ class MTypeClassification(BaseModel):
     )
 
 
+class MorphoViewerTreeItemType(RootModel[Literal[0, 1, 2, 3, 4, 5, 6, 7, 8]]):
+    root: Literal[0, 1, 2, 3, 4, 5, 6, 7, 8] = Field(
+        ..., title='MorphoViewerTreeItemType'
+    )
+
+
 class MorphologyMetricsOutput(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -1020,39 +1026,6 @@ class NamedTuple(BaseModel):
     type: Literal['NamedTuple'] = Field(default='NamedTuple', title='Type')
 
 
-class NeuronSectionInfo(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
-    index: int = Field(..., title='Index')
-    name: str = Field(..., title='Name')
-    nseg: int = Field(..., title='Nseg')
-    distance_from_soma: float = Field(..., title='Distance From Soma')
-    sec_length: float = Field(..., title='Sec Length')
-    xstart: list[float] = Field(..., title='Xstart')
-    xend: list[float] = Field(..., title='Xend')
-    xcenter: list[float] = Field(..., title='Xcenter')
-    xdirection: list[float] = Field(..., title='Xdirection')
-    ystart: list[float] = Field(..., title='Ystart')
-    yend: list[float] = Field(..., title='Yend')
-    ycenter: list[float] = Field(..., title='Ycenter')
-    ydirection: list[float] = Field(..., title='Ydirection')
-    zstart: list[float] = Field(..., title='Zstart')
-    zend: list[float] = Field(..., title='Zend')
-    zcenter: list[float] = Field(..., title='Zcenter')
-    zdirection: list[float] = Field(..., title='Zdirection')
-    diam: list[float] = Field(..., title='Diam')
-    length: list[float] = Field(..., title='Length')
-    distance: list[float] = Field(..., title='Distance')
-    segment_distance_from_soma: list[float] = Field(
-        ..., title='Segment Distance From Soma'
-    )
-    segx: list[float] = Field(..., title='Segx')
-    neuron_section_id: int = Field(..., title='Neuron Section Id')
-    neuron_segments_offset: list[int] = Field(..., title='Neuron Segments Offset')
-    parent_index: int = Field(..., title='Parent Index')
-
-
 class NeuronSetReference(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -1084,7 +1057,6 @@ class Node(BaseModel):
     orientation: tuple[float, float, float, float] = Field(
         ..., description='Orientation quaternion (x, y, z, w)', title='Orientation'
     )
-    soma_radius: float | None = Field(..., title='Soma Radius')
 
 
 class NodePopulationType(RootModel[Literal['biophysical', 'virtual']]):
@@ -1690,6 +1662,25 @@ class ScientificArtifact(BaseModel):
     experiment_date: AwareDatetime | None = Field(default=None, title='Experiment Date')
     contact_email: str | None = Field(default=None, title='Contact Email')
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
+
+
+class Point(RootModel[tuple[float, float, float]]):
+    root: tuple[float, float, float] = Field(..., max_length=3, min_length=3)
+
+
+class Section(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    id: str = Field(..., title='Id')
+    parent_id: str | None = Field(..., title='Parent Id')
+    type: MorphoViewerTreeItemType
+    points: list[Point] = Field(..., title='Points')
+    radii: list[float] = Field(..., title='Radii')
+
+
+class Sections(RootModel[list[Section]]):
+    root: list[Section] = Field(..., title='Sections')
 
 
 class ServiceSubtype(
@@ -2321,28 +2312,31 @@ class ObiOneScientificTasksEmSynapseMappingConfigEMSynapseMappingScanConfigIniti
     type: Literal['EMSynapseMappingScanConfig.Initialize'] = Field(
         default='EMSynapseMappingScanConfig.Initialize', title='Type'
     )
-    spiny_neuron: CellMorphologyFromID = Field(
+    neurons: list[CellMorphologyFromID | MEModelFromID] = Field(
         ...,
-        description='A neuron morphology with spines obtained from an electron-microscopy\n            datasets through the skeletonization task.',
-        title='EM skeletonized morphology',
-    )
-    edge_population_name: str = Field(
-        default='afferent_synapses',
-        description='Name of the edge population to write the synapse information into',
+        description='Neurons to include in the circuit (>= 1).',
         min_length=1,
-        title='Edge population name',
+        title='Neurons',
     )
-    node_population_pre: str = Field(
-        default='afferent_neurons',
-        description='Name of the node population to write the information about the\n            innervating neurons into',
-        min_length=1,
-        title='Presynaptic node population name',
+    physical_edge_population_name: str = Field(
+        default='physical_connections',
+        description='Edge population for connections between neurons in the set.',
+        title='Physical edge population name',
     )
-    node_population_post: str = Field(
-        default='biophysical_neuron',
-        description='Name of the node population to write the information about the\n            synaptome neuron into',
-        min_length=1,
-        title='Postsynaptic node population name',
+    virtual_edge_population_name: str = Field(
+        default='virtual_afferents',
+        description='Edge population for connections from virtual neurons.',
+        title='Virtual edge population name',
+    )
+    biophysical_node_population: str = Field(
+        default='biophysical_neurons',
+        description='Node population for the physical neurons in the circuit.',
+        title='Biophysical node population name',
+    )
+    virtual_node_population: str = Field(
+        default='virtual_afferent_neurons',
+        description='Node population for external presynaptic neurons.',
+        title='Virtual node population name',
     )
 
 
@@ -2843,15 +2837,15 @@ class NeuronVoxelSize(RootModel[float]):
     root: float = Field(
         0.1,
         description='Neuron reconstruction resolution in micrometers.',
-        ge=0.1,
+        ge=0.005,
         gt=0.0,
-        le=0.5,
+        le=0.1,
         title='Neuron Voxel Size',
     )
 
 
 class NeuronVoxelSizeItem(RootModel[float]):
-    root: float = Field(..., ge=0.1, gt=0.0, le=0.5)
+    root: float = Field(..., ge=0.005, gt=0.0, le=0.1)
 
 
 class SpinesVoxelSize(RootModel[float]):
@@ -2865,8 +2859,8 @@ class SpinesVoxelSize(RootModel[float]):
     )
 
 
-class SpinesVoxelSizeItem(NeuronVoxelSizeItem):
-    pass
+class SpinesVoxelSizeItem(RootModel[float]):
+    root: float = Field(..., ge=0.1, gt=0.0, le=0.5)
 
 
 class ObiOneScientificTasksSkeletonizationConfigSkeletonizationScanConfigInitialize(
@@ -2896,7 +2890,7 @@ class ObiOneScientificTasksSkeletonizationConfigSkeletonizationScanConfigInitial
         validate_default=True,
     )
     write_raw_spines: bool = Field(
-        default=False,
+        default=True,
         description='By default a morphology h5 file is created with reconstructed spines. Set this parameter to True to additionally include the initially extracted full resolution segmented spine meshes in the h5 file. This may be useful for use cases which require the full resolution spine data.',
         title='Include Full Resolution Spines',
     )
@@ -2988,12 +2982,6 @@ class CircuitMorphologyCircuitVizCircuitIdMorphologiesMorphologyFileGetParameter
         description='The name of the morphology. Required if morphology_file is a collection.',
         title='Name',
     )
-
-
-class CircuitMorphologyCircuitVizCircuitIdMorphologiesMorphologyFileGetResponse(
-    RootModel[dict[str, NeuronSectionInfo]]
-):
-    root: dict[str, NeuronSectionInfo]
 
 
 class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
@@ -3530,7 +3518,11 @@ class EMSynapseMappingScanConfig(BaseModel):
     info: Info = Field(..., description='Information about the campaign.')
     initialize: (
         ObiOneScientificTasksEmSynapseMappingConfigEMSynapseMappingScanConfigInitialize
-    ) = Field(..., description='Parameters for initializing...', title='Initialization')
+    ) = Field(
+        ...,
+        description='Parameters for initializing the EM Synaptome.',
+        title='Initialization',
+    )
 
 
 class ElectrophysiologyMetricsScanConfig(BaseModel):

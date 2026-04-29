@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Default value to `within_brain_region_direction`.
+
 ## [0.17.2] - 15.04.2026
 
 ### Fixed
