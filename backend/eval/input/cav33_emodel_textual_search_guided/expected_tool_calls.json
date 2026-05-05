@@ -1,0 +1,10 @@
+[
+  {
+    "name": "entitycore-emodel-getall",
+    "arguments": {
+      "page": 1,
+      "page_size": 10,
+      "ilike_search": "*Cav3.3*"
+    }
+  }
+]

@@ -1,0 +1,1 @@
+I'm working on a project about symbolic classification of perception in language. Which OBI notebooks are best suited to understand how perception is represented before language, without requiring complex simulations or visualizations?
