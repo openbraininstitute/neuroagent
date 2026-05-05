@@ -1,0 +1,16 @@
+[
+  {
+    "name": "entitycore-etype-getall",
+    "arguments": {
+      "page": 1,
+      "page_size": 10
+    }
+  },
+  {
+    "name": "entitycore-memodel-getall",
+    "arguments": {
+      "page": 1,
+      "page_size": 10
+    }
+  }
+]
