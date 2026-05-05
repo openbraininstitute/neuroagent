@@ -1,0 +1,10 @@
+[
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "page": 1,
+      "page_size": 10,
+      "hierarchy_id": "e3e70682-c209-4cac-a29f-6fbed82c07cd"
+    }
+  }
+]

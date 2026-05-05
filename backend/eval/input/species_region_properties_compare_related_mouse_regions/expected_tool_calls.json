@@ -1,0 +1,9 @@
+[
+  {
+    "name": "obi-expert",
+    "arguments": {
+      "document_type": "glossaryItem",
+      "query": "in vivo firing rate proportion P_FR"
+    }
+  }
+]
