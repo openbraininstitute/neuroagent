@@ -1,3 +1,0 @@
-The **NGV** (neuron–glia–vasculature) unit model refers to integrated models that jointly represent neurons, astroglia and vascular elements. On the Open Brain Platform you typically locate such assets via **Virtual Labs → Explore**, then drill into **Model data** / **Circuits & models** views and searchable **public projects** (filtering by NGV‑related naming or neuroscience keywords).
-
-Projects may expose linked **notebooks**, code snippets or downloadable assets inside the project detail page once you open them. Exact titles and URIs evolve with releases, so combine UI navigation above with Explore search (“NGV”, “vasculature”, “astrocyte network”) rather than relying on a single immortal deep link.

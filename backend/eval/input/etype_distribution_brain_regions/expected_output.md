@@ -1,5 +1,0 @@
-An **e-type** (electrical type) denotes an electrophysiological phenotype class curated in the platform’s knowledge graph, usually linked from **ME‑models**, **e‑models**, or circuits rather than shipped as its own turnkey “heatmap of diversity everywhere” dashboard.
-
-Strictly answering *which anatomical regions show the richest e‑type repertoire* therefore means **aggregating e‑types that appear via ME‑models (or circuits) annotated for each brain region**, not retrieving a single pre‑computed leaderboard. Typical workflow steps are: enumerate or filter relevant **brain regions**, pull **ME‑models / populations** constrained to those regions, join to their associated **e‑types**, de‑duplicate, then compare counts. Edge cases include sparse annotations, legacy naming collisions, or regions with few reconstruction samples—so cite provenance counts when ranking.
-
-If KG coverage is insufficient for publication‑grade richness ordering, augment with cautious **literature context** describing known regional e‑type diversity (e.g. cortical laminar specificity vs specialised nuclei).
