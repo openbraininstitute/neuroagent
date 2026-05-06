@@ -7,13 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.3] - 06.05.2026
+
 ### Fixed
 - Default value to `within_brain_region_direction`.
+- Hierarchy default to enable arbitrary species.
 
 ## [0.17.2] - 15.04.2026
 
 ### Fixed
-- Hierarchy default to enable arbitrary species.
 - obi-expert - better querying logic and better description.
 
 ### Changed
