@@ -15,9 +15,24 @@ class AgePeriod(RootModel[Literal['prenatal', 'postnatal', 'unknown']]):
     root: Literal['prenatal', 'postnatal', 'unknown'] = Field(..., title='AgePeriod')
 
 
+class AllDistributionsReference(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    block_dict_name: str = Field(
+        default='',
+        description='Name of the root level dictionary which contains the block you are referencing. E.g. `neuron_sets` when referencing a block within the neuron_sets dictionary, or `timestamps` when referencing a block within the timestamps dictionary.To reference a block at the root (i.e. a block that is not contained within a dictionary), block_dict_name should be an empty string. ',
+        title='Block Dict Name',
+    )
+    block_name: str = Field(..., description='Name of the block.', title='Block Name')
+    type: Literal['AllDistributionsReference'] = Field(
+        default='AllDistributionsReference', title='Type'
+    )
+
+
 class SamplePercentage(RootModel[float]):
     root: float = Field(
-        100.0,
+        ...,
         description='Percentage of neurons to sample between 0 and 100%',
         ge=0.0,
         le=100.0,
@@ -31,11 +46,10 @@ class SamplePercentage1Item(RootModel[float]):
 
 class SamplePercentage1(RootModel[list[SamplePercentage1Item]]):
     root: list[SamplePercentage1Item] = Field(
-        100.0,
+        ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
-        validate_default=True,
     )
 
 
@@ -48,7 +62,6 @@ class AllNeurons(BaseModel):
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
-        validate_default=True,
     )
     sample_seed: int | list[int] = Field(
         default=1, description='Seed for random sampling.', title='Sample Seed'
@@ -104,7 +117,7 @@ class BodyMorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMe
     model_config = ConfigDict(
         extra='ignore',
     )
-    file: bytes = Field(
+    file: str = Field(
         ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
     )
     metadata: str = Field(default='{}', title='Metadata')
@@ -114,14 +127,14 @@ class BodyValidateMeshFileDeclaredTestMeshFilePost(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    file: bytes = Field(..., description='MESH file to upload (.obj)', title='File')
+    file: str = Field(..., description='MESH file to upload (.obj)', title='File')
 
 
 class BodyValidateNeuronFileDeclaredTestNeuronFilePost(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
-    file: bytes = Field(
+    file: str = Field(
         ..., description='Neuron file to upload (.swc, .h5, or .asc)', title='File'
     )
 
@@ -132,7 +145,7 @@ class BodyValidateNwbFileDeclaredValidateElectrophysiologyProtocolNwbFilePost(
     model_config = ConfigDict(
         extra='ignore',
     )
-    file: bytes = Field(..., description='NWB file to upload (.nwb)', title='File')
+    file: str = Field(..., description='NWB file to upload (.nwb)', title='File')
 
 
 class ChannelName(RootModel[str]):
@@ -147,6 +160,9 @@ class ChannelName(RootModel[str]):
 class ByNeuronModification(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
+    )
+    type: Literal['ByNeuronModification'] = Field(
+        default='ByNeuronModification', title='Type'
     )
     ion_channel_id: UUID | None = Field(default=None, title='Ion Channel Id')
     channel_name: ChannelName | None = Field(default=None, title='Channel Name')
@@ -165,14 +181,14 @@ class ByNeuronModification(BaseModel):
         description='New value(s) that applies to entire neuron (GLOBAL) or all sections (RANGE)',
         title='New Value',
     )
-    type: Literal['ByNeuronModification'] = Field(
-        default='ByNeuronModification', title='Type'
-    )
 
 
 class BySectionListModification(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
+    )
+    type: Literal['BySectionListModification'] = Field(
+        default='BySectionListModification', title='Type'
     )
     ion_channel_id: UUID | None = Field(default=None, title='Ion Channel Id')
     variable_name: str = Field(
@@ -184,9 +200,6 @@ class BySectionListModification(BaseModel):
         default=None,
         description="Modifications per section list (e.g., {'somatic': 0.1, 'axonal': 0.2})",
         title='Section List Modifications',
-    )
-    type: Literal['BySectionListModification'] = Field(
-        default='BySectionListModification', title='Type'
     )
 
 
@@ -453,7 +466,7 @@ class ConnectivityMetricsRequest(BaseModel):
 
 class Duration(RootModel[float]):
     root: float = Field(
-        200.0,
+        ...,
         description='Time duration in milliseconds for how long input is activated.',
         ge=0.0,
         title='Duration',
@@ -477,6 +490,34 @@ class DegreeTypes(
 ):
     root: Literal['indegree', 'outdegree', 'totaldegree', 'degreedifference'] = Field(
         ..., title='DegreeTypes'
+    )
+
+
+class Duration1(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='The duration for each level, given in milliseconds (ms).',
+        ge=0.0,
+        title='Duration for each level',
+    )
+
+
+class DurationVoltageCombination(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['DurationVoltageCombination'] = Field(
+        default='DurationVoltageCombination', title='Type'
+    )
+    voltage: float | list[float] = Field(
+        ...,
+        description='The voltage for each level, given in millivolts (mV).',
+        title='Voltage for each level',
+    )
+    duration: Duration1 | list[DurationItem] = Field(
+        ...,
+        description='The duration for each level, given in milliseconds (ms).',
+        title='Duration for each level',
     )
 
 
@@ -524,11 +565,10 @@ class SamplePercentage3Item(SamplePercentage1Item):
 
 class SamplePercentage3(RootModel[list[SamplePercentage3Item]]):
     root: list[SamplePercentage3Item] = Field(
-        100.0,
+        ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
-        validate_default=True,
     )
 
 
@@ -543,10 +583,60 @@ class ExcitatoryNeurons(BaseModel):
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
-        validate_default=True,
     )
     sample_seed: int | list[int] = Field(
         default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+
+
+class Scale(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Scale parameter of the exponential distribution in milliseconds.',
+        gt=0.0,
+        title='Scale',
+    )
+
+
+class ScaleItem(RootModel[float]):
+    root: float = Field(..., gt=0.0)
+
+
+class ExponentialDistribution(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['ExponentialDistribution'] = Field(
+        default='ExponentialDistribution', title='Type'
+    )
+    scale: Scale | list[ScaleItem] = Field(
+        default=1.0,
+        description='Scale parameter of the exponential distribution in milliseconds.',
+        title='Scale',
+    )
+    shift: float | list[float] = Field(
+        default=0.0,
+        description='Constant value added to each sampled value.',
+        title='Shift',
+    )
+    random_seed: int | list[int] = Field(
+        default=1,
+        description='Seed for drawing random values from the exponential distribution.',
+        title='Random Seed',
+    )
+
+
+class FloatConstantDistribution(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['FloatConstantDistribution'] = Field(
+        default='FloatConstantDistribution', title='Type'
+    )
+    value: float | list[float] = Field(
+        default=1.0,
+        description='The constant value of the distribution.',
+        title='Value',
     )
 
 
@@ -558,6 +648,81 @@ class FloatRange(BaseModel):
     start: float = Field(..., title='Start')
     step: float = Field(..., gt=0.0, title='Step')
     end: float = Field(..., title='End')
+
+
+class FloatUniformDistribution(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['FloatUniformDistribution'] = Field(
+        default='FloatUniformDistribution', title='Type'
+    )
+    low: float | list[float] = Field(
+        default=0.0,
+        description='The lower bound of the uniform distribution.',
+        title='Low',
+    )
+    high: float | list[float] = Field(
+        default=1.0,
+        description='The upper bound of the uniform distribution.',
+        title='High',
+    )
+    random_seed: int | list[int] = Field(
+        default=1,
+        description='Seed for drawing random values from the uniform distribution.',
+        title='Random seed',
+    )
+
+
+class Shape(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Shape parameter of the gamma distribution.',
+        gt=0.0,
+        title='Shape',
+    )
+
+
+class ShapeItem(ScaleItem):
+    pass
+
+
+class Scale1(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Scale parameter of the gamma distribution in milliseconds.',
+        gt=0.0,
+        title='Scale',
+    )
+
+
+class GammaDistribution(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['GammaDistribution'] = Field(
+        default='GammaDistribution', title='Type'
+    )
+    shape: Shape | list[ShapeItem] = Field(
+        default=2.0,
+        description='Shape parameter of the gamma distribution.',
+        title='Shape',
+    )
+    scale: Scale1 | list[ScaleItem] = Field(
+        default=1.0,
+        description='Scale parameter of the gamma distribution in milliseconds.',
+        title='Scale',
+    )
+    shift: float | list[float] = Field(
+        default=0.0,
+        description='Constant value added to each sampled value.',
+        title='Shift',
+    )
+    random_seed: int | list[int] = Field(
+        default=1,
+        description='Seed for drawing random values from the gamma distribution.',
+        title='Random Seed',
+    )
 
 
 class GateExponents(BaseModel):
@@ -583,6 +748,10 @@ class GateExponents(BaseModel):
     )
 
 
+class Duration2(Duration):
+    pass
+
+
 class SamplePercentage4(SamplePercentage):
     pass
 
@@ -593,11 +762,10 @@ class SamplePercentage5Item(SamplePercentage1Item):
 
 class SamplePercentage5(RootModel[list[SamplePercentage5Item]]):
     root: list[SamplePercentage5Item] = Field(
-        100.0,
+        ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
-        validate_default=True,
     )
 
 
@@ -627,11 +795,10 @@ class SamplePercentage7Item(SamplePercentage1Item):
 
 class SamplePercentage7(RootModel[list[SamplePercentage7Item]]):
     root: list[SamplePercentage7Item] = Field(
-        100.0,
+        ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
-        validate_default=True,
     )
 
 
@@ -646,10 +813,21 @@ class InhibitoryNeurons(BaseModel):
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
-        validate_default=True,
     )
     sample_seed: int | list[int] = Field(
         default=1, description='Seed for random sampling.', title='Sample Seed'
+    )
+
+
+class IntConstantDistribution(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IntConstantDistribution'] = Field(
+        default='IntConstantDistribution', title='Type'
+    )
+    value: int | list[int] = Field(
+        default=1, description='The constant value of the distribution.', title='Value'
     )
 
 
@@ -661,6 +839,44 @@ class IntRange(BaseModel):
     start: int = Field(..., title='Start')
     step: int = Field(..., gt=0, title='Step')
     end: int = Field(..., title='End')
+
+
+class IntUniformDistribution(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['IntUniformDistribution'] = Field(
+        default='IntUniformDistribution', title='Type'
+    )
+    low: float | list[float] = Field(
+        default=0.0,
+        description='The lower bound of the uniform distribution.',
+        title='Low',
+    )
+    high: float | list[float] = Field(
+        default=1.0,
+        description='The upper bound of the uniform distribution.',
+        title='High',
+    )
+    random_seed: int | list[int] = Field(
+        default=1,
+        description='Seed for drawing random values from the uniform distribution.',
+        title='Random seed',
+    )
+
+
+class Duration3(RootModel[float]):
+    root: float = Field(
+        ...,
+        description='Time duration in milliseconds for how long input is activated.',
+        ge=0.0,
+        le=12000.0,
+        title='Duration',
+    )
+
+
+class DurationItem3(RootModel[float]):
+    root: float = Field(..., ge=0.0, le=12000.0)
 
 
 class IonChannelModelFromID(BaseModel):
@@ -771,7 +987,7 @@ class IonChannelVariableForRecording(BaseModel):
 
 class Dt(RootModel[float]):
     root: float = Field(
-        0.1,
+        ...,
         description='Interval between recording time steps in milliseconds (ms).',
         ge=0.025,
         title='Timestep',
@@ -782,12 +998,38 @@ class DtItem(RootModel[float]):
     root: float = Field(..., ge=0.025)
 
 
+class JobRead(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    id: UUID = Field(..., title='Id')
+    project_id: UUID = Field(..., title='Project Id')
+    user_id: UUID = Field(..., title='User Id')
+    status: str = Field(..., title='Status')
+    error_reason: str | None = Field(default=None, title='Error Reason')
+    start_time: str | None = Field(default=None, title='Start Time')
+    end_time: str | None = Field(default=None, title='End Time')
+    logs: dict[str, Any] | None = Field(default=None, title='Logs')
+    inputs: list[str] | None = Field(default=None, title='Inputs')
+    meta: dict[str, Any] | None = Field(default=None, title='Meta')
+    created_at: str | None = Field(default=None, title='Created At')
+    updated_at: str | None = Field(default=None, title='Updated At')
+
+
 class License(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
     )
     type: Literal['License'] = Field(default='License', title='Type')
     license_id: UUID | None = Field(default=None, title='License Id')
+
+
+class Duration4(Duration):
+    pass
+
+
+class DurationItem4(DurationItem):
+    pass
 
 
 class MEModelCircuit(BaseModel):
@@ -972,7 +1214,7 @@ class MorphologyMetricsOutput(BaseModel):
 
 class Width(RootModel[float]):
     root: float = Field(
-        50.0,
+        ...,
         description='The length of time each pulse lasts. Given in milliseconds (ms).',
         ge=1e-06,
         title='Pulse Width',
@@ -985,7 +1227,7 @@ class WidthItem(RootModel[float]):
 
 class Frequency(RootModel[float]):
     root: float = Field(
-        1.0,
+        ...,
         description='The frequency of pulse trains. Given in Hertz (Hz).',
         ge=1e-06,
         title='Pulse Frequency',
@@ -1051,11 +1293,19 @@ class Node(BaseModel):
         title='Morphology File',
     )
     morphology_name: str | None = Field(..., title='Morphology Name')
-    position: tuple[float, float, float] = Field(
-        ..., description='Position coordinates (x,y,z)', title='Position'
+    position: list = Field(
+        ...,
+        description='Position coordinates (x,y,z)',
+        max_length=3,
+        min_length=3,
+        title='Position',
     )
-    orientation: tuple[float, float, float, float] = Field(
-        ..., description='Orientation quaternion (x, y, z, w)', title='Orientation'
+    orientation: list = Field(
+        ...,
+        description='Orientation quaternion (x, y, z, w)',
+        max_length=4,
+        min_length=4,
+        title='Orientation',
     )
 
 
@@ -1089,7 +1339,7 @@ class NonNegativeIntRange(BaseModel):
 
 class Variance(RootModel[float]):
     root: float = Field(
-        0.01,
+        ...,
         description='The variance around the mean of current to inject using a                     normal distribution.',
         ge=0.0,
         title='Variance',
@@ -1102,20 +1352,20 @@ class VarianceItem(DurationItem):
 
 class TimeConstant(RootModel[float]):
     root: float = Field(
-        2.7,
+        ...,
         description='The time constant of the Ornstein-Uhlenbeck process.',
         gt=0.0,
         title='Tau',
     )
 
 
-class TimeConstantItem(RootModel[float]):
-    root: float = Field(..., gt=0.0)
+class TimeConstantItem(ScaleItem):
+    pass
 
 
 class MeanAmplitude(RootModel[float]):
     root: float = Field(
-        0.001,
+        ...,
         description='The mean value of conductance to inject. Given in microsiemens (μS).',
         ge=0.0,
         title='Mean Amplitude',
@@ -1128,20 +1378,20 @@ class MeanAmplitudeItem(DurationItem):
 
 class StandardDeviation(RootModel[float]):
     root: float = Field(
-        0.001,
+        ...,
         description='The standard deviation of conductance to inject. Given in microsiemens (μS).',
         gt=0.0,
         title='Standard Deviation',
     )
 
 
-class StandardDeviationItem(TimeConstantItem):
+class StandardDeviationItem(ScaleItem):
     pass
 
 
 class MeanAmplitude1(RootModel[float]):
     root: float = Field(
-        0.1,
+        ...,
         description='The mean value of current to inject. Given in nanoamps (nA).',
         ge=0.0,
         title='Mean Amplitude',
@@ -1150,7 +1400,7 @@ class MeanAmplitude1(RootModel[float]):
 
 class StandardDeviation1(RootModel[float]):
     root: float = Field(
-        0.05,
+        ...,
         description='The standard deviation of current to inject. Given in nanoamps (nA).',
         gt=0.0,
         title='Standard Deviation',
@@ -1191,23 +1441,17 @@ class PathDistanceMorphologyLocations(BaseModel):
     )
 
 
-class Duration7(RootModel[float]):
-    root: float = Field(
-        200.0,
-        description='Time duration in milliseconds for how long input is activated.',
-        ge=0.0,
-        le=12000.0,
-        title='Duration',
-    )
+class Duration9(Duration3):
+    pass
 
 
-class DurationItem7(RootModel[float]):
-    root: float = Field(..., ge=0.0, le=12000.0)
+class DurationItem9(DurationItem3):
+    pass
 
 
 class Frequency1(RootModel[float]):
     root: float = Field(
-        1.0,
+        ...,
         description='Mean frequency (Hz) of the Poisson input.',
         ge=1e-06,
         title='Frequency',
@@ -1246,11 +1490,10 @@ class SamplePercentage9Item(SamplePercentage1Item):
 
 class SamplePercentage9(RootModel[list[SamplePercentage9Item]]):
     root: list[SamplePercentage9Item] = Field(
-        100.0,
+        ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
-        validate_default=True,
     )
 
 
@@ -1275,7 +1518,6 @@ class PredefinedNeuronSet(BaseModel):
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
-        validate_default=True,
     )
     sample_seed: int | list[int] = Field(
         default=1, description='Seed for random sampling.', title='Sample Seed'
@@ -1356,7 +1598,7 @@ class RandomMorphologyLocations(BaseModel):
 
 class StartTime(RootModel[float]):
     root: float = Field(
-        0.0,
+        ...,
         description='Sart time of the timestamps in milliseconds (ms).',
         ge=0.0,
         title='Start Time',
@@ -1369,7 +1611,7 @@ class StartTimeItem(DurationItem):
 
 class Interval(RootModel[float]):
     root: float = Field(
-        10.0,
+        ...,
         description='Interval between timestamps in milliseconds (ms).',
         ge=0.0,
         title='Interval',
@@ -1382,7 +1624,7 @@ class IntervalItem(DurationItem):
 
 class NumberOfRepetitions(RootModel[int]):
     root: int = Field(
-        10,
+        ...,
         description='Number of timestamps to generate.',
         ge=0,
         title='Number Of Repetitions',
@@ -1404,33 +1646,30 @@ class RegularTimestamps(BaseModel):
         default=0.0,
         description='Sart time of the timestamps in milliseconds (ms).',
         title='Start Time',
-        validate_default=True,
     )
     interval: Interval | list[IntervalItem] = Field(
         default=10.0,
         description='Interval between timestamps in milliseconds (ms).',
         title='Interval',
-        validate_default=True,
     )
     number_of_repetitions: NumberOfRepetitions | list[NumberOfRepetition] = Field(
         default=10,
         description='Number of timestamps to generate.',
         title='Number Of Repetitions',
-        validate_default=True,
     )
 
 
-class Duration8(Duration):
+class Duration10(Duration):
     pass
 
 
-class DurationItem8(DurationItem):
+class DurationItem10(DurationItem):
     pass
 
 
 class PercentageOfThresholdCurrent(RootModel[float]):
     root: float = Field(
-        10.0,
+        ...,
         description="The percentage of a cell's threshold current to inject when the stimulus                     activates.",
         ge=0.0,
         title='Percentage of Threshold Current',
@@ -1443,7 +1682,7 @@ class PercentageOfThresholdCurrentItem(DurationItem):
 
 class PercentageOfThresholdCurrentStart(RootModel[float]):
     root: float = Field(
-        10.0,
+        ...,
         description="The percentage of a cell's threshold current to inject when the stimulus activates.",
         ge=0.0,
         title='Percentage of Threshold Current (Start)',
@@ -1456,7 +1695,7 @@ class PercentageOfThresholdCurrentStartItem(DurationItem):
 
 class PercentageOfThresholdCurrentEnd(RootModel[float]):
     root: float = Field(
-        100.0,
+        ...,
         description="If given, the percentage of a cell's threshold current is interpolated such that the percentage reaches this value when the stimulus concludes.",
         ge=0.0,
         title='Percentage of Threshold Current (End)',
@@ -1469,7 +1708,7 @@ class PercentageOfThresholdCurrentEndItem(DurationItem):
 
 class MeanPercentageOfThresholdCurrent(RootModel[float]):
     root: float = Field(
-        0.01,
+        ...,
         description="The mean value of current to inject as a percentage of a cell's                     threshold current.",
         ge=0.0,
         title='Percentage of Threshold Current (Mean)',
@@ -1482,7 +1721,7 @@ class MeanPercentageOfThresholdCurrentItem(DurationItem):
 
 class MeanPercentageOfCellsInputConductance(RootModel[float]):
     root: float = Field(
-        100.0,
+        ...,
         description="Signal mean as percentage of a cell's input conductance.",
         ge=0.0,
         title="Mean Percentage of Cells' Input Conductance",
@@ -1495,20 +1734,20 @@ class MeanPercentageOfCellsInputConductanceItem(DurationItem):
 
 class StandardDeviationPercentageOfCellsInputConductance(RootModel[float]):
     root: float = Field(
-        5.0,
+        ...,
         description="Signal standard deviation as percentage of a cell's input conductance.",
         gt=0.0,
         title='Standard Deviation',
     )
 
 
-class StandardDeviationPercentageOfCellsInputConductanceItem(TimeConstantItem):
+class StandardDeviationPercentageOfCellsInputConductanceItem(ScaleItem):
     pass
 
 
 class MeanPercentageOfThresholdCurrent1(RootModel[float]):
     root: float = Field(
-        100.0,
+        ...,
         description="Signal mean as percentage of a cell's threshold current.",
         ge=0.0,
         title='Mean Percentage of Threshold Current',
@@ -1517,20 +1756,20 @@ class MeanPercentageOfThresholdCurrent1(RootModel[float]):
 
 class StandardDeviationPercentageOfThreshold(RootModel[float]):
     root: float = Field(
-        5.0,
+        ...,
         description="Signal standard deviation as percentage of a cell's threshold current.",
         gt=0.0,
         title='Standard Deviation',
     )
 
 
-class StandardDeviationPercentageOfThresholdItem(TimeConstantItem):
+class StandardDeviationPercentageOfThresholdItem(ScaleItem):
     pass
 
 
 class Level1Duration(RootModel[float]):
     root: float = Field(
-        250.0,
+        ...,
         description='Duration 1 of SEClamp stimulus (in ms)',
         ge=0.0,
         title='Level 1 Duration',
@@ -1543,7 +1782,7 @@ class Level1DurationItem(DurationItem):
 
 class Level2Duration(RootModel[float]):
     root: float = Field(
-        500.0,
+        ...,
         description='Duration 2 of SEClamp stimulus (in ms)',
         ge=0.0,
         title='Level 2 Duration',
@@ -1556,7 +1795,7 @@ class Level2DurationItem(DurationItem):
 
 class Level3Duration(RootModel[float]):
     root: float = Field(
-        250.0,
+        ...,
         description='Duration 3 of SEClamp stimulus (in ms)',
         ge=0.0,
         title='Level 3 Duration',
@@ -1583,7 +1822,6 @@ class SEClampSomaticStimulus(BaseModel):
         default=250.0,
         description='Duration 1 of SEClamp stimulus (in ms)',
         title='Level 1 Duration',
-        validate_default=True,
     )
     level1_voltage: float | list[float] = Field(
         default=-80.0,
@@ -1594,7 +1832,6 @@ class SEClampSomaticStimulus(BaseModel):
         default=500.0,
         description='Duration 2 of SEClamp stimulus (in ms)',
         title='Level 2 Duration',
-        validate_default=True,
     )
     level2_voltage: float | list[float] = Field(
         default=0.0,
@@ -1605,7 +1842,6 @@ class SEClampSomaticStimulus(BaseModel):
         default=250.0,
         description='Duration 3 of SEClamp stimulus (in ms)',
         title='Level 3 Duration',
-        validate_default=True,
     )
     level3_voltage: float | list[float] = Field(
         default=-80.0,
@@ -1616,7 +1852,7 @@ class SEClampSomaticStimulus(BaseModel):
 
 class UseScaling(RootModel[float]):
     root: float = Field(
-        0.7050728631217412,
+        ...,
         description='Scale the U_SE (ACh) parameter of the Tsodyks-Markram synaptic model.',
         ge=0.0,
         title='Scale U_SE (ACh)',
@@ -1648,7 +1884,6 @@ class ScaleAcetylcholineUSESynapticManipulation(BaseModel):
         default=0.7050728631217412,
         description='Scale the U_SE (ACh) parameter of the Tsodyks-Markram synaptic model.',
         title='Scale U_SE (ACh)',
-        validate_default=True,
     )
 
 
@@ -1664,8 +1899,8 @@ class ScientificArtifact(BaseModel):
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
 
 
-class Point(RootModel[tuple[float, float, float]]):
-    root: tuple[float, float, float] = Field(..., max_length=3, min_length=3)
+class Point(RootModel[list]):
+    root: list = Field(..., max_length=3, min_length=3)
 
 
 class Section(BaseModel):
@@ -1706,6 +1941,7 @@ class ServiceSubtype(
             'region-sim',
             'system-sim',
             'whole-brain-sim',
+            'circuit-extraction',
         ]
     ]
 ):
@@ -1730,6 +1966,7 @@ class ServiceSubtype(
         'region-sim',
         'system-sim',
         'whole-brain-sim',
+        'circuit-extraction',
     ] = Field(..., description='Service Subtype.', title='ServiceSubtype')
 
 
@@ -1774,13 +2011,12 @@ class SingleTimestamp(BaseModel):
         default=0.0,
         description='Sart time of the timestamps in milliseconds (ms).',
         title='Start Time',
-        validate_default=True,
     )
 
 
 class Frequency2(RootModel[float]):
     root: float = Field(
-        1.0,
+        ...,
         description='The frequency of the waveform. Given in Hertz (Hz).',
         ge=1e-06,
         title='Frequency',
@@ -1789,16 +2025,16 @@ class Frequency2(RootModel[float]):
 
 class Dt1(RootModel[float]):
     root: float = Field(
-        0.025,
+        ...,
         description='Timestep of generated signal in milliseconds (ms).',
         ge=0.025,
         title='Timestep',
     )
 
 
-class Duration14(RootModel[float]):
+class Duration16(RootModel[float]):
     root: float = Field(
-        200.0,
+        ...,
         description='Time duration of the stimulus in milliseconds.',
         ge=0.0,
         le=12000.0,
@@ -1806,13 +2042,13 @@ class Duration14(RootModel[float]):
     )
 
 
-class DurationItem14(DurationItem7):
+class DurationItem16(DurationItem3):
     pass
 
 
 class MinimumRate(RootModel[float]):
     root: float = Field(
-        1e-05,
+        ...,
         description='Minimum rate of the stimulus in Hz.\n Must be less than the Maximum Rate.',
         ge=1e-05,
         gt=0.0,
@@ -1827,7 +2063,7 @@ class MinimumRateItem(RootModel[float]):
 
 class MaximumRate(RootModel[float]):
     root: float = Field(
-        10.0,
+        ...,
         description='Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.',
         ge=1e-05,
         gt=0.0,
@@ -1842,7 +2078,7 @@ class MaximumRateItem(MinimumRateItem):
 
 class ModulationFrequencyHz(RootModel[float]):
     root: float = Field(
-        5.0,
+        ...,
         description='Frequency (Hz) of the sinusoidal modulation of the rate.',
         ge=1e-05,
         gt=0.0,
@@ -1873,7 +2109,6 @@ class SomaVoltageRecording(BaseModel):
         default=0.1,
         description='Interval between recording time steps in milliseconds (ms).',
         title='Timestep',
-        validate_default=True,
     )
 
 
@@ -1881,9 +2116,9 @@ class SpatialCoordinate(RootModel[Literal['x', 'y', 'z']]):
     root: Literal['x', 'y', 'z'] = Field(..., title='SpatialCoordinate')
 
 
-class Duration15(RootModel[float]):
+class Duration17(RootModel[float]):
     root: float = Field(
-        200.0,
+        ...,
         description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         ge=0.0,
         le=12000.0,
@@ -1893,7 +2128,7 @@ class Duration15(RootModel[float]):
 
 class RampUpDuration(RootModel[float]):
     root: float = Field(
-        0.0,
+        ...,
         description='Time over which the field linearly ramps up from zero to full amplitude, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         ge=0.0,
         title='Ramp Up (Duration)',
@@ -1906,7 +2141,7 @@ class RampUpDurationItem(DurationItem):
 
 class RampDownDuration(RootModel[float]):
     root: float = Field(
-        0.0,
+        ...,
         description='Time over which the field linearly ramps down from full amplitude to zero, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         ge=0.0,
         title='Ramp Down (Duration)',
@@ -1931,7 +2166,8 @@ class Subject(BaseModel):
         ..., description='Subject description', title='Description'
     )
     sex: Sex = Field(
-        default='unknown', description='Sex of the subject', validate_default=True
+        default_factory=lambda: Sex.model_validate('unknown'),
+        description='Sex of the subject',
     )
     weight: Weight | None = Field(
         default=None, description='Weight in grams', title='Weight'
@@ -1945,7 +2181,7 @@ class Subject(BaseModel):
     age_max: timedelta | None = Field(
         default=None, description='Maximum age range', title='Maximum age range'
     )
-    age_period: AgePeriod | None = Field(default='unknown', validate_default=True)
+    age_period: AgePeriod | None = 'unknown'
     species_id: UUID = Field(..., description='Species UUID', title='Species Id')
     strain_id: UUID | None = Field(default=None, title='Strain Id')
 
@@ -1958,17 +2194,17 @@ class SubjectID(BaseModel):
     subject_id: UUID | None = Field(default=None, title='Subject Id')
 
 
-class Duration16(Duration):
+class Duration18(Duration):
     pass
 
 
-class DurationItem16(DurationItem):
+class DurationItem18(DurationItem):
     pass
 
 
 class MagnesiumValue(RootModel[float]):
     root: float = Field(
-        2.4,
+        ...,
         description='Extracellular magnesium concentration in millimoles (mM).',
         ge=0.0,
         title='Extracellular Magnesium Concentration',
@@ -2000,7 +2236,6 @@ class SynapticMgManipulation(BaseModel):
         default=2.4,
         description='Extracellular magnesium concentration in millimoles (mM).',
         title='Extracellular Magnesium Concentration',
-        validate_default=True,
     )
 
 
@@ -2009,6 +2244,9 @@ class TaskType(
         Literal[
             'circuit_extraction',
             'circuit_simulation',
+            'circuit_simulation_inait_machine',
+            'circuit_simulation_neuron',
+            'circuit_simulation_neurodamus_cluster',
             'morphology_skeletonization',
             'ion_channel_model_simulation_execution',
             'em_synapse_mapping',
@@ -2018,6 +2256,9 @@ class TaskType(
     root: Literal[
         'circuit_extraction',
         'circuit_simulation',
+        'circuit_simulation_inait_machine',
+        'circuit_simulation_neuron',
+        'circuit_simulation_neurodamus_cluster',
         'morphology_skeletonization',
         'ion_channel_model_simulation_execution',
         'em_synapse_mapping',
@@ -2026,17 +2267,17 @@ class TaskType(
     )
 
 
-class Duration17(Duration15):
+class Duration19(Duration17):
     pass
 
 
-class DurationItem17(DurationItem7):
+class DurationItem19(DurationItem3):
     pass
 
 
 class Frequency3(RootModel[float]):
     root: float = Field(
-        0.0,
+        ...,
         description='Frequency of the cosinusoid, in Hz. Must be non-negative. If not provided, assumed to be 0. In this case, a time-invariant field with amplitude [Ex, Ey, Ez] is applied, unless ramp_up_duration or ramp_down_duration is specified, in which case the field will increase/decrease linearly with time during the ramp periods, and will be constant during the remainder of the stimulation period. Note that the signal will be generated with the same time step as the simulation itself. Note that frequency should therefore be less than the Nyquist frequency of the simulation (i.e., 1/(2*dt))',
         ge=0.0,
         lt=20000.0,
@@ -2050,11 +2291,10 @@ class Frequency4Item(RootModel[float]):
 
 class Frequency4(RootModel[list[Frequency4Item]]):
     root: list[Frequency4Item] = Field(
-        0.0,
+        ...,
         description='Frequency of the cosinusoid, in Hz. Must be non-negative. If not provided, assumed to be 0. In this case, a time-invariant field with amplitude [Ex, Ey, Ez] is applied, unless ramp_up_duration or ramp_down_duration is specified, in which case the field will increase/decrease linearly with time during the ramp periods, and will be constant during the remainder of the stimulation period. Note that the signal will be generated with the same time step as the simulation itself. Note that frequency should therefore be less than the Nyquist frequency of the simulation (i.e., 1/(2*dt))',
         min_length=1,
         title='Frequency',
-        validate_default=True,
     )
 
 
@@ -2074,7 +2314,7 @@ class ThermoFitMTauV2(BaseModel):
 
 class StartTime2(RootModel[float]):
     root: float = Field(
-        0.0,
+        ...,
         description='Recording start time in milliseconds (ms).',
         ge=0.0,
         title='Start Time',
@@ -2083,7 +2323,7 @@ class StartTime2(RootModel[float]):
 
 class EndTime(RootModel[float]):
     root: float = Field(
-        100.0,
+        ...,
         description='Recording end time in milliseconds (ms).',
         ge=0.0,
         title='End Time',
@@ -2108,19 +2348,16 @@ class TimeWindowSomaVoltageRecording(BaseModel):
         default=0.1,
         description='Interval between recording time steps in milliseconds (ms).',
         title='Timestep',
-        validate_default=True,
     )
     start_time: StartTime2 | list[StartTimeItem] = Field(
         default=0.0,
         description='Recording start time in milliseconds (ms).',
         title='Start Time',
-        validate_default=True,
     )
     end_time: EndTime | list[EndTimeItem] = Field(
         default=100.0,
         description='Recording end time in milliseconds (ms).',
         title='End Time',
-        validate_default=True,
     )
 
 
@@ -2168,11 +2405,10 @@ class SamplePercentage11Item(SamplePercentage1Item):
 
 class SamplePercentage11(RootModel[list[SamplePercentage11Item]]):
     root: list[SamplePercentage11Item] = Field(
-        100.0,
+        ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
-        validate_default=True,
     )
 
 
@@ -2185,7 +2421,6 @@ class NbS1POmInputs(BaseModel):
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
-        validate_default=True,
     )
     sample_seed: int | list[int] = Field(
         default=1, description='Seed for random sampling.', title='Sample Seed'
@@ -2202,11 +2437,10 @@ class SamplePercentage13Item(SamplePercentage1Item):
 
 class SamplePercentage13(RootModel[list[SamplePercentage13Item]]):
     root: list[SamplePercentage13Item] = Field(
-        100.0,
+        ...,
         description='Percentage of neurons to sample between 0 and 100%',
         min_length=1,
         title='Sample (Percentage)',
-        validate_default=True,
     )
 
 
@@ -2219,7 +2453,6 @@ class NbS1VPMInputs(BaseModel):
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
-        validate_default=True,
     )
     sample_seed: int | list[int] = Field(
         default=1, description='Seed for random sampling.', title='Sample Seed'
@@ -2455,7 +2688,7 @@ class ObiOneScientificTasksFolderCompressionFolderCompressionScanConfigInitializ
 
 class SimulationLength(RootModel[float]):
     root: float = Field(
-        1000.0,
+        ...,
         description='Simulation length in milliseconds (ms).',
         ge=1.0,
         le=12000.0,
@@ -2469,17 +2702,16 @@ class SimulationLength1Item(RootModel[float]):
 
 class SimulationLength1(RootModel[list[SimulationLength1Item]]):
     root: list[SimulationLength1Item] = Field(
-        1000.0,
+        ...,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
-        validate_default=True,
     )
 
 
 class ExtracellularCalciumConcentration(RootModel[float]):
     root: float = Field(
-        1.1,
+        ...,
         description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
         ge=0.0,
         title='Extracellular Calcium Concentration',
@@ -2506,7 +2738,6 @@ class ObiOneScientificTasksGenerateSimulationsConfigCircuitCircuitSimulationScan
         default=1000.0,
         description='Simulation length in milliseconds (ms).',
         title='Duration',
-        validate_default=True,
     )
     extracellular_calcium_concentration: (
         ExtracellularCalciumConcentration | list[ExtracellularCalciumConcentrationItem]
@@ -2514,7 +2745,6 @@ class ObiOneScientificTasksGenerateSimulationsConfigCircuitCircuitSimulationScan
         default=1.1,
         description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
         title='Extracellular Calcium Concentration',
-        validate_default=True,
     )
     v_init: float | list[float] = Field(
         default=-80.0,
@@ -2539,17 +2769,16 @@ class SimulationLength3Item(SimulationLength1Item):
 
 class SimulationLength3(RootModel[list[SimulationLength3Item]]):
     root: list[SimulationLength3Item] = Field(
-        1000.0,
+        ...,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
-        validate_default=True,
     )
 
 
 class Temperature(RootModel[float]):
     root: float = Field(
-        34.0,
+        ...,
         description='Temperature of the simulation.',
         ge=0.0,
         title='Temperature (in °C)',
@@ -2573,13 +2802,11 @@ class ObiOneScientificTasksGenerateSimulationsConfigIonChannelModelsIonChannelMo
         default=1000.0,
         description='Simulation length in milliseconds (ms).',
         title='Duration',
-        validate_default=True,
     )
     temperature: Temperature | list[TemperatureItem] = Field(
         default=34.0,
         description='Temperature of the simulation.',
         title='Temperature (in °C)',
-        validate_default=True,
     )
     v_init: float | list[float] = Field(
         default=-80.0,
@@ -2605,11 +2832,10 @@ class SimulationLength5Item(SimulationLength1Item):
 
 class SimulationLength5(RootModel[list[SimulationLength5Item]]):
     root: list[SimulationLength5Item] = Field(
-        1000.0,
+        ...,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
-        validate_default=True,
     )
 
 
@@ -2629,7 +2855,6 @@ class ObiOneScientificTasksGenerateSimulationsConfigMeModelMEModelSimulationScan
         default=1000.0,
         description='Simulation length in milliseconds (ms).',
         title='Duration',
-        validate_default=True,
     )
     extracellular_calcium_concentration: (
         ExtracellularCalciumConcentration | list[ExtracellularCalciumConcentrationItem]
@@ -2637,7 +2862,6 @@ class ObiOneScientificTasksGenerateSimulationsConfigMeModelMEModelSimulationScan
         default=1.1,
         description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
         title='Extracellular Calcium Concentration',
-        validate_default=True,
     )
     v_init: float | list[float] = Field(
         default=-80.0,
@@ -2667,11 +2891,10 @@ class SimulationLength7Item(SimulationLength1Item):
 
 class SimulationLength7(RootModel[list[SimulationLength7Item]]):
     root: list[SimulationLength7Item] = Field(
-        1000.0,
+        ...,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
-        validate_default=True,
     )
 
 
@@ -2696,7 +2919,6 @@ class ObiOneScientificTasksGenerateSimulationsConfigMeModelWithSynapsesMEModelWi
         default=1000.0,
         description='Simulation length in milliseconds (ms).',
         title='Duration',
-        validate_default=True,
     )
     extracellular_calcium_concentration: (
         ExtracellularCalciumConcentration | list[ExtracellularCalciumConcentrationItem]
@@ -2704,7 +2926,6 @@ class ObiOneScientificTasksGenerateSimulationsConfigMeModelWithSynapsesMEModelWi
         default=1.1,
         description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
         title='Extracellular Calcium Concentration',
-        validate_default=True,
     )
     v_init: float | list[float] = Field(
         default=-80.0,
@@ -2835,7 +3056,7 @@ class ObiOneScientificTasksSchemaExampleSchemaExampleScanConfigInitialize(BaseMo
 
 class NeuronVoxelSize(RootModel[float]):
     root: float = Field(
-        0.1,
+        ...,
         description='Neuron reconstruction resolution in micrometers.',
         ge=0.005,
         gt=0.0,
@@ -2850,7 +3071,7 @@ class NeuronVoxelSizeItem(RootModel[float]):
 
 class SpinesVoxelSize(RootModel[float]):
     root: float = Field(
-        0.1,
+        ...,
         description='Spine reconstruction resolution in micrometers.',
         ge=0.1,
         gt=0.0,
@@ -2881,13 +3102,11 @@ class ObiOneScientificTasksSkeletonizationConfigSkeletonizationScanConfigInitial
         default=0.1,
         description='Neuron reconstruction resolution in micrometers.',
         title='Neuron Voxel Size',
-        validate_default=True,
     )
     spines_voxel_size: SpinesVoxelSize | list[SpinesVoxelSizeItem] = Field(
         default=0.1,
         description='Spine reconstruction resolution in micrometers.',
         title='Spine Voxel Size',
-        validate_default=True,
     )
     write_raw_spines: bool = Field(
         default=True,
@@ -2906,11 +3125,10 @@ class SimulationLength9Item(SimulationLength1Item):
 
 class SimulationLength9(RootModel[list[SimulationLength9Item]]):
     root: list[SimulationLength9Item] = Field(
-        1000.0,
+        ...,
         description='Simulation length in milliseconds (ms).',
         min_length=1,
         title='Duration',
-        validate_default=True,
     )
 
 
@@ -2928,7 +3146,6 @@ class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
         default=1000.0,
         description='Simulation length in milliseconds (ms).',
         title='Duration',
-        validate_default=True,
     )
     extracellular_calcium_concentration: (
         ExtracellularCalciumConcentration | list[ExtracellularCalciumConcentrationItem]
@@ -2936,7 +3153,6 @@ class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
         default=1.1,
         description='Extracellular calcium concentration around the synapse in millimoles (mM). Increasing this value increases the probability of synaptic vesicle release, which in turn increases the level of network activity. In vivo values are estimated to be ~0.9-1.2mM, whilst in vitro values are on the order of 2mM.',
         title='Extracellular Calcium Concentration',
-        validate_default=True,
     )
     v_init: float | list[float] = Field(
         default=-80.0,
@@ -2952,17 +3168,16 @@ class ObiOneScientificUnionsAliasesSimulationsFormInitialize(BaseModel):
 
 
 class RootGetResponse(BaseModel):
+    pass
     model_config = ConfigDict(
         extra='ignore',
     )
 
 
-class HealthHealthGetResponse(RootGetResponse):
-    pass
+HealthHealthGetResponse = RootGetResponse
 
 
-class VersionVersionGetResponse(RootGetResponse):
-    pass
+VersionVersionGetResponse = RootGetResponse
 
 
 class CircuitNodesCircuitVizCircuitIdNodesGetResponse(RootModel[list[Node]]):
@@ -2974,9 +3189,6 @@ class CircuitNodesCircuitVizCircuitIdNodesGetResponse(RootModel[list[Node]]):
 class CircuitMorphologyCircuitVizCircuitIdMorphologiesMorphologyFileGetParametersQuery(
     BaseModel
 ):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
     name: str | None = Field(
         default=None,
         description='The name of the morphology. Required if morphology_file is a collection.',
@@ -2987,33 +3199,27 @@ class CircuitMorphologyCircuitVizCircuitIdMorphologiesMorphologyFileGetParameter
 class CircuitMetricsEndpointDeclaredCircuitMetricsCircuitIdGetParametersQuery(
     BaseModel
 ):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
     level_of_detail_nodes: CircuitStatsLevelOfDetail = Field(
-        default=0,
-        description='Level of detail for node populations analysis',
-        validate_default=True,
+        default=0, description='Level of detail for node populations analysis'
     )
     level_of_detail_edges: CircuitStatsLevelOfDetail = Field(
-        default=0,
-        description='Level of detail for edge populations analysis',
-        validate_default=True,
+        default=0, description='Level of detail for edge populations analysis'
     )
 
 
-class MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse(
+MappedCircuitPropertiesEndpointDeclaredMappedCircuitPropertiesCircuitIdGetResponse = (
     RootGetResponse
-):
-    pass
+)
+
+
+RegisterMorphologyMeshDeclaredConvertMorphologyToRegisteredMeshCellMorphologyIdPostResponse = (
+    RootGetResponse
+)
 
 
 class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordingMetricsTraceIdGetParametersQuery(
     BaseModel
 ):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
     requested_metrics: (
         list[
             Literal[
@@ -3089,24 +3295,17 @@ class ElectrophysiologyrecordingMetricsEndpointDeclaredElectrophysiologyrecordin
 class MappedIonChannelPropertiesEndpointDeclaredMappedIonChannelPropertiesGetParametersQuery(
     BaseModel
 ):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
     ion_channel_ids: list[str] = Field(..., title='Ion Channel Ids')
 
 
-class MappedIonChannelPropertiesEndpointDeclaredMappedIonChannelPropertiesGetResponse(
+MappedIonChannelPropertiesEndpointDeclaredMappedIonChannelPropertiesGetResponse = (
     RootGetResponse
-):
-    pass
+)
 
 
 class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorphologyIdGetParametersQuery(
     BaseModel
 ):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
     requested_metrics: (
         list[
             Literal[
@@ -3140,16 +3339,12 @@ class NeuronMorphologyMetricsEndpointDeclaredNeuronMorphologyMetricsCellMorpholo
     )
 
 
-class RegisterMorphologyMetricsDeclaredNeuronMorphologyMetricsCellMorphologyIdRegisterPostResponse(
+RegisterMorphologyMetricsDeclaredNeuronMorphologyMetricsCellMorphologyIdRegisterPostResponse = (
     RootGetResponse
-):
-    pass
+)
 
 
 class ValidateNeuronFileDeclaredTestNeuronFilePostParametersQuery(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
     single_point_soma: bool = Field(
         default=False,
         description='Convert soma to single point',
@@ -3157,18 +3352,14 @@ class ValidateNeuronFileDeclaredTestNeuronFilePostParametersQuery(BaseModel):
     )
 
 
-class MorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMetricsPostResponse(
+MorphologyMetricsCalculationDeclaredRegisterMorphologyWithCalculatedMetricsPostResponse = (
     RootGetResponse
-):
-    pass
+)
 
 
 class ParametricMultiValueEndpointDeclaredParametricMultiValuePostParametersQuery(
     BaseModel
 ):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
     ge: float | int | None = Field(
         default=None, description='Require all values to be ≥ this', title='Ge'
     )
@@ -3213,9 +3404,6 @@ class ParametricMultiValueEndpointDeclaredParametricMultiValuePostResponse(
 
 
 class TaskFailureEndpointDeclaredTaskCallbackFailurePostParametersQuery(BaseModel):
-    model_config = ConfigDict(
-        extra='ignore',
-    )
     task_type: TaskType
     activity_id: UUID = Field(..., title='Activity Id')
 
@@ -3289,9 +3477,7 @@ class CircuitMetricsEdgePopulation(BaseModel):
     property_stats: dict[str, dict[str, float]] | None = Field(
         ..., title='Property Stats'
     )
-    degree_stats: dict[DegreeTypes, dict[str, float]] | None = Field(
-        ..., title='Degree Stats'
-    )
+    degree_stats: dict[str, dict[str, float]] | None = Field(..., title='Degree Stats')
 
 
 class CircuitMetricsNodePopulation(BaseModel):
@@ -3311,7 +3497,7 @@ class CircuitMetricsNodePopulation(BaseModel):
     dynamics_param_names: list[str] | None = Field(
         default=None, title='Dynamics Param Names'
     )
-    node_location_info: dict[SpatialCoordinate, dict[str, float]] | None = Field(
+    node_location_info: dict[str, dict[str, float]] | None = Field(
         ..., title='Node Location Info'
     )
 
@@ -3409,7 +3595,6 @@ class ConstantCurrentClampSomaticStimulus(BaseModel):
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -3430,7 +3615,6 @@ class ConstantCurrentClampSomaticStimulus(BaseModel):
         default=0.1,
         description='The injected current. Given in nanoamps.',
         title='Amplitude',
-        validate_default=True,
     )
 
 
@@ -3592,11 +3776,10 @@ class HyperpolarizingCurrentClampSomaticStimulus(BaseModel):
     type: Literal['HyperpolarizingCurrentClampSomaticStimulus'] = Field(
         default='HyperpolarizingCurrentClampSomaticStimulus', title='Type'
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration2 | list[DurationItem] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -3633,7 +3816,6 @@ class IDNeuronSet(BaseModel):
         default=100.0,
         description='Percentage of neurons to sample between 0 and 100%',
         title='Sample (Percentage)',
-        validate_default=True,
     )
     sample_seed: int | list[int] = Field(
         default=1, description='Seed for random sampling.', title='Sample Seed'
@@ -3642,6 +3824,50 @@ class IDNeuronSet(BaseModel):
         ...,
         description='List of neuron IDs to include in the neuron set.',
         title='ID Neuronset',
+    )
+
+
+class InterSpikeIntervalDistributionSpikeStimulus(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['InterSpikeIntervalDistributionSpikeStimulus'] = Field(
+        default='InterSpikeIntervalDistributionSpikeStimulus', title='Type'
+    )
+    timestamps: TimestampsReference | None = Field(
+        default=None,
+        description='Timestamps at which the stimulus is applied.',
+        title='Timestamps',
+    )
+    timestamp_offset: float | list[float] = Field(
+        default=0.0,
+        description='The offset of the stimulus relative to each timestamp in milliseconds (ms).',
+        title='Timestamp Offset',
+    )
+    source_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Source neuron set to simulate',
+        title='Neuron Set (Source)',
+    )
+    targeted_neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Target neuron set to simulate',
+        title='Neuron Set (Target)',
+    )
+    duration: Duration3 | list[DurationItem3] = Field(
+        default=200.0,
+        description='Time duration in milliseconds for how long input is activated.',
+        title='Duration',
+    )
+    distribution: AllDistributionsReference | None = Field(
+        default=None,
+        description='Distribution used to sample inter-spike intervals in milliseconds. Default: ExponentialDistribution(scale=50.0), approximately 20 Hz.',
+        title='Interval Distribution',
+    )
+    resample_each_repetition: bool = Field(
+        default=True,
+        description='When set to True, the spike train is regenerated for every timestamp repetition. When False, the same relative spike pattern is reused for all repetitions.',
+        title='Resample Each Repetition',
     )
 
 
@@ -3704,7 +3930,6 @@ class IonChannelVariableRecording(BaseModel):
         default=0.1,
         description='Interval between recording time steps in milliseconds (ms).',
         title='Timestep',
-        validate_default=True,
     )
     variable: IonChannelVariableForRecording = Field(
         ...,
@@ -3720,11 +3945,10 @@ class LinearCurrentClampSomaticStimulus(BaseModel):
     type: Literal['LinearCurrentClampSomaticStimulus'] = Field(
         default='LinearCurrentClampSomaticStimulus', title='Type'
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration4 | list[DurationItem4] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -3818,6 +4042,26 @@ class MorphologyMetricsScanConfig(BaseModel):
     )
 
 
+class MultiLevelSEClampSomaticStimulus(BaseModel):
+    model_config = ConfigDict(
+        extra='ignore',
+    )
+    type: Literal['MultiLevelSEClampSomaticStimulus'] = Field(
+        default='MultiLevelSEClampSomaticStimulus', title='Type'
+    )
+    neuron_set: NeuronSetReference | None = Field(
+        default=None,
+        description='Neuron set to which the stimulus is applied.',
+        title='Neuron Set',
+    )
+    duration_voltage: list[DurationVoltageCombination] = Field(
+        ...,
+        description='A list of duration and voltage combinations for the SEClamp stimulus. The first duration starts at time 0, and each subsequent duration starts when the previous one ends.',
+        min_length=1,
+        title='Voltage Levels and Durations',
+    )
+
+
 class MultiPulseCurrentClampSomaticStimulus(BaseModel):
     model_config = ConfigDict(
         extra='ignore',
@@ -3825,11 +4069,10 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
     type: Literal['MultiPulseCurrentClampSomaticStimulus'] = Field(
         default='MultiPulseCurrentClampSomaticStimulus', title='Type'
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration4 | list[DurationItem4] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -3855,13 +4098,11 @@ class MultiPulseCurrentClampSomaticStimulus(BaseModel):
         default=50.0,
         description='The length of time each pulse lasts. Given in milliseconds (ms).',
         title='Pulse Width',
-        validate_default=True,
     )
     frequency: Frequency | list[FrequencyItem] = Field(
         default=1.0,
         description='The frequency of pulse trains. Given in Hertz (Hz).',
         title='Pulse Frequency',
-        validate_default=True,
     )
 
 
@@ -3872,11 +4113,10 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
     type: Literal['NormallyDistributedCurrentClampSomaticStimulus'] = Field(
         default='NormallyDistributedCurrentClampSomaticStimulus', title='Type'
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration4 | list[DurationItem4] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -3902,7 +4142,6 @@ class NormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         default=0.01,
         description='The variance around the mean of current to inject using a                     normal distribution.',
         title='Variance',
-        validate_default=True,
     )
 
 
@@ -3913,11 +4152,10 @@ class OrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
     type: Literal['OrnsteinUhlenbeckConductanceSomaticStimulus'] = Field(
         default='OrnsteinUhlenbeckConductanceSomaticStimulus', title='Type'
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration4 | list[DurationItem4] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -3938,19 +4176,16 @@ class OrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
         default=2.7,
         description='The time constant of the Ornstein-Uhlenbeck process.',
         title='Tau',
-        validate_default=True,
     )
     mean_amplitude: MeanAmplitude | list[MeanAmplitudeItem] = Field(
         default=0.001,
         description='The mean value of conductance to inject. Given in microsiemens (μS).',
         title='Mean Amplitude',
-        validate_default=True,
     )
     standard_deviation: StandardDeviation | list[StandardDeviationItem] = Field(
         default=0.001,
         description='The standard deviation of conductance to inject. Given in microsiemens (μS).',
         title='Standard Deviation',
-        validate_default=True,
     )
     reversal_potential: float | list[float] = Field(
         default=0.0,
@@ -3966,11 +4201,10 @@ class OrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
     type: Literal['OrnsteinUhlenbeckCurrentSomaticStimulus'] = Field(
         default='OrnsteinUhlenbeckCurrentSomaticStimulus', title='Type'
     )
-    duration: Duration | list[DurationItem] = Field(
+    duration: Duration4 | list[DurationItem4] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -3991,19 +4225,16 @@ class OrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
         default=2.7,
         description='The time constant of the Ornstein-Uhlenbeck process.',
         title='Tau',
-        validate_default=True,
     )
     mean_amplitude: MeanAmplitude1 | list[MeanAmplitudeItem] = Field(
         default=0.1,
         description='The mean value of current to inject. Given in nanoamps (nA).',
         title='Mean Amplitude',
-        validate_default=True,
     )
     standard_deviation: StandardDeviation1 | list[StandardDeviationItem] = Field(
         default=0.05,
         description='The standard deviation of current to inject. Given in nanoamps (nA).',
         title='Standard Deviation',
-        validate_default=True,
     )
 
 
@@ -4034,17 +4265,15 @@ class PoissonSpikeStimulus(BaseModel):
         description='Target neuron set to simulate',
         title='Neuron Set (Target)',
     )
-    duration: Duration7 | list[DurationItem7] = Field(
+    duration: Duration9 | list[DurationItem9] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     frequency: Frequency1 | list[FrequencyItem] = Field(
         default=1.0,
         description='Mean frequency (Hz) of the Poisson input.',
         title='Frequency',
-        validate_default=True,
     )
     random_seed: int | list[int] = Field(
         default=0,
@@ -4060,11 +4289,10 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeConstantCurrentClampSomaticStimulus'] = Field(
         default='RelativeConstantCurrentClampSomaticStimulus', title='Type'
     )
-    duration: Duration8 | list[DurationItem8] = Field(
+    duration: Duration10 | list[DurationItem10] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -4087,7 +4315,6 @@ class RelativeConstantCurrentClampSomaticStimulus(BaseModel):
         default=10.0,
         description="The percentage of a cell's threshold current to inject when the stimulus                     activates.",
         title='Percentage of Threshold Current',
-        validate_default=True,
     )
 
 
@@ -4098,11 +4325,10 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeLinearCurrentClampSomaticStimulus'] = Field(
         default='RelativeLinearCurrentClampSomaticStimulus', title='Type'
     )
-    duration: Duration8 | list[DurationItem8] = Field(
+    duration: Duration10 | list[DurationItem10] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -4125,7 +4351,6 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
         default=10.0,
         description="The percentage of a cell's threshold current to inject when the stimulus activates.",
         title='Percentage of Threshold Current (Start)',
-        validate_default=True,
     )
     percentage_of_threshold_current_end: (
         PercentageOfThresholdCurrentEnd | list[PercentageOfThresholdCurrentEndItem]
@@ -4133,7 +4358,6 @@ class RelativeLinearCurrentClampSomaticStimulus(BaseModel):
         default=100.0,
         description="If given, the percentage of a cell's threshold current is interpolated such that the percentage reaches this value when the stimulus concludes.",
         title='Percentage of Threshold Current (End)',
-        validate_default=True,
     )
 
 
@@ -4144,11 +4368,10 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
     type: Literal['RelativeNormallyDistributedCurrentClampSomaticStimulus'] = Field(
         default='RelativeNormallyDistributedCurrentClampSomaticStimulus', title='Type'
     )
-    duration: Duration8 | list[DurationItem8] = Field(
+    duration: Duration10 | list[DurationItem10] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -4171,13 +4394,11 @@ class RelativeNormallyDistributedCurrentClampSomaticStimulus(BaseModel):
         default=0.01,
         description="The mean value of current to inject as a percentage of a cell's                     threshold current.",
         title='Percentage of Threshold Current (Mean)',
-        validate_default=True,
     )
     variance: Variance | list[VarianceItem] = Field(
         default=0.01,
         description='The variance around the mean of current to inject using a                     normal distribution.',
         title='Variance',
-        validate_default=True,
     )
 
 
@@ -4188,11 +4409,10 @@ class RelativeOrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
     type: Literal['RelativeOrnsteinUhlenbeckConductanceSomaticStimulus'] = Field(
         default='RelativeOrnsteinUhlenbeckConductanceSomaticStimulus', title='Type'
     )
-    duration: Duration8 | list[DurationItem8] = Field(
+    duration: Duration10 | list[DurationItem10] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -4213,7 +4433,6 @@ class RelativeOrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
         default=2.7,
         description='The time constant of the Ornstein-Uhlenbeck process.',
         title='Tau',
-        validate_default=True,
     )
     mean_percentage_of_cells_input_conductance: (
         MeanPercentageOfCellsInputConductance
@@ -4222,7 +4441,6 @@ class RelativeOrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
         default=100.0,
         description="Signal mean as percentage of a cell's input conductance.",
         title="Mean Percentage of Cells' Input Conductance",
-        validate_default=True,
     )
     standard_deviation_percentage_of_cells_input_conductance: (
         StandardDeviationPercentageOfCellsInputConductance
@@ -4231,7 +4449,6 @@ class RelativeOrnsteinUhlenbeckConductanceSomaticStimulus(BaseModel):
         default=5.0,
         description="Signal standard deviation as percentage of a cell's input conductance.",
         title='Standard Deviation',
-        validate_default=True,
     )
     reversal_potential: float | list[float] = Field(
         default=0.0,
@@ -4247,11 +4464,10 @@ class RelativeOrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
     type: Literal['RelativeOrnsteinUhlenbeckCurrentSomaticStimulus'] = Field(
         default='RelativeOrnsteinUhlenbeckCurrentSomaticStimulus', title='Type'
     )
-    duration: Duration8 | list[DurationItem8] = Field(
+    duration: Duration10 | list[DurationItem10] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -4272,7 +4488,6 @@ class RelativeOrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
         default=2.7,
         description='The time constant of the Ornstein-Uhlenbeck process.',
         title='Tau',
-        validate_default=True,
     )
     mean_percentage_of_threshold_current: (
         MeanPercentageOfThresholdCurrent1 | list[MeanPercentageOfThresholdCurrentItem]
@@ -4280,7 +4495,6 @@ class RelativeOrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
         default=100.0,
         description="Signal mean as percentage of a cell's threshold current.",
         title='Mean Percentage of Threshold Current',
-        validate_default=True,
     )
     standard_deviation_percentage_of_threshold: (
         StandardDeviationPercentageOfThreshold
@@ -4289,7 +4503,6 @@ class RelativeOrnsteinUhlenbeckCurrentSomaticStimulus(BaseModel):
         default=5.0,
         description="Signal standard deviation as percentage of a cell's threshold current.",
         title='Standard Deviation',
-        validate_default=True,
     )
 
 
@@ -4351,11 +4564,10 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
     type: Literal['SinusoidalCurrentClampSomaticStimulus'] = Field(
         default='SinusoidalCurrentClampSomaticStimulus', title='Type'
     )
-    duration: Duration8 | list[DurationItem8] = Field(
+    duration: Duration10 | list[DurationItem10] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -4381,13 +4593,11 @@ class SinusoidalCurrentClampSomaticStimulus(BaseModel):
         default=1.0,
         description='The frequency of the waveform. Given in Hertz (Hz).',
         title='Frequency',
-        validate_default=True,
     )
     dt: Dt1 | list[DtItem] = Field(
         default=0.025,
         description='Timestep of generated signal in milliseconds (ms).',
         title='Timestep',
-        validate_default=True,
     )
 
 
@@ -4418,30 +4628,26 @@ class SinusoidalPoissonSpikeStimulus(BaseModel):
         description='Target neuron set to simulate',
         title='Neuron Set (Target)',
     )
-    duration: Duration14 | list[DurationItem14] = Field(
+    duration: Duration16 | list[DurationItem16] = Field(
         default=200.0,
         description='Time duration of the stimulus in milliseconds.',
         title='Duration',
-        validate_default=True,
     )
     minimum_rate: MinimumRate | list[MinimumRateItem] = Field(
-        default=1e-05,
+        default='1e-05',
         description='Minimum rate of the stimulus in Hz.\n Must be less than the Maximum Rate.',
         title='Minimum Rate',
-        validate_default=True,
     )
     maximum_rate: MaximumRate | list[MaximumRateItem] = Field(
         default=10.0,
         description='Maximum rate of the stimulus in Hz. Must be greater than or equal to Minimum Rate.',
         title='Maximum Rate',
-        validate_default=True,
     )
     modulation_frequency_hz: ModulationFrequencyHz | list[ModulationFrequencyHzItem] = (
         Field(
             default=5.0,
             description='Frequency (Hz) of the sinusoidal modulation of the rate.',
             title='Modulation Frequency',
-            validate_default=True,
         )
     )
     phase_degrees: float | list[float] = Field(
@@ -4480,11 +4686,10 @@ class SpatiallyUniformElectricFieldStimulus(BaseModel):
     type: Literal['SpatiallyUniformElectricFieldStimulus'] = Field(
         default='SpatiallyUniformElectricFieldStimulus', title='Type'
     )
-    duration: Duration15 | list[DurationItem14] = Field(
+    duration: Duration17 | list[DurationItem16] = Field(
         default=200.0,
         description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -4505,13 +4710,11 @@ class SpatiallyUniformElectricFieldStimulus(BaseModel):
         default=0.0,
         description='Time over which the field linearly ramps up from zero to full amplitude, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         title='Ramp Up (Duration)',
-        validate_default=True,
     )
     ramp_down_duration: RampDownDuration | list[RampDownDurationItem] = Field(
         default=0.0,
         description='Time over which the field linearly ramps down from full amplitude to zero, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         title='Ramp Down (Duration)',
-        validate_default=True,
     )
     E_x: float | list[float] = Field(
         default=0.1,
@@ -4537,11 +4740,10 @@ class SubthresholdCurrentClampSomaticStimulus(BaseModel):
     type: Literal['SubthresholdCurrentClampSomaticStimulus'] = Field(
         default='SubthresholdCurrentClampSomaticStimulus', title='Type'
     )
-    duration: Duration16 | list[DurationItem16] = Field(
+    duration: Duration18 | list[DurationItem18] = Field(
         default=200.0,
         description='Time duration in milliseconds for how long input is activated.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -4603,8 +4805,7 @@ class TaskLaunchInfo(BaseModel):
     job_id: UUID = Field(..., title='Job Id')
 
 
-class TaskLaunchSubmit(TaskAccountingCreate):
-    pass
+TaskLaunchSubmit = TaskAccountingCreate
 
 
 class TemporallyCosineSpatiallyUniformElectricFieldStimulus(BaseModel):
@@ -4614,11 +4815,10 @@ class TemporallyCosineSpatiallyUniformElectricFieldStimulus(BaseModel):
     type: Literal['TemporallyCosineSpatiallyUniformElectricFieldStimulus'] = Field(
         default='TemporallyCosineSpatiallyUniformElectricFieldStimulus', title='Type'
     )
-    duration: Duration17 | list[DurationItem17] = Field(
+    duration: Duration19 | list[DurationItem19] = Field(
         default=200.0,
         description='Time in milliseconds (ms) for how long the main stimulus is activated. The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         title='Duration',
-        validate_default=True,
     )
     timestamps: TimestampsReference | None = Field(
         default=None,
@@ -4639,13 +4839,11 @@ class TemporallyCosineSpatiallyUniformElectricFieldStimulus(BaseModel):
         default=0.0,
         description='Time over which the field linearly ramps up from zero to full amplitude, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         title='Ramp Up (Duration)',
-        validate_default=True,
     )
     ramp_down_duration: RampDownDuration | list[RampDownDurationItem] = Field(
         default=0.0,
         description='Time over which the field linearly ramps down from full amplitude to zero, in milliseconds (ms). The duration does not include the ramp up and ramp down times, so the total length of the stimulus will be the sum of the duration, ramp up and ramp down times.',
         title='Ramp Down (Duration)',
-        validate_default=True,
     )
     E_x: float | list[float] = Field(
         default=0.1,
@@ -4666,7 +4864,6 @@ class TemporallyCosineSpatiallyUniformElectricFieldStimulus(BaseModel):
         default=0.0,
         description='Frequency of the cosinusoid, in Hz. Must be non-negative. If not provided, assumed to be 0. In this case, a time-invariant field with amplitude [Ex, Ey, Ez] is applied, unless ramp_up_duration or ramp_down_duration is specified, in which case the field will increase/decrease linearly with time during the ramp periods, and will be constant during the remainder of the stimulation period. Note that the signal will be generated with the same time step as the simulation itself. Note that frequency should therefore be less than the Nyquist frequency of the simulation (i.e., 1/(2*dt))',
         title='Frequency',
-        validate_default=True,
     )
     phase_degrees: float | list[float] = Field(
         default=0.0, description='Phase of the cosinusoid, in degrees.', title='Phase'
@@ -4774,11 +4971,28 @@ class CircuitSimulationScanConfig(BaseModel):
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
             | SinusoidalPoissonSpikeStimulus
+            | InterSpikeIntervalDistributionSpikeStimulus
             | SpatiallyUniformElectricFieldStimulus
             | TemporallyCosineSpatiallyUniformElectricFieldStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
+    distributions: (
+        dict[
+            str,
+            FloatConstantDistribution
+            | FloatUniformDistribution
+            | ExponentialDistribution
+            | GammaDistribution
+            | IntConstantDistribution
+            | IntUniformDistribution,
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description='Distributions used by stimuli (e.g. inter-spike interval distributions).',
+        title='Distributions',
+    )
 
 
 class IonChannelModelSimulationScanConfig(BaseModel):
@@ -4825,6 +5039,7 @@ class IonChannelModelSimulationScanConfig(BaseModel):
         dict[
             str,
             SEClampSomaticStimulus
+            | MultiLevelSEClampSomaticStimulus
             | ConstantCurrentClampSomaticStimulus
             | HyperpolarizingCurrentClampSomaticStimulus
             | LinearCurrentClampSomaticStimulus
@@ -4951,11 +5166,28 @@ class MEModelWithSynapsesCircuitSimulationScanConfig(BaseModel):
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
             | SinusoidalPoissonSpikeStimulus
+            | InterSpikeIntervalDistributionSpikeStimulus
             | SpatiallyUniformElectricFieldStimulus
             | TemporallyCosineSpatiallyUniformElectricFieldStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
+    distributions: (
+        dict[
+            str,
+            FloatConstantDistribution
+            | FloatUniformDistribution
+            | ExponentialDistribution
+            | GammaDistribution
+            | IntConstantDistribution
+            | IntUniformDistribution,
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description='Distributions used by stimuli (e.g. inter-spike interval distributions).',
+        title='Distributions',
+    )
 
 
 class SimulationsForm(BaseModel):
@@ -5022,11 +5254,28 @@ class SimulationsForm(BaseModel):
             | PoissonSpikeStimulus
             | FullySynchronousSpikeStimulus
             | SinusoidalPoissonSpikeStimulus
+            | InterSpikeIntervalDistributionSpikeStimulus
             | SpatiallyUniformElectricFieldStimulus
             | TemporallyCosineSpatiallyUniformElectricFieldStimulus,
         ]
         | None
     ) = Field(default=None, description='Stimuli for the simulation.', title='Stimuli')
+    distributions: (
+        dict[
+            str,
+            FloatConstantDistribution
+            | FloatUniformDistribution
+            | ExponentialDistribution
+            | GammaDistribution
+            | IntConstantDistribution
+            | IntUniformDistribution,
+        ]
+        | None
+    ) = Field(
+        default=None,
+        description='Distributions used by stimuli (e.g. inter-spike interval distributions).',
+        title='Distributions',
+    )
 
 
 class GridScanParametersCountEndpointDeclaredScanConfigGridScanCoordinateCountPostRequest(
