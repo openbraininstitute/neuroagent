@@ -91,7 +91,7 @@ class AnalysisNotebookResultUpdate(BaseModel):
 
 
 class CountMax(RootModel[int]):
-    root: int = Field(..., ge=0, title='Count Max')
+    root: int = Field(1, ge=0, title='Count Max')
 
 
 class AnalysisScale(RootModel[Literal['subcellular', 'cellular', 'circuit', 'system']]):
@@ -404,9 +404,7 @@ class CalibrationCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(
-        default_factory=lambda: ActivityStatus.model_validate('done')
-    )
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
 
@@ -516,10 +514,12 @@ class CircuitExtractionConfigCreate(BaseModel):
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
 
 
-CircuitExtractionConfigGenerationCreate = CalibrationCreate
+class CircuitExtractionConfigGenerationCreate(CalibrationCreate):
+    pass
 
 
-CircuitExtractionConfigGenerationUserUpdate = CalibrationUserUpdate
+class CircuitExtractionConfigGenerationUserUpdate(CalibrationUserUpdate):
+    pass
 
 
 class CircuitExtractionConfigUserUpdate(BaseModel):
@@ -1228,7 +1228,9 @@ class HierarchyNode(BaseModel):
     id: UUID = Field(..., title='Id')
     name: str = Field(..., title='Name')
     parent_id: UUID | None = Field(..., title='Parent Id')
-    children: list[HierarchyNode] = Field(default=[], title='Children')
+    children: list[HierarchyNode] = Field(
+        default=[], title='Children', validate_default=True
+    )
     authorized_public: bool = Field(..., title='Authorized Public')
     authorized_project_id: UUID = Field(..., title='Authorized Project Id')
 
@@ -1300,10 +1302,12 @@ class IonChannelModelingConfigCreate(BaseModel):
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
 
 
-IonChannelModelingConfigGenerationCreate = CalibrationCreate
+class IonChannelModelingConfigGenerationCreate(CalibrationCreate):
+    pass
 
 
-IonChannelModelingConfigGenerationUserUpdate = CalibrationUserUpdate
+class IonChannelModelingConfigGenerationUserUpdate(CalibrationUserUpdate):
+    pass
 
 
 class IonChannelModelingConfigUserUpdate(BaseModel):
@@ -1329,9 +1333,7 @@ class IonChannelModelingExecutionCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(
-        default_factory=lambda: ActivityStatus.model_validate('done')
-    )
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
 
@@ -1513,7 +1515,8 @@ class MeasurableEntity(RootModel[Literal['cell_morphology', 'em_cell_mesh']]):
     )
 
 
-MeasurementLabelAdminUpdate = AnnotationAdminUpdate
+class MeasurementLabelAdminUpdate(AnnotationAdminUpdate):
+    pass
 
 
 class MeasurementLabelCreate(BaseModel):
@@ -1697,7 +1700,8 @@ class NestedElectricalRecordingStimulusRead(BaseModel):
     recording_id: UUID = Field(..., title='Recording Id')
 
 
-NestedEntityCreate = DeleteResponse
+class NestedEntityCreate(DeleteResponse):
+    pass
 
 
 class NestedEntityRead(BaseModel):
@@ -1834,7 +1838,8 @@ class NestedModifiedReconstructionCellMorphologyProtocolRead(BaseModel):
     method_type: ModifiedMorphologyMethodType
 
 
-NestedOrganizationRead = NestedConsortiumRead
+class NestedOrganizationRead(NestedConsortiumRead):
+    pass
 
 
 class NestedPersonRead(BaseModel):
@@ -1966,10 +1971,12 @@ class NestedSynaptome(BaseModel):
     seed: int = Field(..., title='Seed')
 
 
-OrganizationAdminUpdate = ConsortiumAdminUpdate
+class OrganizationAdminUpdate(ConsortiumAdminUpdate):
+    pass
 
 
-OrganizationCreate = ConsortiumCreate
+class OrganizationCreate(ConsortiumCreate):
+    pass
 
 
 class OrganizationRead(BaseModel):
@@ -2331,7 +2338,8 @@ class SimulationCreate(BaseModel):
     number_neurons: int = Field(..., title='Number Neurons')
 
 
-SimulationExecutionCreate = IonChannelModelingExecutionCreate
+class SimulationExecutionCreate(IonChannelModelingExecutionCreate):
+    pass
 
 
 class SimulationExecutionRead(BaseModel):
@@ -2350,17 +2358,17 @@ class SimulationExecutionRead(BaseModel):
     type: ActivityType | None = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(
-        default_factory=lambda: ActivityStatus.model_validate('done')
-    )
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
 
 
-SimulationExecutionUserUpdate = IonChannelModelingExecutionUserUpdate
+class SimulationExecutionUserUpdate(IonChannelModelingExecutionUserUpdate):
+    pass
 
 
-SimulationGenerationCreate = CalibrationCreate
+class SimulationGenerationCreate(CalibrationCreate):
+    pass
 
 
 class SimulationGenerationRead(BaseModel):
@@ -2377,14 +2385,13 @@ class SimulationGenerationRead(BaseModel):
     type: ActivityType | None = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(
-        default_factory=lambda: ActivityStatus.model_validate('done')
-    )
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
 
 
-SimulationGenerationUserUpdate = CalibrationUserUpdate
+class SimulationGenerationUserUpdate(CalibrationUserUpdate):
+    pass
 
 
 class SimulationResultCreate(BaseModel):
@@ -2515,7 +2522,9 @@ class SkeletonizationCampaignCreate(BaseModel):
     description: str = Field(..., title='Description')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
-    input_meshes: list[NestedEntityCreate] = Field(default=[], title='Input Meshes')
+    input_meshes: list[NestedEntityCreate] = Field(
+        default=[], title='Input Meshes', validate_default=True
+    )
 
 
 class SkeletonizationCampaignUserUpdate(BaseModel):
@@ -2544,13 +2553,16 @@ class SkeletonizationConfigCreate(BaseModel):
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
 
 
-SkeletonizationConfigGenerationCreate = CalibrationCreate
+class SkeletonizationConfigGenerationCreate(CalibrationCreate):
+    pass
 
 
-SkeletonizationConfigGenerationRead = SimulationGenerationRead
+class SkeletonizationConfigGenerationRead(SimulationGenerationRead):
+    pass
 
 
-SkeletonizationConfigGenerationUserUpdate = CalibrationUserUpdate
+class SkeletonizationConfigGenerationUserUpdate(CalibrationUserUpdate):
+    pass
 
 
 class SkeletonizationConfigUserUpdate(BaseModel):
@@ -2568,13 +2580,16 @@ class SkeletonizationConfigUserUpdate(BaseModel):
     )
 
 
-SkeletonizationExecutionCreate = IonChannelModelingExecutionCreate
+class SkeletonizationExecutionCreate(IonChannelModelingExecutionCreate):
+    pass
 
 
-SkeletonizationExecutionRead = SimulationExecutionRead
+class SkeletonizationExecutionRead(SimulationExecutionRead):
+    pass
 
 
-SkeletonizationExecutionUserUpdate = IonChannelModelingExecutionUserUpdate
+class SkeletonizationExecutionUserUpdate(IonChannelModelingExecutionUserUpdate):
+    pass
 
 
 class SlicingDirectionType(
@@ -2926,10 +2941,12 @@ class UseIon(BaseModel):
     main_ion: bool | None = Field(default=None, title='Main Ion')
 
 
-ValidationCreate = CalibrationCreate
+class ValidationCreate(CalibrationCreate):
+    pass
 
 
-ValidationRead = SimulationGenerationRead
+class ValidationRead(SimulationGenerationRead):
+    pass
 
 
 class ValidationResultCreate(BaseModel):
@@ -2959,7 +2976,8 @@ class ValidationStatus(
     )
 
 
-ValidationUserUpdate = CalibrationUserUpdate
+class ValidationUserUpdate(CalibrationUserUpdate):
+    pass
 
 
 class WithinBrainRegionDirection(
@@ -2971,16 +2989,19 @@ class WithinBrainRegionDirection(
 
 
 class HealthHealthGetResponse(BaseModel):
-    pass
     model_config = ConfigDict(
         extra='allow',
     )
 
 
-VersionVersionGetResponse = HealthHealthGetResponse
+class VersionVersionGetResponse(HealthHealthGetResponse):
+    pass
 
 
 class GetEntityAssetsEntityRouteEntityIdAssetsGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     order_by: list[str] = Field(default=['-creation_date'], title='Order By')
@@ -2989,10 +3010,16 @@ class GetEntityAssetsEntityRouteEntityIdAssetsGetParametersQuery(BaseModel):
 class DownloadEntityAssetEntityRouteEntityIdAssetsAssetIdDownloadGetParametersQuery(
     BaseModel
 ):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     asset_path: str | None = Field(default=None, title='Asset Path')
 
 
 class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -3095,6 +3122,9 @@ class ReadManyAnalysisNotebookEnvironmentGetParametersQuery(BaseModel):
 
 
 class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     executor: ExecutorType | None = Field(default=None, title='Executor')
@@ -3194,6 +3224,9 @@ class ReadManyAnalysisNotebookExecutionGetParametersQuery(BaseModel):
 
 
 class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -3303,12 +3336,16 @@ class ReadManyAnalysisNotebookResultGetParametersQuery(BaseModel):
     with_facets: bool = Field(default=False, title='With Facets')
 
 
-ReadManyAnalysisNotebookTemplateGetParametersQuery = (
+class ReadManyAnalysisNotebookTemplateGetParametersQuery(
     ReadManyAnalysisNotebookResultGetParametersQuery
-)
+):
+    pass
 
 
 class ReadManyBrainAtlasGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -3427,6 +3464,9 @@ class ReadManyBrainAtlasGetParametersQuery(BaseModel):
 
 
 class ReadManyRegionBrainAtlasAtlasIdRegionsGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -3526,12 +3566,16 @@ class ReadManyRegionBrainAtlasAtlasIdRegionsGetParametersQuery(BaseModel):
     )
 
 
-ReadManyBrainAtlasRegionGetParametersQuery = (
+class ReadManyBrainAtlasRegionGetParametersQuery(
     ReadManyAnalysisNotebookEnvironmentGetParametersQuery
-)
+):
+    pass
 
 
 class ReadManyBrainRegionGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     semantic_search: str | None = Field(default=None, title='Semantic Search')
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
@@ -3558,6 +3602,9 @@ class ReadManyBrainRegionGetParametersQuery(BaseModel):
 
 
 class ReadManyBrainRegionHierarchyGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -3580,6 +3627,9 @@ class ReadManyBrainRegionHierarchyGetParametersQuery(BaseModel):
 
 
 class ReadManyCalibrationGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -3677,6 +3727,9 @@ class ReadManyCalibrationGetParametersQuery(BaseModel):
 
 
 class ReadManyCellCompositionGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -3786,6 +3839,9 @@ class ReadManyCellCompositionGetParametersQuery(BaseModel):
 
 
 class ReadManyCellMorphologyGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -4043,7 +4099,7 @@ class ReadManyCellMorphologyGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -4052,10 +4108,16 @@ class Expand(RootModel[list[ExpandableAttribute]]):
 
 
 class ReadOneCellMorphologyIdGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     expand: Expand | None = Field(default=None, title='Expand')
 
 
 class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -4189,14 +4251,21 @@ class ReadManyCellMorphologyProtocolGetParametersQuery(BaseModel):
     with_facets: bool = Field(default=False, title='With Facets')
 
 
-UpdateOneCellMorphologyProtocolIdPatchRequest = HealthHealthGetResponse
+class UpdateOneCellMorphologyProtocolIdPatchRequest(HealthHealthGetResponse):
+    pass
 
 
 class ReadCircuitHierarchyCircuitHierarchyGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     derivation_type: DerivationType
 
 
 class ReadManyCircuitGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     scale: CircuitScale | None = Field(default=None, title='Scale')
@@ -4408,16 +4477,20 @@ class ReadManyCircuitGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
-ReadManyCircuitExtractionCampaignGetParametersQuery = (
+class ReadManyCircuitExtractionCampaignGetParametersQuery(
     ReadManyAnalysisNotebookResultGetParametersQuery
-)
+):
+    pass
 
 
 class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -4553,17 +4626,22 @@ class ReadManyCircuitExtractionConfigGetParametersQuery(BaseModel):
     with_facets: bool = Field(default=False, title='With Facets')
 
 
-ReadManyCircuitExtractionConfigGenerationGetParametersQuery = (
+class ReadManyCircuitExtractionConfigGenerationGetParametersQuery(
     ReadManyCalibrationGetParametersQuery
-)
+):
+    pass
 
 
-ReadManyCircuitExtractionExecutionGetParametersQuery = (
+class ReadManyCircuitExtractionExecutionGetParametersQuery(
     ReadManyAnalysisNotebookExecutionGetParametersQuery
-)
+):
+    pass
 
 
 class ReadManyConsortiumGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     pref_label: str | None = Field(default=None, title='Pref Label')
@@ -4637,6 +4715,9 @@ class ReadManyConsortiumGetParametersQuery(BaseModel):
 
 
 class ReadManyContributionGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -4730,6 +4811,9 @@ class ReadManyContributionGetParametersQuery(BaseModel):
 
 
 class ReadManyEntityRouteEntityIdDerivedFromGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     derivation_type: DerivationType
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
@@ -4738,12 +4822,18 @@ class ReadManyEntityRouteEntityIdDerivedFromGetParametersQuery(BaseModel):
 
 
 class DeleteOneDerivationDeleteParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     used_id: UUID = Field(..., title='Used Id')
     generated_id: UUID = Field(..., title='Generated Id')
     derivation_type: DerivationType
 
 
 class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -4947,11 +5037,14 @@ class ReadManyElectricalCellRecordingGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -5068,6 +5161,9 @@ class ReadManyElectricalRecordingStimulusGetParametersQuery(BaseModel):
 
 
 class ReadManyEmCellMeshGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -5346,7 +5442,7 @@ class ReadManyEmCellMeshGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
@@ -5355,10 +5451,16 @@ class Expand1(RootModel[list[Expandable]]):
 
 
 class ReadOneEmCellMeshIdGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     expand: Expand1 | None = Field(default=None, title='Expand')
 
 
 class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -5541,11 +5643,14 @@ class ReadManyEmDenseReconstructionDatasetGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class ReadManyEmodelGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -5746,11 +5851,14 @@ class ReadManyEmodelGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class CountEntitiesByTypeEntityCountsGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     types: list[EntityTypeWithBrainRegion] = Field(
         ..., description='Entity types with count', min_length=1, title='Types'
     )
@@ -5761,11 +5869,14 @@ class CountEntitiesByTypeEntityCountsGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class ReadManyEtypeGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     pref_label: str | None = Field(default=None, title='Pref Label')
@@ -5782,6 +5893,9 @@ class ReadManyEtypeGetParametersQuery(BaseModel):
 
 
 class ReadManyEtypeClassificationGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     entity_id: UUID | None = Field(default=None, title='Entity Id')
@@ -5852,6 +5966,9 @@ class ReadManyEtypeClassificationGetParametersQuery(BaseModel):
 
 
 class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -6034,11 +6151,14 @@ class ReadManyExperimentalBoutonDensityGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -6230,11 +6350,14 @@ class ReadManyExperimentalNeuronDensityGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -6476,11 +6599,14 @@ class ReadManyExperimentalSynapsesPerConnectionGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class ReadManyExternalUrlGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -6573,6 +6699,9 @@ class ReadManyExternalUrlGetParametersQuery(BaseModel):
 
 
 class ReadManyIonChannelGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -6665,6 +6794,9 @@ class ReadManyIonChannelGetParametersQuery(BaseModel):
 
 
 class ReadManyIonChannelModelGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -6870,11 +7002,14 @@ class ReadManyIonChannelModelGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -7000,6 +7135,9 @@ class ReadManyIonChannelModelingCampaignGetParametersQuery(BaseModel):
 
 
 class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -7115,17 +7253,22 @@ class ReadManyIonChannelModelingConfigGetParametersQuery(BaseModel):
     with_facets: bool = Field(default=False, title='With Facets')
 
 
-ReadManyIonChannelModelingConfigGenerationGetParametersQuery = (
+class ReadManyIonChannelModelingConfigGenerationGetParametersQuery(
     ReadManyCalibrationGetParametersQuery
-)
+):
+    pass
 
 
-ReadManyIonChannelModelingExecutionGetParametersQuery = (
+class ReadManyIonChannelModelingExecutionGetParametersQuery(
     ReadManyAnalysisNotebookExecutionGetParametersQuery
-)
+):
+    pass
 
 
 class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -7338,11 +7481,14 @@ class ReadManyIonChannelRecordingGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class ReadManyLicenseGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -7361,6 +7507,9 @@ class ReadManyLicenseGetParametersQuery(BaseModel):
 
 
 class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     creation_date__lte: AwareDatetime | None = Field(
         default=None, title='Creation Date  Lte'
     )
@@ -7400,6 +7549,9 @@ class ReadManyMeasurementAnnotationGetParametersQuery(BaseModel):
 
 
 class ReadManyMeasurementLabelGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     pref_label: str | None = Field(default=None, title='Pref Label')
@@ -7484,6 +7636,9 @@ class ReadManyMeasurementLabelGetParametersQuery(BaseModel):
 
 
 class ReadManyMemodelGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -7741,11 +7896,14 @@ class ReadManyMemodelGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -7851,10 +8009,14 @@ class ReadManyMemodelCalibrationResultGetParametersQuery(BaseModel):
     with_facets: bool = Field(default=False, title='With Facets')
 
 
-ReadManyMtypeGetParametersQuery = ReadManyEtypeGetParametersQuery
+class ReadManyMtypeGetParametersQuery(ReadManyEtypeGetParametersQuery):
+    pass
 
 
 class ReadManyMtypeClassificationGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     entity_id: UUID | None = Field(default=None, title='Entity Id')
@@ -7924,10 +8086,14 @@ class ReadManyMtypeClassificationGetParametersQuery(BaseModel):
     with_facets: bool = Field(default=False, title='With Facets')
 
 
-ReadManyOrganizationGetParametersQuery = ReadManyConsortiumGetParametersQuery
+class ReadManyOrganizationGetParametersQuery(ReadManyConsortiumGetParametersQuery):
+    pass
 
 
 class ReadManyPersonGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     pref_label: str | None = Field(default=None, title='Pref Label')
@@ -8006,6 +8172,9 @@ class ReadManyPersonGetParametersQuery(BaseModel):
 
 
 class ReadManyPublicationGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     id: UUID | None = Field(default=None, title='Id')
@@ -8100,6 +8269,9 @@ class ReadManyPublicationGetParametersQuery(BaseModel):
 
 
 class ReadManyRoleGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -8110,6 +8282,9 @@ class ReadManyRoleGetParametersQuery(BaseModel):
 
 
 class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     page: int = Field(default=1, ge=1, title='Page')
@@ -8216,6 +8391,9 @@ class ReadManyScientificArtifactExternalUrlLinkGetParametersQuery(BaseModel):
 
 
 class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     search: str | None = Field(default=None, title='Search')
     with_facets: bool = Field(default=False, title='With Facets')
     page: int = Field(default=1, ge=1, title='Page')
@@ -8328,6 +8506,9 @@ class ReadManyScientificArtifactPublicationLinkGetParametersQuery(BaseModel):
 
 
 class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -8453,6 +8634,9 @@ class ReadManySkeletonizationCampaignGetParametersQuery(BaseModel):
 
 
 class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -8572,17 +8756,22 @@ class ReadManySkeletonizationConfigGetParametersQuery(BaseModel):
     with_facets: bool = Field(default=False, title='With Facets')
 
 
-ReadManySkeletonizationConfigGenerationGetParametersQuery = (
+class ReadManySkeletonizationConfigGenerationGetParametersQuery(
     ReadManyCalibrationGetParametersQuery
-)
+):
+    pass
 
 
-ReadManySkeletonizationExecutionGetParametersQuery = (
+class ReadManySkeletonizationExecutionGetParametersQuery(
     ReadManyAnalysisNotebookExecutionGetParametersQuery
-)
+):
+    pass
 
 
 class ReadManySimulatableExtracellularRecordingArrayGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -8695,6 +8884,9 @@ class ReadManySimulatableExtracellularRecordingArrayGetParametersQuery(BaseModel
 
 
 class ReadManySimulationGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -8831,6 +9023,9 @@ class ReadManySimulationGetParametersQuery(BaseModel):
 
 
 class ReadManySimulationCampaignGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -8982,20 +9177,28 @@ class ReadManySimulationCampaignGetParametersQuery(BaseModel):
     with_facets: bool = Field(default=False, title='With Facets')
 
 
-ReadManySimulationExecutionGetParametersQuery = (
+class ReadManySimulationExecutionGetParametersQuery(
     ReadManyAnalysisNotebookExecutionGetParametersQuery
-)
+):
+    pass
 
 
-ReadManySimulationGenerationGetParametersQuery = ReadManyCalibrationGetParametersQuery
+class ReadManySimulationGenerationGetParametersQuery(
+    ReadManyCalibrationGetParametersQuery
+):
+    pass
 
 
-ReadManySimulationResultGetParametersQuery = (
+class ReadManySimulationResultGetParametersQuery(
     ReadManyAnalysisNotebookResultGetParametersQuery
-)
+):
+    pass
 
 
 class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -9338,16 +9541,20 @@ class ReadManySingleNeuronSimulationGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
-ReadManySingleNeuronSynaptomeGetParametersQuery = (
+class ReadManySingleNeuronSynaptomeGetParametersQuery(
     ReadManySingleNeuronSimulationGetParametersQuery
-)
+):
+    pass
 
 
 class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -9734,11 +9941,14 @@ class ReadManySingleNeuronSynaptomeSimulationGetParametersQuery(BaseModel):
         default=None, title='Within Brain Region Direction'
     )
     within_brain_region_hierarchy_id: UUID | None = Field(
-        default=None, title='Within Brain Region Hierarchy Id'
+        default=None, deprecated=True, title='Within Brain Region Hierarchy Id'
     )
 
 
 class ReadManySpeciesGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     semantic_search: str | None = Field(default=None, title='Semantic Search')
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
@@ -9822,10 +10032,14 @@ class ReadManySpeciesGetParametersQuery(BaseModel):
     )
 
 
-ReadManyStrainGetParametersQuery = ReadManySpeciesGetParametersQuery
+class ReadManyStrainGetParametersQuery(ReadManySpeciesGetParametersQuery):
+    pass
 
 
 class ReadManySubjectGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -9947,6 +10161,9 @@ class ReadManySubjectGetParametersQuery(BaseModel):
 
 
 class ReadManyTaskActivityGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     executor: ExecutorType | None = Field(default=None, title='Executor')
@@ -10049,6 +10266,9 @@ class ReadManyTaskActivityGetParametersQuery(BaseModel):
 
 
 class ReadManyTaskConfigGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     creation_date__lte: AwareDatetime | None = Field(
@@ -10167,10 +10387,14 @@ class ReadManyTaskConfigGetParametersQuery(BaseModel):
     with_facets: bool = Field(default=False, title='With Facets')
 
 
-ReadManyValidationGetParametersQuery = ReadManyCalibrationGetParametersQuery
+class ReadManyValidationGetParametersQuery(ReadManyCalibrationGetParametersQuery):
+    pass
 
 
 class ReadManyValidationResultGetParametersQuery(BaseModel):
+    model_config = ConfigDict(
+        extra='allow',
+    )
     page: int = Field(default=1, ge=1, title='Page')
     page_size: int = Field(default=30, ge=1, le=1000, title='Page Size')
     name: str | None = Field(default=None, title='Name')
@@ -10288,7 +10512,7 @@ class AnalysisNotebookEnvironmentCreate(BaseModel):
         extra='allow',
     )
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    runtime_info: RuntimeInfo | None = None
+    runtime_info: RuntimeInfo | None
 
 
 class AnalysisNotebookEnvironmentUpdate(BaseModel):
@@ -10307,9 +10531,7 @@ class AnalysisNotebookExecutionCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(
-        default_factory=lambda: ActivityStatus.model_validate('done')
-    )
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
     analysis_notebook_template_id: UUID | None = Field(
@@ -10346,7 +10568,9 @@ class AnalysisNotebookTemplateInputType(BaseModel):
     entity_type: EntityType
     is_list: bool = Field(default=False, title='Is List')
     count_min: int = Field(default=1, ge=0, title='Count Min')
-    count_max: CountMax | None = Field(default=1, title='Count Max')
+    count_max: CountMax | None = Field(
+        default=1, title='Count Max', validate_default=True
+    )
 
 
 class AnalysisNotebookTemplateSpecifications(BaseModel):
@@ -10356,7 +10580,9 @@ class AnalysisNotebookTemplateSpecifications(BaseModel):
     schema_version: int = Field(default=1, title='Schema Version')
     python: PythonDependency | None = None
     docker: DockerDependency | None = None
-    inputs: list[AnalysisNotebookTemplateInputType] = Field(default=[], title='Inputs')
+    inputs: list[AnalysisNotebookTemplateInputType] = Field(
+        default=[], title='Inputs', validate_default=True
+    )
 
 
 class AnalysisNotebookTemplateUpdate(BaseModel):
@@ -10493,7 +10719,8 @@ class BrainRegionRead(BaseModel):
     hierarchy_id: UUID = Field(..., title='Hierarchy Id')
 
 
-CalibrationRead = SimulationGenerationRead
+class CalibrationRead(SimulationGenerationRead):
+    pass
 
 
 class CellMorphologyCreate(BaseModel):
@@ -10526,7 +10753,7 @@ class CellMorphologyCreate(BaseModel):
         description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
         title='Notice Text',
     )
-    location: PointLocationBase | None = None
+    location: PointLocationBase | None
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
     repair_pipeline_state: RepairPipelineType | None = None
@@ -10600,21 +10827,23 @@ class CircuitCreate(BaseModel):
     build_category: CircuitBuildCategory
     root_circuit_id: UUID | None = Field(default=None, title='Root Circuit Id')
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
-    target_simulator: TargetSimulator = Field(
-        default_factory=lambda: TargetSimulator.model_validate('NEURON')
-    )
+    target_simulator: TargetSimulator = Field(default='NEURON', validate_default=True)
 
 
-CircuitExtractionConfigGenerationRead = SimulationGenerationRead
+class CircuitExtractionConfigGenerationRead(SimulationGenerationRead):
+    pass
 
 
-CircuitExtractionExecutionCreate = IonChannelModelingExecutionCreate
+class CircuitExtractionExecutionCreate(IonChannelModelingExecutionCreate):
+    pass
 
 
-CircuitExtractionExecutionRead = SimulationExecutionRead
+class CircuitExtractionExecutionRead(SimulationExecutionRead):
+    pass
 
 
-CircuitExtractionExecutionUserUpdate = IonChannelModelingExecutionUserUpdate
+class CircuitExtractionExecutionUserUpdate(IonChannelModelingExecutionUserUpdate):
+    pass
 
 
 class CircuitUserUpdate(BaseModel):
@@ -10672,7 +10901,8 @@ class ComputationallySynthesizedCellMorphologyProtocolRead(BaseModel):
     method_type: str = Field(..., title='Method Type')
 
 
-ConsortiumRead = OrganizationRead
+class ConsortiumRead(OrganizationRead):
+    pass
 
 
 class ContributionRead(BaseModel):
@@ -10689,13 +10919,8 @@ class ContributionRead(BaseModel):
     entity: NestedEntityRead
 
 
-class DerivationCreate(BaseModel):
-    model_config = ConfigDict(
-        extra='allow',
-    )
-    used_id: UUID = Field(..., title='Used Id')
-    generated_id: UUID = Field(..., title='Generated Id')
-    derivation_type: DerivationType
+class DerivationCreate(DeleteOneDerivationDeleteParametersQuery):
+    pass
 
 
 class DerivationRead(BaseModel):
@@ -10940,6 +11165,7 @@ class EModelCreate(BaseModel):
         default=[],
         description='List of ion channel models (only ids).',
         title='Ion Channel Models',
+        validate_default=True,
     )
 
 
@@ -11137,7 +11363,7 @@ class IonChannelModelingCampaignCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     scan_parameters: dict[str, Any] = Field(..., title='Scan Parameters')
     input_recordings: list[NestedEntityCreate] = Field(
-        default=[], title='Input Recordings'
+        default=[], title='Input Recordings', validate_default=True
     )
 
 
@@ -11155,10 +11381,12 @@ class IonChannelModelingCampaignUserUpdate(BaseModel):
     )
 
 
-IonChannelModelingConfigGenerationRead = SimulationGenerationRead
+class IonChannelModelingConfigGenerationRead(SimulationGenerationRead):
+    pass
 
 
-IonChannelModelingExecutionRead = SimulationExecutionRead
+class IonChannelModelingExecutionRead(SimulationExecutionRead):
+    pass
 
 
 class IonChannelRead(BaseModel):
@@ -11501,7 +11729,7 @@ class MEModelCreate(BaseModel):
     strain_id: UUID | None = Field(default=None, title='Strain Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
     validation_status: ValidationStatus = Field(
-        default_factory=lambda: ValidationStatus.model_validate('created')
+        default='created', validate_default=True
     )
     brain_region_id: UUID = Field(..., title='Brain Region Id')
     morphology_id: UUID = Field(..., title='Morphology Id')
@@ -11541,8 +11769,8 @@ class MeasurementItem(BaseModel):
     model_config = ConfigDict(
         extra='allow',
     )
-    name: MeasurementStatistic | None = None
-    unit: MeasurementUnit | None = None
+    name: MeasurementStatistic | None
+    unit: MeasurementUnit | None
     value: float | None = Field(..., title='Value')
 
 
@@ -11555,7 +11783,8 @@ class MeasurementKindCreate(BaseModel):
     pref_label: str = Field(..., title='Pref Label')
 
 
-MeasurementKindRead = MeasurementKindCreate
+class MeasurementKindRead(MeasurementKindCreate):
+    pass
 
 
 class MeasurementLabelRead(BaseModel):
@@ -11624,7 +11853,7 @@ class NestedAnalysisNotebookEnvironmentRead(BaseModel):
     )
     id: UUID = Field(..., title='Id')
     type: EntityType | None = None
-    runtime_info: RuntimeInfo | None = None
+    runtime_info: RuntimeInfo | None
 
 
 class NestedAnalysisNotebookTemplateRead(BaseModel):
@@ -11687,7 +11916,7 @@ class NestedMEModel(BaseModel):
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     validation_status: ValidationStatus = Field(
-        default_factory=lambda: ValidationStatus.model_validate('created')
+        default='created', validate_default=True
     )
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
@@ -11726,7 +11955,7 @@ class NeuronBlock(BaseModel):
         default=[], alias='global', title='Global'
     )
     range: list[dict[str, str | None]] = Field(default=[], title='Range')
-    useion: list[UseIon] = Field(default=[], title='Useion')
+    useion: list[UseIon] = Field(default=[], title='Useion', validate_default=True)
     nonspecific: list[dict[str, str | None]] = Field(default=[], title='Nonspecific')
 
 
@@ -11936,9 +12165,7 @@ class TaskActivityCreate(BaseModel):
     authorized_public: bool = Field(default=False, title='Authorized Public')
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(
-        default_factory=lambda: ActivityStatus.model_validate('done')
-    )
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used_ids: list[UUID] = Field(default=[], title='Used Ids')
     generated_ids: list[UUID] = Field(default=[], title='Generated Ids')
 
@@ -11960,9 +12187,7 @@ class TaskActivityRead(BaseModel):
     type: ActivityType | None = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(
-        default_factory=lambda: ActivityStatus.model_validate('done')
-    )
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
 
@@ -11980,7 +12205,10 @@ class TaskConfigCreate(BaseModel):
         default=None, title='Task Config Generator Id'
     )
     inputs: list[NestedEntityCreate] = Field(
-        default=[], description='List of input entities (only ids).', title='Inputs'
+        default=[],
+        description='List of input entities (only ids).',
+        title='Inputs',
+        validate_default=True,
     )
 
 
@@ -12008,7 +12236,10 @@ class TaskConfigRead(BaseModel):
         default=None, title='Task Config Generator Id'
     )
     inputs: list[NestedEntityRead] = Field(
-        default=[], description='List of input entities.', title='Inputs'
+        default=[],
+        description='List of input entities.',
+        title='Inputs',
+        validate_default=True,
     )
 
 
@@ -12042,7 +12273,7 @@ class AnalysisNotebookEnvironmentRead(BaseModel):
     assets: list[AssetRead] = Field(..., title='Assets')
     id: UUID = Field(..., title='Id')
     type: EntityType | None = None
-    runtime_info: RuntimeInfo | None = None
+    runtime_info: RuntimeInfo | None
 
 
 class AnalysisNotebookExecutionRead(BaseModel):
@@ -12061,12 +12292,10 @@ class AnalysisNotebookExecutionRead(BaseModel):
     type: ActivityType | None = None
     start_time: AwareDatetime | None = Field(default=None, title='Start Time')
     end_time: AwareDatetime | None = Field(default=None, title='End Time')
-    status: ActivityStatus = Field(
-        default_factory=lambda: ActivityStatus.model_validate('done')
-    )
+    status: ActivityStatus = Field(default='done', validate_default=True)
     used: list[NestedEntityRead] = Field(..., title='Used')
     generated: list[NestedEntityRead] = Field(..., title='Generated')
-    analysis_notebook_template: NestedAnalysisNotebookTemplateRead | None = None
+    analysis_notebook_template: NestedAnalysisNotebookTemplateRead | None
     analysis_notebook_environment: NestedAnalysisNotebookEnvironmentRead
 
 
@@ -12280,9 +12509,7 @@ class CircuitRead(BaseModel):
     build_category: CircuitBuildCategory
     root_circuit_id: UUID | None = Field(default=None, title='Root Circuit Id')
     atlas_id: UUID | None = Field(default=None, title='Atlas Id')
-    target_simulator: TargetSimulator = Field(
-        default_factory=lambda: TargetSimulator.model_validate('NEURON')
-    )
+    target_simulator: TargetSimulator = Field(default='NEURON', validate_default=True)
 
 
 class EMCellMeshRead(BaseModel):
@@ -12516,7 +12743,7 @@ class ExperimentalBoutonDensityRead(BaseModel):
     type: EntityType | None = None
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    license: LicenseRead | None = None
+    license: LicenseRead | None
     id: UUID = Field(..., title='Id')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
@@ -12540,7 +12767,8 @@ class ExperimentalBoutonDensityUserUpdate(BaseModel):
     )
 
 
-ExperimentalNeuronDensityCreate = ExperimentalBoutonDensityCreate
+class ExperimentalNeuronDensityCreate(ExperimentalBoutonDensityCreate):
+    pass
 
 
 class ExperimentalNeuronDensityRead(BaseModel):
@@ -12559,7 +12787,7 @@ class ExperimentalNeuronDensityRead(BaseModel):
     type: EntityType | None = None
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    license: LicenseRead | None = None
+    license: LicenseRead | None
     id: UUID = Field(..., title='Id')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
@@ -12569,7 +12797,8 @@ class ExperimentalNeuronDensityRead(BaseModel):
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
 
 
-ExperimentalNeuronDensityUserUpdate = ExperimentalBoutonDensityUserUpdate
+class ExperimentalNeuronDensityUserUpdate(ExperimentalBoutonDensityUserUpdate):
+    pass
 
 
 class ExperimentalSynapsesPerConnectionCreate(BaseModel):
@@ -12606,7 +12835,7 @@ class ExperimentalSynapsesPerConnectionRead(BaseModel):
     type: EntityType | None = None
     authorized_project_id: UUID4 = Field(..., title='Authorized Project Id')
     authorized_public: bool = Field(default=False, title='Authorized Public')
-    license: LicenseRead | None = None
+    license: LicenseRead | None
     id: UUID = Field(..., title='Id')
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
@@ -13393,13 +13622,13 @@ class CellMorphologyAnnotationExpandedRead(BaseModel):
         description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
         title='Notice Text',
     )
-    location: PointLocationBase | None = None
+    location: PointLocationBase | None
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
     repair_pipeline_state: RepairPipelineType | None = None
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     cell_morphology_protocol: NestedCellMorphologyProtocolRead
-    measurement_annotation: MeasurementAnnotationRead | None = None
+    measurement_annotation: MeasurementAnnotationRead | None
 
 
 class CellMorphologyRead(BaseModel):
@@ -13443,7 +13672,7 @@ class CellMorphologyRead(BaseModel):
         description='Text provided by the data creators to inform users about data caveats, limitations, or required attribution practices.',
         title='Notice Text',
     )
-    location: PointLocationBase | None = None
+    location: PointLocationBase | None
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
     repair_pipeline_state: RepairPipelineType | None = None
@@ -13502,7 +13731,7 @@ class EMCellMeshAnnotationExpandedRead(BaseModel):
     mesh_type: EMCellMeshType
     em_dense_reconstruction_dataset: BasicEntityRead
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
-    measurement_annotation: MeasurementAnnotationRead | None = None
+    measurement_annotation: MeasurementAnnotationRead | None
 
 
 class ExemplarMorphology(BaseModel):
@@ -13512,7 +13741,7 @@ class ExemplarMorphology(BaseModel):
     name: str = Field(..., title='Name')
     description: str = Field(..., title='Description')
     id: UUID = Field(..., title='Id')
-    location: PointLocationBase | None = None
+    location: PointLocationBase | None
     legacy_id: list[str] | None = Field(default=None, title='Legacy Id')
     has_segmented_spines: bool = Field(default=False, title='Has Segmented Spines')
     repair_pipeline_state: RepairPipelineType | None = None
@@ -13645,14 +13874,14 @@ class MEModelRead(BaseModel):
     creation_date: AwareDatetime = Field(..., title='Creation Date')
     update_date: AwareDatetime = Field(..., title='Update Date')
     validation_status: ValidationStatus = Field(
-        default_factory=lambda: ValidationStatus.model_validate('created')
+        default='created', validate_default=True
     )
     id: UUID = Field(..., title='Id')
     mtypes: list[AnnotationRead] | None = Field(..., title='Mtypes')
     etypes: list[AnnotationRead] | None = Field(..., title='Etypes')
     morphology: CellMorphologyRead
     emodel: EModelRead
-    calibration_result: MEModelCalibrationResultRead | None = None
+    calibration_result: MEModelCalibrationResultRead | None
 
 
 class ListResponseMEModelRead(BaseModel):
