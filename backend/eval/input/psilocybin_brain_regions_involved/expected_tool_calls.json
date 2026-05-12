@@ -1,0 +1,9 @@
+[
+  {
+    "name": "obione-circuitconnectivitymetrics-getone",
+    "arguments": {
+      "circuit_id": "dynamic",
+      "group_by": "syn_type_id"
+    }
+  }
+]

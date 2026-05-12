@@ -1,0 +1,8 @@
+[
+  {
+    "name": "entitycore-circuit-getone",
+    "arguments": {
+      "circuit_id": "dynamic"
+    }
+  }
+]

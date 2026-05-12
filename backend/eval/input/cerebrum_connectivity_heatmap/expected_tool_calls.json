@@ -1,0 +1,17 @@
+[
+  {
+    "name": "obi-expert",
+    "arguments": {
+      "document_type": "documentationProduct",
+      "query": "connectivity heatmap visualization brain regions"
+    }
+  },
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "semantic_search": "Cerebrum",
+      "page": 1,
+      "page_size": 10
+    }
+  }
+]

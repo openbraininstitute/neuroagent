@@ -1,0 +1,9 @@
+[
+  {
+    "name": "entitycore-brainregion-getall",
+    "arguments": {
+      "page": 1,
+      "page_size": 10
+    }
+  }
+]
